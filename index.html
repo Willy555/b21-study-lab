@@ -3467,7 +3467,7 @@ try{const r=await SAMPLE.json(`You are a learner's dictionary in the style of th
 if(r){$("#ap").value=["noun","verb","adjective","adverb","phrasal verb","phrase"].includes(r.pos)?r.pos:"phrase";$("#auk").value=r.uk||"";$("#aus").value=r.us||"";$("#ad").value=r.def||"";$("#ae").value=r.ex||"";$("#afb").innerHTML=`<span class="ok">Filled in. Check it and save.</span>`}}catch(e){$("#afb").innerHTML=`<span class="ko">Automatic fill is not available right now. Please type the meaning yourself.</span>`}};
 $("#asave").onclick=()=>{const w=aw.value.trim(),d=$("#ad").value.trim();if(!w||!d){$("#afb").innerHTML=`<span class="ko">The word and its meaning are required.</span>`;return}S.custom.push({id:"c-"+Date.now(),w,pos:$("#ap").value,uk:$("#auk").value.replace(/\//g,"").trim(),us:($("#aus").value||$("#auk").value).replace(/\//g,"").trim(),def:d,ex:$("#ae").value.trim()||"—",unit:+$("#au").value,custom:true});save();vAdd(box);stats();$("#afb").innerHTML=`<span class="ok">Saved "${esc(w)}".</span>`};
 $$("[data-del]",box).forEach(b=>b.onclick=()=>{S.custom.splice(+b.dataset.del,1);save();vAdd(box);stats()})}
-function U(){return S.unit>=1&&S.unit<=12?S.unit:0}
+function U(){return S.unit>=1&&S.unit<99&&UNITS.some(u=>u.n===S.unit)?S.unit:0}
 inUnit=function(w){return uIn(w.unit)};
 
 // ===== WORD FAMILIES =====
