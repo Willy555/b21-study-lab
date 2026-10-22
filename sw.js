@@ -1,8 +1,8 @@
-// B2.1 Study Lab: modo sin conexion
-const VERSION = 'v1';
+// EF Study Lab: offline mode. Audio is saved the first time it plays (no big download on join).
+const VERSION = 'v2';
 const CACHE = 'b21-lab-' + VERSION;
 const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
-const AUDIO = ["audio/cl1-0.mp3", "audio/cl1-1.mp3", "audio/cl2-0.mp3", "audio/cl2-1.mp3", "audio/cl2-2.mp3", "audio/cl4-0.mp3", "audio/cl4-1.mp3", "audio/ef1-0.mp3", "audio/ef1-1.mp3", "audio/ef1-2.mp3", "audio/ef2-0.mp3", "audio/ef2-1.mp3", "audio/ef2-2.mp3", "audio/uk-chart.mp3", "audio/uk-colex.mp3", "audio/uk-colph.mp3", "audio/uk-ex1.mp3", "audio/uk-ex2.mp3", "audio/uk-ex3.mp3", "audio/uk-ex4.mp3", "audio/uk-ex5.mp3", "audio/uk-ex6.mp3", "audio/uk-gram.mp3", "audio/uk-models.mp3", "audio/uk-pron2.mp3", "audio/uk-words.mp3", "audio/us-chart.mp3", "audio/us-colex.mp3", "audio/us-colph.mp3", "audio/us-ex1.mp3", "audio/us-ex2.mp3", "audio/us-ex3.mp3", "audio/us-ex4.mp3", "audio/us-ex5.mp3", "audio/us-ex6.mp3", "audio/us-gram.mp3", "audio/us-models.mp3", "audio/us-pron2.mp3", "audio/us-words.mp3"];
+const AUDIO = [];
 
 self.addEventListener('install', e => {
   e.waitUntil((async () => {

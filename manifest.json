@@ -1,6 +1,6 @@
 {
- "name": "B2.1 Study Lab",
- "short_name": "B2.1 Lab",
+ "name": "EF Study Lab",
+ "short_name": "EF Lab",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
