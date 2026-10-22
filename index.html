@@ -7433,15 +7433,14 @@ const VX_DATA={"u1-adapt to":{"syn":["adjust to","get used to"],"es":"adaptarse 
 .syn{margin:2px 0 0;font-size:.92rem;color:var(--muted);grid-column:1/-1}.syn b{color:var(--ink);font-weight:700}
 .esl{margin:2px 0 0;font-size:.95rem;grid-column:1/-1;color:#0F5132}
 .esbtn{border:1px dashed var(--line);background:#fff;border-radius:999px;padding:3px 10px;font:600 .8rem var(--body);color:var(--muted);cursor:pointer;justify-self:start;grid-column:1/-1;width:max-content}
-.estoggle{margin:0 0 10px}
+.esw{grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.esw .esl{margin:0;font-weight:700}.esbtn[aria-pressed="true"]{border-style:solid;color:var(--ink)}
 `;document.head.appendChild(s)})();
 const VX=(typeof VX_DATA!=="undefined")?VX_DATA:{};
 function vExtra(w,center){const x=VX[w.id];if(!x)return "";const al=center?"text-align:center;justify-self:center;":"";
 const syn=x.syn&&x.syn.length?`<p class="syn" style="${al}"><span>Similar:</span> ${x.syn.map(t=>`<b>${esc(t)}</b>`).join(" · ")}</p>`:"";
-const es=x.es?(S.es?`<p class="esl" style="${al}">🇪🇸 ${esc(x.es)}</p>`:`<button class="esbtn" data-es="${esc(w.id)}" style="${center?"justify-self:center;margin:auto":""}">🇪🇸 Show Spanish</button>`):"";
+const es=x.es?`<div class="esw" style="${center?"justify-self:center;margin:auto;text-align:center":""}"><button class="esbtn" data-es="${esc(w.id)}" aria-pressed="false">🇪🇸 Show Spanish</button><span class="esl" hidden> ${esc(x.es)}</span></div>`:"";
 return syn+es}
-document.addEventListener("click",e=>{const b=e.target.closest("[data-es]");if(!b)return;e.stopPropagation();e.preventDefault();const x=VX[b.dataset.es];if(!x)return;const p=document.createElement("p");p.className="esl";p.style.cssText=b.getAttribute("style")||"";p.textContent="🇪🇸 "+x.es;b.replaceWith(p)},true);
-const _viewVocab15=viewVocab;viewVocab=function(m){_viewVocab15(m);const st=m.querySelector(".subtabs");if(!st)return;st.insertAdjacentHTML("afterend",`<div class="estoggle"><button class="st" id="estg" aria-pressed="${!!S.es}">🇪🇸 Spanish translation: ${S.es?"on":"off"}</button> <span class="sub" style="font-size:.85rem">Off by default. Try to understand in English first!</span></div>`);$("#estg",m).onclick=()=>{S.es=!S.es;save();viewVocab(m)}};
+document.addEventListener("click",e=>{const b=e.target.closest("[data-es]");if(!b)return;e.stopPropagation();e.preventDefault();const sp=b.parentNode.querySelector(".esl");const on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);b.textContent=on?"🇪🇸 Hide":"🇪🇸 Show Spanish";if(sp)sp.hidden=!on},true);
 
 // ===== C1.2 LEVEL SUPPORT =====
 function uNum(n){return ((n-1)%6)+1}
