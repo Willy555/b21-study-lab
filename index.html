@@ -7441,6 +7441,27 @@ const syn=x.syn&&x.syn.length?`<p class="syn" style="${al}"><span>Similar:</span
 const es=x.es?`<div class="esw" style="${center?"justify-self:center;margin:auto;text-align:center":""}"><button class="esbtn" data-es="${esc(w.id)}" aria-pressed="false">🇪🇸 Show Spanish</button><span class="esl" hidden> ${esc(x.es)}</span></div>`:"";
 return syn+es}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-es]");if(!b)return;e.stopPropagation();e.preventDefault();const sp=b.parentNode.querySelector(".esl");const on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);b.textContent=on?"🇪🇸 Hide":"🇪🇸 Show Spanish";if(sp)sp.hidden=!on},true);
+// ===== SUGGESTIONS (sent privately to the owner by email through FormSubmit) =====
+const FB_URL="https://formsubmit.co/ajax/williandelavega98@gmail.com";
+(function(){const s=document.createElement("style");s.textContent=`
+.fbcard{border:2px solid var(--line);border-radius:18px;padding:16px;display:grid;gap:10px;background:linear-gradient(135deg,#FFFBEB,#FFF)}
+.fbcard input,.fbcard select,.fbcard textarea{width:100%;box-sizing:border-box;font:500 1rem var(--body);padding:10px 12px;border:2px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+.fbcard textarea{min-height:110px;resize:vertical}
+.fbcard .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.fbcard .two{grid-template-columns:1fr}}
+`;document.head.appendChild(s)})();
+function fbHTML(){return `<section class="fbcard" id="fbcard"><h2 style="margin:0">💡 Suggest an improvement</h2><p class="sub" style="margin:0">Found a mistake or have an idea for the lab? Tell us! Only the creator of the lab reads these messages. Please write in English.</p>
+<div class="two"><input id="fbname" maxlength="60" placeholder="Your name"><select id="fbsec"><option value="">Which part of the lab?</option>${["Vocabulary","Word families","Collocations","Grammar","Skills test","Listening","Grammar test","Writing","Pronunciation","Games","Word Wars (live game)","Other"].map(x=>`<option>${x}</option>`).join("")}</select></div>
+<textarea id="fbmsg" maxlength="2000" placeholder="Write your suggestion in English…"></textarea>
+<div class="actions"><button class="btn primary" id="fbsend">Send suggestion</button><span class="feedback" id="fbmsgout"></span></div></section>`}
+function fbBind(m){const b=$("#fbsend",m);if(!b)return;try{const n=localStorage.getItem("fb-name");if(n)$("#fbname",m).value=n}catch(e){}
+b.onclick=async()=>{const name=$("#fbname",m).value.trim(),sec=$("#fbsec",m).value,msg=$("#fbmsg",m).value.trim(),out=$("#fbmsgout",m);
+if(!name){out.innerHTML='<span class="ko">Please write your name.</span>';return}if(msg.length<5){out.innerHTML='<span class="ko">Please write your suggestion.</span>';return}
+try{localStorage.setItem("fb-name",name)}catch(e){}b.disabled=true;out.textContent="Sending…";
+try{const r=await fetch(FB_URL,{method:"POST",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({name,section:sec||"Not specified",message:msg,levels:(S.levels||[]).join(", "),_subject:"EF Study Lab: new suggestion from "+name,_template:"table",_captcha:"false"})});
+const j=await r.json().catch(()=>({}));if(r.ok&&String(j.success)!=="false"){out.innerHTML='<span class="ok">Thank you! Your suggestion was sent. 🙌</span>';$("#fbmsg",m).value=""}else throw new Error(j.message||"error")}
+catch(e){out.innerHTML='<span class="ko">It could not be sent. Check your internet connection and try again.</span>'}b.disabled=false}}
+const _viewBook16=viewBook;viewBook=function(m){_viewBook16(m);m.insertAdjacentHTML("beforeend",fbHTML());fbBind(m)};
 
 // ===== C1.2 LEVEL SUPPORT =====
 function uNum(n){return ((n-1)%6)+1}
