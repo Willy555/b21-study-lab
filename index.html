@@ -5527,7 +5527,8 @@ const AR_RX=["👏","🔥","😂","😮","💪","🎉"];
 const AR_MODES=[{id:"classic",ic:"⚡",name:"Speed Brain",desc:"Classic quiz. Answer fast and right to score more. Streaks give extra points."},
 {id:"race",ic:"🏔️",name:"Chimborazo Climb",desc:"A race to the top of the volcano. Every right answer is one step up; the fastest gets an extra step. First to the summit wins."},
 {id:"gold",ic:"💰",name:"Gold Thieves",desc:"Answer right to open a chest: gold, double, steal from a friend… or lose some! Luck and English."},
-{id:"survive",ic:"🏝️",name:"Survivor Island",desc:"Everyone has 3 lives. A wrong answer costs a heart. The last one standing wins."}];
+{id:"survive",ic:"🏝️",name:"Survivor Island",desc:"Everyone has 3 lives. A wrong answer costs a heart. The last one standing wins."},
+{id:"hang",ic:"🪢",name:"Hangman Showdown",desc:"Teams against teams. The hangman is on the big screen; teams take turns to guess letters on their phones. A wrong letter passes the turn."}];
 const AR_PU={x2:["⚡","Double","Your next right answer counts double."],shield:["🛡️","Shield","If you get it wrong, you lose nothing."],fifty:["✂️","50/50","Two wrong answers disappear."]};
 const AR_THEMES={andes:{name:"Andes Night",bg:"radial-gradient(1200px 700px at 20% 0%,#3B2A8F 0%,#1B1446 55%,#120D33 100%)",fl:null,prog:[[57,60,64],[53,57,60],[48,52,55],[55,59,62]],acc:"#FFD84D"},
 ocean:{name:"Ocean",bg:"radial-gradient(1200px 700px at 20% 0%,#0E7490 0%,#0B3B5C 55%,#06243A 100%)",fl:["🐠","🐚","🫧","🐢","🐬"],prog:[[62,65,69],[58,62,65],[60,64,67],[57,60,64]],acc:"#7CF3E3"},
@@ -5811,9 +5812,10 @@ function arSend(st){AR.lastSt=st;Object.values(NET.conns).forEach(c=>{try{if(c.o
 function arHostMsg(c,d){if(!d||typeof d!=="object")return;
 if(d.t==="hi"){const uid=String(d.uid||c.peer).replace(/[^a-z0-9]/gi,"").slice(0,12)||c.peer;const name=String(d.name||"Player").replace(/[\u0000-\u001f<>]/g,"").trim().slice(0,16)||"Player";const av=AR_AV.includes(d.av)?d.av:"🙂";
 NET.conns[c.peer]=c;NET.c2u[c.peer]=uid;NET.u2c[uid]=c;let p=AR.players.find(x=>x.id===uid);const isNew=!p;if(!p){p={id:uid};AR.players.push(p)}Object.assign(p,{name,av,on:true});AR.names[uid]={name,av};
-if(!AR.sc[uid])AR.sc[uid]=arNewSc();if(!AR.inv[uid]){AR.inv[uid]=arNewInv();if(AR.ph!=="lobby")arGive(uid)}if(isNew)arSfx("join");
+if(!AR.sc[uid])AR.sc[uid]=arNewSc();if(AR.cfg.game==="hang"&&AR.hteam[uid]===undefined)AR.hteam[uid]=arHmPickTeam();if(!AR.inv[uid]){AR.inv[uid]=arNewInv();if(AR.ph!=="lobby")arGive(uid)}if(isNew)arSfx("join");
 try{c.send({t:"st",st:AR.lastSt})}catch(e){}arPub();if(AR.ph==="lobby")arHostLobby(true);return}
 const uid=NET.c2u[c.peer];if(!uid)return;const nm=AR.names[uid]||{name:"",av:""};
+if(AR.cfg.game==="hang"){arHmMsg(uid,d);if(d.t==="rx"&&AR_RX.includes(d.e))arFloat(d.e);return}
 if(d.t==="prog"&&AR.ph==="q"&&d.qi===AR.qi){AR.prog[uid]={rev:+d.rev||0,len:+d.len||1,miss:+d.miss||0};return}
 if(d.t==="a"&&AR.ph==="q"&&d.qi===AR.qi&&!AR.ans[uid]&&arAlive(uid)){const q=AR.qs[AR.qi];const word=q.kind==="word";const k=word?(d.ok?q.c+100:-1):+d.k,ms=+d.ms;if((word||(k>=0&&k<q.o.length))&&ms>=0&&ms<=arDur()*1000+800){let pu=null;const v=AR.inv[uid];
 if((d.pu==="x2"||d.pu==="shield")&&v&&v[d.pu]>0){v[d.pu]--;pu=d.pu;arToast(`${nm.av} ${nm.name} used ${AR_PU[pu][0]} ${AR_PU[pu][1]}`)}
@@ -5835,13 +5837,15 @@ if(!AR.cfg.units.length||AR.cfg.units.some(u=>!activeUnits().includes(u)))AR.cfg
 const w=arPaint(`${arTop()}<div class="apanel"><h1>Host a game</h1><p class="muted">Show this screen on the projector. Everyone plays on their own phone: they scan the QR code, write their name and choose a character. No accounts needed.</p>
 ${arNetOk()?"":`<p class="note" style="margin-top:10px">Live games need an internet connection. Connect this device to the internet and open the lab again.</p>`}</div>
 <div class="apanel"><div class="lbl">Game</div><div class="modes">${AR_MODES.map(m=>`<button class="mode" data-argame="${m.id}" aria-pressed="${AR.cfg.game===m.id}"><i>${m.ic}</i><b>${m.name}</b><span class="muted">${m.desc}</span></button>`).join("")}</div>
-<p class="muted" style="margin-top:10px">Power-ups in every game: ${Object.values(AR_PU).map(p=>`${p[0]} <b>${p[1]}</b> (${p[2].toLowerCase()})`).join(" · ")} Everyone starts with one and wins another every 3 right answers in a row.</p>
+${AR.cfg.game==="hang"?`<p class="muted" style="margin-top:10px">Hangman Showdown is played in teams. Players are split automatically when they join; tap a name in the lobby to move someone.</p>`:""}<p class="muted" style="margin-top:10px;${AR.cfg.game==="hang"?"display:none":""}">Power-ups in the quiz games: ${Object.values(AR_PU).map(p=>`${p[0]} <b>${p[1]}</b> (${p[2].toLowerCase()})`).join(" · ")} Everyone starts with one and wins another every 3 right answers in a row.</p>
 <div class="lbl" style="margin-top:14px">Theme and music</div><div class="chips">${Object.entries(AR_THEMES).map(([k,t])=>`<button class="thm" data-arth="${k}" aria-pressed="${AR.cfg.theme===k}" style="background:${t.bg}">${t.fl?t.fl[0]:"🏔️"} ${t.name}</button>`).join("")}</div></div>
 <div class="grid2"><div class="apanel"><div class="lbl">Levels</div><div class="chips">${LEVELS.map(l=>`<button class="chip" data-arlv="${l}" aria-pressed="${S.levels.includes(l)}">${l}</button>`).join("")}</div>
 <div class="lbl" style="margin-top:14px">Units</div><div class="chips"><button class="chip" data-aru="all" aria-pressed="${AR.cfg.units.length===activeUnits().length}">All</button>${UNITS.filter(u=>activeUnits().includes(u.n)).map(u=>`<button class="chip" data-aru="${u.n}" aria-pressed="${AR.cfg.units.length!==activeUnits().length&&AR.cfg.units.includes(u.n)}">${u.lv} · ${u.n>6?u.n-6:u.n} ${arEsc(u.name)}</button>`).join("")}</div>
-<div class="lbl" style="margin-top:14px">Question types</div><div class="chips">${AR_TYPES.map(([k,l])=>`<button class="chip" data-art="${k}" aria-pressed="${!!AR.cfg.types[k]}">${l}</button>`).join("")}</div></div>
-<div class="apanel"><div class="lbl">Questions</div><div class="chips">${[10,15,20,30].map(n=>`<button class="chip" data-arn="${n}" aria-pressed="${AR.cfg.n===n}">${n}</button>`).join("")}</div>
-<div class="lbl" style="margin-top:14px">Time per question</div><div class="chips">${[10,20,30].map(n=>`<button class="chip" data-ard="${n}" aria-pressed="${AR.cfg.dur===n}">${n} s</button>`).join("")}</div>
+${AR.cfg.game==="hang"?"":`<div class="lbl" style="margin-top:14px">Question types</div><div class="chips">${AR_TYPES.map(([k,l])=>`<button class="chip" data-art="${k}" aria-pressed="${!!AR.cfg.types[k]}">${l}</button>`).join("")}</div>`}</div>
+${AR.cfg.game==="hang"?`<div class="apanel"><div class="lbl">Words</div><div class="chips">${[5,8,10,15].map(n=>`<button class="chip" data-arhw="${n}" aria-pressed="${AR.hm.words===n}">${n}</button>`).join("")}</div>
+<div class="lbl" style="margin-top:14px">Time per turn</div><div class="chips">${[10,15,20,30].map(n=>`<button class="chip" data-arht="${n}" aria-pressed="${AR.hm.turn===n}">${n} s</button>`).join("")}</div>
+<div class="lbl" style="margin-top:14px">Teams</div><div class="chips">${[2,3,4].map(n=>`<button class="chip" data-arhn="${n}" aria-pressed="${AR.hm.nt===n}">${n} teams</button>`).join("")}</div>`:`<div class="apanel"><div class="lbl">Questions</div><div class="chips">${[10,15,20,30].map(n=>`<button class="chip" data-arn="${n}" aria-pressed="${AR.cfg.n===n}">${n}</button>`).join("")}</div>
+<div class="lbl" style="margin-top:14px">Time per question</div><div class="chips">${[10,20,30].map(n=>`<button class="chip" data-ard="${n}" aria-pressed="${AR.cfg.dur===n}">${n} s</button>`).join("")}</div>`}
 <div class="lbl" style="margin-top:14px">Extras</div><div class="chips"><button class="chip" id="armus" aria-pressed="${AR.cfg.music}">🎵 Background music</button><button class="chip" id="arauto" aria-pressed="${AR.cfg.auto}">⏩ Next question automatically</button></div></div></div>
 <div style="display:flex;gap:10px;justify-content:center"><button class="abtn go" id="arcreate" ${arNetOk()?"":"disabled"}>Create game</button></div><p class="muted" id="armsg" style="text-align:center"></p>`);
 w.querySelectorAll("[data-argame]").forEach(b=>b.onclick=()=>{AR.cfg.game=b.dataset.argame;arHost()});
@@ -5851,14 +5855,15 @@ w.querySelectorAll("[data-aru]").forEach(b=>b.onclick=()=>{const v=b.dataset.aru
 w.querySelectorAll("[data-art]").forEach(b=>b.onclick=()=>{const k=b.dataset.art;AR.cfg.types[k]=AR.cfg.types[k]?0:1;if(!Object.values(AR.cfg.types).some(Boolean))AR.cfg.types[k]=1;arHost()});
 w.querySelectorAll("[data-arn]").forEach(b=>b.onclick=()=>{AR.cfg.n=+b.dataset.arn;arHost()});
 w.querySelectorAll("[data-ard]").forEach(b=>b.onclick=()=>{AR.cfg.dur=+b.dataset.ard;arHost()});
+w.querySelectorAll("[data-arhw]").forEach(b=>b.onclick=()=>{AR.hm.words=+b.dataset.arhw;arHost()});w.querySelectorAll("[data-arht]").forEach(b=>b.onclick=()=>{AR.hm.turn=+b.dataset.arht;arHost()});w.querySelectorAll("[data-arhn]").forEach(b=>b.onclick=()=>{AR.hm.nt=+b.dataset.arhn;arHost()});
 w.querySelector("#armus").onclick=()=>{AR.cfg.music=!AR.cfg.music;arHost()};w.querySelector("#arauto").onclick=()=>{AR.cfg.auto=!AR.cfg.auto;arHost()};
-w.querySelector("#arcreate").onclick=async()=>{arCtx();const qs=arBuild();const msg=w.querySelector("#armsg");if(qs.length<3){msg.textContent="Not enough content for these choices. Add more units or question types.";return}
+w.querySelector("#arcreate").onclick=async()=>{arCtx();const qs=AR.cfg.game==="hang"?arHmWords():arBuild();const msg=w.querySelector("#armsg");if(qs.length<3){msg.textContent="Not enough content for these choices. Add more units or question types.";return}
 arResetGame(qs);AR.players=[];AR.names={};
 w.querySelector("#arcreate").disabled=true;msg.textContent="Opening the game room…";arNetClose();
 for(let t=0;t<3;t++){AR.pin=String(Math.floor(100000+Math.random()*900000));try{await arHostOpen(AR.pin);arHostLobby();return}catch(e){if(!(e&&e.type==="unavailable-id"))break}}
 w.querySelector("#arcreate").disabled=false;msg.textContent="The game room could not open. Check the internet connection and try again."}}
-function arResetGame(qs){AR.prog={};AR.qs=qs;AR.sc={};AR.inv={};AR.ans={};AR.hist=[];AR.qi=-1;AR.v=AR.v||0;AR.ev={};AR.log=[];AR.chestDone={};AR.fifty={};AR.gift={}}
-function arPub(){const q=AR.qs[AR.qi];const st={v:++AR.v,ph:AR.ph,qi:AR.qi,n:AR.qs.length,dur:q?(q.dur||AR.cfg.dur):AR.cfg.dur,gm:AR.cfg.game,th:AR.cfg.theme,sc:AR.sc,inv:AR.inv,fin:arFin(),pl:AR.names};
+function arResetGame(qs){AR.hteam={};AR.hpts={};AR.prog={};AR.qs=qs;AR.sc={};AR.inv={};AR.ans={};AR.hist=[];AR.qi=-1;AR.v=AR.v||0;AR.ev={};AR.log=[];AR.chestDone={};AR.fifty={};AR.gift={}}
+function arPub(){if(AR.cfg.game==="hang")return arHmPub();const q=AR.qs[AR.qi];const st={v:++AR.v,ph:AR.ph,qi:AR.qi,n:AR.qs.length,dur:q?(q.dur||AR.cfg.dur):AR.cfg.dur,gm:AR.cfg.game,th:AR.cfg.theme,sc:AR.sc,inv:AR.inv,fin:arFin(),pl:AR.names};
 if(q&&(AR.ph==="q"||AR.ph==="reveal"||AR.ph==="count"))st.q={p:AR.ph==="count"?"":q.p,o:AR.ph==="count"?[]:q.o,h:q.h,t:q.t,kind:q.kind,pos:q.pos};if(q&&q.kind==="word"&&st.q&&AR.ph!=="count"){st.q.w=q.w;st.q.mix=q.mix}
 if(AR.ph==="reveal"){st.c=q.c;st.mine={};Object.entries(AR.ans).forEach(([k,a])=>st.mine[k]=a.ok);st.gift=AR.gift;st.used={};Object.entries(AR.ans).forEach(([k,a])=>{if(a.pu)st.used[k]=a.pu});if(AR.cfg.game==="gold"){st.ev=AR.ev;st.cm={};Object.keys(AR.ans).forEach(k=>st.cm[k]=AR.chestMax(k)-(AR.chestDone[k]||0))}}
 arSend(st)}
@@ -5879,9 +5884,10 @@ function arHostLobby(re){if(!re){AR.ph="lobby";arPub();arMusic(true,"lobby")}con
 const w=arPaint(`${arTop(`<span class="badge">${g.ic} ${g.name}</span><button class="abtn ghost sm" id="armute">${AR.cfg.music?"🔊":"🔇"}</button>`)}
 <div class="grid2"><div class="apanel" style="display:grid;gap:10px;justify-items:center;text-align:center"><div class="lbl">Scan to join</div><div class="qr">${arQR()}</div><div class="muted" style="font-size:.85rem;word-break:break-all">${arEsc(arSite().replace(/^https?:\/\//,""))}</div></div>
 <div class="apanel" style="display:grid;gap:10px;align-content:center;text-align:center"><div class="lbl">Game PIN</div><div class="pinbig" style="color:var(--aracc)">${AR.pin}</div><div class="muted">No QR? Open the lab, go to Games, tap Join a game and type the PIN.</div><div class="big" style="font-size:2rem">${ps.length} ${ps.length===1?"player":"players"}</div></div></div>
-<div class="apanel"><div class="lbl">${g.ic} ${g.name}: ${arEsc(g.desc)}</div><div class="plist">${ps.length?ps.map(p=>`<span class="pl"><i>${p.av}</i>${arEsc(p.name)}</span>`).join(""):`<span class="muted">Waiting for players… <span class="spin" style="display:inline-block;width:18px;height:18px;border-width:3px;vertical-align:middle"></span></span>`}</div></div>
+<div class="apanel"><div class="lbl">${g.ic} ${g.name}: ${arEsc(g.desc)}</div>${AR.cfg.game==="hang"?arHmLobbyTeams(ps):""}<div class="plist" style="${AR.cfg.game==="hang"?"display:none":""}">${ps.length?ps.map(p=>`<span class="pl"><i>${p.av}</i>${arEsc(p.name)}</span>`).join(""):`<span class="muted">Waiting for players… <span class="spin" style="display:inline-block;width:18px;height:18px;border-width:3px;vertical-align:middle"></span></span>`}</div></div>
 <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="abtn go" id="arstart" ${ps.length?"":"disabled"}>Start game ▶</button></div>`);
 w.querySelector("#armute").onclick=()=>{AR.cfg.music=!AR.cfg.music;arMusic(AR.cfg.music,"lobby");arHostLobby(true)};
+if(AR.cfg.game==="hang"){arHmBindLobby(w);w.querySelector("#arstart").onclick=()=>{arCtx();arHmStart()};return}
 w.querySelector("#arstart").onclick=()=>{arCtx();AR.players.forEach(p=>{AR.inv[p.id]=arNewInv();arGive(p.id)});arNextQ()}}
 function arNextQ(){arClear();AR.qi++;if(AR.qi>=AR.qs.length){arEnd();return}AR.ph="count";AR.ans={};AR.prog={};AR.ev={};AR.chestDone={};AR.gift={};arPub();arMusic(false);
 const q=AR.qs[AR.qi];let n=3;const draw=()=>{arPaint(`${arTop()}<div style="text-align:center;display:grid;gap:10px;margin-top:6vh"><div class="badge" style="justify-self:center">Question ${AR.qi+1} of ${AR.qs.length}</div><h2>${arEsc(q.h)}</h2><div class="count" style="color:var(--aracc)">${n}</div></div>`);arSfx("tick")};
@@ -5977,7 +5983,7 @@ AR.el.querySelector("#arre").onclick=async()=>{const b=AR.el.querySelector("#arr
 function arPsend(m){try{NET.host&&NET.host.open&&NET.host.send(m)}catch(e){}}
 function arOnState(st){if(AR.role!=="player"||!st||st.v===AR.lastV)return;AR.lastV=st.v;const prevPh=AR.st&&AR.st.ph;AR.st=st;arTheme(st.th);
 if(st.ph==="q"&&st.qi!==AR.myQi){AR.myQi=st.qi;AR.myT0=performance.now();AR.myAns=null;AR.armed=null}
-const key=JSON.stringify([st.ph,st.qi,st.ev&&st.ev[AR_UID],st.sc&&st.sc[AR_UID],st.inv&&st.inv[AR_UID],st.cm&&st.cm[AR_UID],st.ph==="lobby"?Object.keys(st.pl||{}).length:0]);if(st.ph===prevPh&&key===AR.pkey)return;AR.pkey=key;
+const key=JSON.stringify([st.ph,st.qi,st.ev&&st.ev[AR_UID],st.sc&&st.sc[AR_UID],st.inv&&st.inv[AR_UID],st.cm&&st.cm[AR_UID],st.ph==="lobby"?Object.keys(st.pl||{}).length:0]);if(st.gm!=="hang"&&st.ph===prevPh&&key===AR.pkey)return;AR.pkey=key;
 arPlayerRender()}
 function arMyRank(){const st=AR.st;if(!st||!st.sc||!st.sc[AR_UID])return null;const surv=st.gm==="survive";
 const arr=Object.entries(st.sc).sort((a,b)=>surv?((b[1][4]>0)-(a[1][4]>0))||b[1][0]-a[1][0]:b[1][0]-a[1][0]);const i=arr.findIndex(e=>e[0]===AR_UID);
@@ -5988,7 +5994,7 @@ function arBindRx(w){w.querySelectorAll("[data-rx]").forEach(b=>b.onclick=()=>{a
 const arHearts=n=>"❤️".repeat(Math.max(0,n))+"🤍".repeat(Math.max(0,3-n));
 const arMyInv=()=>(AR.st&&AR.st.inv&&AR.st.inv[AR_UID])||{x2:0,shield:0,fifty:0};
 function arInvBadge(){const v=arMyInv();const t=Object.keys(AR_PU).filter(k=>v[k]>0).map(k=>AR_PU[k][0]+(v[k]>1?"×"+v[k]:"")).join(" ");return t?`<span class="badge">${t}</span>`:""}
-function arPlayerRender(){clearInterval(AR.ptmr);const st=AR.st;if(!st)return;const gm=st.gm;const r=arMyRank();const s=r?r.s:[0,0,0,0,gm==="survive"?3:0,-1,0];
+function arPlayerRender(){clearInterval(AR.ptmr);const st=AR.st;if(!st)return;if(st.gm==="hang"&&st.ph!=="lobby")return arHmPlayer(st);const gm=st.gm;const r=arMyRank();const s=r?r.s:[0,0,0,0,gm==="survive"?3:0,-1,0];
 const stat=gm==="race"?`${s[0]} / ${st.fin} ⛰️`:gm==="gold"?`${s[0]} 💰`:gm==="survive"?arHearts(s[4]):`${s[0]} pts`;
 const head=arTop(`<span class="badge">${AR.me.av} ${arEsc(AR.me.name)}</span><span class="badge">${stat}</span>${arInvBadge()}`);let w;
 if(st.ph==="lobby"||st.ph==="setup"){arPlayerWait();return}
@@ -6058,7 +6064,7 @@ if(G.built.length===W.length){if(G.built.join("")===W)return send(true);G.tries+
 w.querySelector("#arundo").onclick=()=>{if(G.built.length>G.lock){G.built.pop();G.used.pop();arPlayerRender()}};w.querySelector("#arclr").onclick=()=>{G.built=G.built.slice(0,G.lock);G.used=G.used.slice(0,G.lock);arPlayerRender()}}
 if(t==="spell"){const inp=w.querySelector("#arsp");inp.oninput=()=>{G.typed=inp.value};const chk=()=>{if(late())return;const val=inp.value.trim().toLowerCase();if(!val)return;if(val===W)return send(true);G.tries++;prog();arVib(150);inp.classList.add("shake");setTimeout(()=>inp.classList.remove("shake"),450);const m=w.querySelector(".muted:last-child");G.typed=inp.value;arPlayerRender()};
 w.querySelector("#arspok").onclick=chk;inp.onkeydown=e=>{if(e.key==="Enter")chk()};setTimeout(()=>{try{inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length)}catch(e){}},50)}}
-function arPlayerWait(){const st=AR.st;const n=st&&st.pl?Object.keys(st.pl).length:1;const g=st&&AR_MODES.find(m=>m.id===st.gm);
+function arPlayerWait(){const st=AR.st;if(st&&st.gm==="hang")return arHmPlayerWait(st);const n=st&&st.pl?Object.keys(st.pl).length:1;const g=st&&AR_MODES.find(m=>m.id===st.gm);
 const w=arPaint(`${arTop()}<div class="phone"><div class="full wait"><div style="font-size:4.5rem;animation:arbounce 1.2s infinite">${AR.me.av}</div><div class="big" style="font-size:2rem">You're in, ${arEsc(AR.me.name)}!</div>${g?`<div class="badge">${g.ic} ${g.name}</div><p class="muted">${arEsc(g.desc)}</p>`:""}<p class="muted">PIN ${arEsc(AR.pin||"")} · ${n} ${n===1?"player":"players"} so far</p><p>See your name on the big screen? The game starts soon.</p><p class="muted" style="font-size:.9rem">Power-ups: ${Object.values(AR_PU).map(p=>`${p[0]} ${p[1]}`).join(" · ")}. Tap one before you answer.</p><div class="spin"></div></div>${arRxBar()}</div>`);arBindRx(w)}
 
 // ---------- entry points ----------
@@ -6068,5 +6074,109 @@ const _viewGames11=viewGames;viewGames=function(m){_viewGames11(m);if(GM.id)retu
 const _viewBook11=viewBook;viewBook=function(m){_viewBook11(m);const first=m.querySelector("section");const box=document.createElement("div");box.innerHTML=arHero();const hero=box.firstElementChild;hero.style.margin="0 0 16px";if(first)m.insertBefore(hero,first.nextSibling);else m.prepend(hero);$("#arhost",m).onclick=()=>{arOpen();arHost()};$("#arjoin",m).onclick=()=>{arOpen();arJoinScreen()}};
 // Word families shortcut inside Vocabulary
 const _viewVocab12=viewVocab;viewVocab=function(m){_viewVocab12(m);const st=m.querySelector(".subtabs");if(!st||st.querySelector("[data-vfam]"))return;const b=document.createElement("button");b.className="st";b.dataset.vfam="1";b.setAttribute("aria-pressed","false");b.textContent="Word families";b.onclick=()=>{S.tab="fam";save();render();scrollTo({top:0})};st.appendChild(b)};
+// ===== HANGMAN SHOWDOWN: teams, shared hangman on the big screen =====
+AR.hm={words:8,turn:20,nt:2};AR.hteam={};AR.hpts={};AR.hts=[];AR.H=null;
+const HM_MAX=6;
+(function(){const s=document.createElement("style");s.textContent=`
+#arena .hteams{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+#arena .hteam{border:3px solid;border-radius:18px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;min-height:90px;background:rgba(255,255,255,.06)}
+#arena .hth{width:100%;border-radius:12px;padding:6px 10px;font:800 1.05rem var(--display);color:#fff}
+#arena .hpl{border:0;border-radius:999px;background:#fff;color:#1B1446;font:700 .95rem var(--display);padding:5px 10px;cursor:pointer}
+#arena .hmgrid{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:16px;align-items:start}
+#arena .hmbig .hman{width:100%;height:auto}
+#arena .wrongs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+#arena .wrongs span{background:rgba(229,72,77,.85);border-radius:8px;padding:2px 9px;font:800 1.1rem var(--display);text-transform:uppercase;text-decoration:line-through}
+#arena .tscore{display:grid;gap:8px}
+#arena .ts{display:flex;align-items:center;gap:10px;border-radius:14px;padding:10px 14px;font:800 1.15rem var(--display);background:rgba(255,255,255,.1);border:3px solid transparent;transition:all .3s}
+#arena .ts.on{background:#fff;color:#1B1446;transform:scale(1.03);box-shadow:0 0 0 4px var(--tc),0 10px 30px rgba(0,0,0,.35)}
+#arena .ts b{margin-left:auto;font-size:1.4rem}
+#arena .ts small{font:700 .8rem var(--body);opacity:.8}
+#arena .turnban{border-radius:18px;padding:12px 16px;display:flex;align-items:center;gap:14px;font:800 clamp(1.2rem,3vw,1.8rem) var(--display);color:#fff;animation:arpop .35s ease}
+#arena .hmslots .slot{width:min(52px,calc((100vw - 60px)/var(--n,8) - 6px));height:64px;font-size:clamp(1.2rem,4vw,2.4rem)}
+#arena .solve{display:flex;gap:8px}#arena .solve input{flex:1}
+@media (max-width:760px){#arena .hmgrid{grid-template-columns:1fr}}
+`;document.head.appendChild(s)})();
+function arHmWords(){const P=arPool();return shuffle(P.ws.filter(arWordOk)).slice(0,AR.hm.words).map(w=>({w:w.w.toLowerCase(),p:arShort(w.def,170),pos:w.pos}))}
+function arHmTeams(){return AR_TNAMES.slice(0,AR.hm.nt).map((t,i)=>({name:t[0],c:t[1],av:t[2],s:AR.hts[i]||0}))}
+function arHmPickTeam(){const n=AR.hm.nt;const c=Array(n).fill(0);Object.entries(AR.hteam).forEach(([u,t])=>{if(t<n&&AR.players.find(p=>p.id===u&&p.on))c[t]++});return c.indexOf(Math.min(...c))}
+function arHmLobbyTeams(ps){const T=arHmTeams();return `<div class="hteams">${T.map((t,i)=>`<div class="hteam" style="border-color:${t.c}"><div class="hth" style="background:${t.c}">${t.av} ${t.name}</div>${ps.filter(p=>AR.hteam[p.id]===i).map(p=>`<button class="hpl" data-mv="${p.id}">${p.av} ${arEsc(p.name)}</button>`).join("")||`<span class="muted">No players yet</span>`}</div>`).join("")}</div><p class="muted" style="text-align:center;margin-top:8px">Tap a name to move that player to the next team.</p>`}
+function arHmBindLobby(w){w.querySelectorAll("[data-mv]").forEach(b=>b.onclick=()=>{const u=b.dataset.mv;AR.hteam[u]=((AR.hteam[u]||0)+1)%AR.hm.nt;arPub();arHostLobby(true)})}
+const arHmMembers=t=>AR.players.filter(p=>p.on&&AR.hteam[p.id]===t);
+function arHmStart(){AR.hts=Array(AR.hm.nt).fill(0);AR.hpts={};AR.players.forEach(p=>{if(AR.hteam[p.id]===undefined||AR.hteam[p.id]>=AR.hm.nt)AR.hteam[p.id]=arHmPickTeam();AR.hpts[p.id]=0});
+AR.H={wi:-1,ti:0,log:[]};AR.qi=-1;arHmNextWord()}
+function arHmNextWord(){arClear();const H=AR.H;H.wi++;AR.qi=H.wi;if(H.wi>=AR.qs.length)return arHmEnd();const q=AR.qs[H.wi];
+Object.assign(H,{word:q.w,clue:q.p,pos:q.pos,guessed:[],wrong:[],miss:0,over:null,turn:H.wi%AR.hm.nt,log:[],last:null});
+if(!arHmMembers(H.turn).length)arHmPass(true);AR.ph="hm";arMusic(true,"q");arHmTurn()}
+function arHmPass(silent){const H=AR.H;for(let i=0;i<AR.hm.nt;i++){H.turn=(H.turn+1)%AR.hm.nt;if(arHmMembers(H.turn).length)break}}
+function arHmTurn(){arClear();const H=AR.H;H.ti++;H.tEnd=Date.now()+AR.hm.turn*1000;arPub();arHmHost();
+let last=-1;AR.tmr.push(setInterval(()=>{const left=Math.max(0,(H.tEnd-Date.now())/1000);const s=Math.ceil(left);const c=AR.el&&AR.el.querySelector("#hmclk");if(c){c.style.setProperty("--p",left/AR.hm.turn*100+"%");c.querySelector("span").textContent=s}
+if(s!==last){last=s;if(s<=5&&s>0)arSfx("tick")}if(Date.now()>H.tEnd+400){const T=arHmTeams()[H.turn];arHmLog(`⏰ ${T.av} ${T.name} ran out of time`);arHmPass();arHmTurn()}},200))}
+function arHmLog(t){AR.H.log.unshift(t);AR.H.log=AR.H.log.slice(0,7)}
+const arHmPat=()=>{const H=AR.H;return H.word.split("").map(c=>H.guessed.includes(c)?c:"")};
+function arHmMsg(uid,d){const H=AR.H;if(AR.ph!=="hm"||!H||H.over)return;if(d.ti!==H.ti||AR.hteam[uid]!==H.turn)return;const nm=AR.names[uid];const T=arHmTeams()[H.turn];const who=`${nm.av} ${nm.name}`;
+if(d.t==="hl"){const l=String(d.l||"").toLowerCase();if(!/^[a-z]$/.test(l)||H.guessed.includes(l)||H.wrong.includes(l))return;
+if(H.word.includes(l)){H.guessed.push(l);const n=H.word.split("").filter(c=>c===l).length;const pts=10*n;AR.hts[H.turn]+=pts;AR.hpts[uid]=(AR.hpts[uid]||0)+pts;arSfx("ok");arHmLog(`✓ ${who} (${T.name}) found ${l.toUpperCase()}${n>1?" ×"+n:""}: +${pts}`);H.last={uid,ok:1,l};
+if(H.word.split("").every(c=>H.guessed.includes(c))){AR.hts[H.turn]+=20;AR.hpts[uid]+=20;arHmLog(`🏁 ${who} completed the word: +20`);H.over="done";return arHmReveal()}
+return arHmTurn()}
+H.wrong.push(l);H.miss++;arSfx("ko");arHmLog(`✗ ${who} (${T.name}) tried ${l.toUpperCase()}`);H.last={uid,ok:0,l};
+if(H.miss>=HM_MAX){H.over="lost";return arHmReveal()}arHmPass();return arHmTurn()}
+if(d.t==="hs"){const g=String(d.w||"").toLowerCase().replace(/[^a-z]/g,"");if(!g)return;
+if(g===H.word){H.guessed=[...new Set(H.word.split(""))];AR.hts[H.turn]+=50;AR.hpts[uid]=(AR.hpts[uid]||0)+50;arSfx("fan");arHmLog(`🎯 ${who} (${T.name}) solved it: +50`);H.over="solved";return arHmReveal()}
+H.miss++;H.wrong.push(g.slice(0,14)+"?");arSfx("ko");arHmLog(`✗ ${who} (${T.name}) said "${g.slice(0,14)}"`);if(H.miss>=HM_MAX){H.over="lost";return arHmReveal()}arHmPass();arHmTurn()}}
+function arHmPub(){const H=AR.H;const st={v:++AR.v,ph:AR.ph,gm:"hang",th:AR.cfg.theme,teams:arHmTeams(),pt:AR.hteam,pl:AR.names,hp:AR.hpts,n:AR.qs.length,turnDur:AR.hm.turn};
+if(H&&(AR.ph==="hm"||AR.ph==="hmrev")){st.h={wi:H.wi,pat:arHmPat(),len:H.word.length,clue:H.clue,pos:H.pos,wrong:H.wrong,miss:H.miss,turn:H.turn,ti:H.ti,guessed:H.guessed,over:H.over,log:H.log.slice(0,3),left:Math.max(0,H.tEnd-Date.now())};if(AR.ph==="hmrev")st.h.word=H.word}
+arSend(st)}
+function arHmScoresHTML(active){const T=arHmTeams();return `<div class="tscore">${T.map((t,i)=>`<div class="ts ${i===active?"on":""}" style="--tc:${t.c};border-color:${t.c}"><span style="font-size:1.5rem">${t.av}</span><span>${t.name}<br><small>${arHmMembers(i).map(p=>p.av).join(" ")||"no players"}</small></span><b>${t.s}</b></div>`).join("")}</div>`}
+function arHmHost(){const H=AR.H;const T=arHmTeams()[H.turn];const pat=arHmPat();
+const w=arPaint(`${arTop(`<span class="badge">🪢 Word ${H.wi+1} of ${AR.qs.length}</span><button class="abtn ghost sm" id="armute">${AR.cfg.music?"🔊":"🔇"}</button>`)}
+<div class="turnban" style="background:${T.c}"><div class="clock" id="hmclk" style="--p:100%;width:64px;height:64px;font-size:1.6rem"><span>${AR.hm.turn}</span></div><span>${T.av} ${T.name}, your turn!</span><span class="sp" style="flex:1"></span><button class="abtn ghost sm" id="hmskip">Skip turn</button></div>
+<div class="hmgrid"><div class="apanel hmbig" style="display:grid;gap:10px;justify-items:center">${arHangSVG(H.miss)}<div class="muted">${HM_MAX-H.miss} mistakes left</div><div class="wrongs">${H.wrong.map(x=>`<span>${arEsc(x)}</span>`).join("")}</div></div>
+<div style="display:grid;gap:14px"><div class="qcard"><small>${arEsc(H.pos||"")} · ${H.word.length} letters</small>${arEsc(H.clue)}</div>
+<div class="slots hmslots" style="--n:${H.word.length}">${pat.map(c=>`<span class="slot">${c}</span>`).join("")}</div>
+${arHmScoresHTML(H.turn)}
+<div class="log">${H.log.map(t=>`<div>${arEsc(t)}</div>`).join("")}</div></div></div>`);
+w.querySelector("#armute").onclick=()=>{AR.cfg.music=!AR.cfg.music;arMusic(AR.cfg.music,"q");w.querySelector("#armute").textContent=AR.cfg.music?"🔊":"🔇"};
+w.querySelector("#hmskip").onclick=()=>{arHmLog(`⏭️ ${T.name} skipped`);arHmPass();arHmTurn()}}
+function arHmReveal(){arClear();arMusic(false);const H=AR.H;AR.ph="hmrev";arPub();if(H.over!=="lost"){arSfx("fan");confetti(AR.el)}else arSfx("ko");
+const last=H.wi>=AR.qs.length-1;const T=arHmTeams()[H.turn];
+const w=arPaint(`${arTop(`<span class="badge">🪢 Word ${H.wi+1} of ${AR.qs.length}</span>`)}
+<div style="text-align:center;display:grid;gap:8px"><div class="lbl">${H.over==="lost"?"The hangman won this time 💀":`${T.av} ${T.name} ${H.over==="solved"?"solved the word! 🎯":"completed the word! 🏁"}`}</div><div class="bigword">${arEsc(H.word)}</div></div>
+<div class="hmgrid"><div class="apanel hmbig" style="display:grid;justify-items:center">${arHangSVG(H.miss)}</div><div style="display:grid;gap:14px"><div class="qcard" style="font-size:1.2rem"><small>${arEsc(H.pos||"")}</small>${arEsc(H.clue)}</div>${arHmScoresHTML(-1)}<div class="log">${H.log.map(t=>`<div>${arEsc(t)}</div>`).join("")}</div></div></div>
+<div style="display:flex;justify-content:center"><button class="abtn go" id="arnext">${last?"See the winners 🏆":"Next word ▶"}</button></div>`);
+w.querySelector("#arnext").onclick=()=>arHmNextWord()}
+function arHmEnd(){arClear();AR.ph="end";arPub();arMusic(false);arSfx("roll");const T=arHmTeams().map((t,i)=>({...t,i})).sort((a,b)=>b.s-a.s);
+const pod=(t,place,h,delay,bg)=>t?`<div class="pod" style="animation-delay:${delay}s"><span class="av">${t.av}</span><span class="nm">${t.name}</span><span class="muted">${t.s} pts</span><div class="blk" style="height:${h}px;background:${bg}">${place}</div></div>`:"";
+const table=T.map(t=>{const m=AR.players.filter(p=>AR.hteam[p.id]===t.i).sort((a,b)=>(AR.hpts[b.id]||0)-(AR.hpts[a.id]||0));return `<div class="hteam" style="border-color:${t.c};display:grid"><div class="hth" style="background:${t.c}">${t.av} ${t.name} · ${t.s} pts</div>${m.map((p,k)=>`<div class="brow" style="padding:8px 12px;font-size:1rem"><span class="av">${p.av}</span><span>${arEsc(p.name)}${k===0&&(AR.hpts[p.id]||0)>0?" ⭐ MVP":""}</span><span class="pts">${AR.hpts[p.id]||0} pts</span></div>`).join("")||`<span class="muted">No players</span>`}</div>`}).join("");
+const w=arPaint(`${arTop()}<h1 style="text-align:center">And the winning team is…</h1><div class="podium">${pod(T[1],2,150,1.2,"#C9D3E3")}${pod(T[0],1,210,2.4,"var(--aracc)")}${pod(T[2],3,110,.3,"#E8A36B")}</div>
+<div class="apanel"><div class="lbl">Who earned the points</div><div class="hteams">${table}</div></div>
+<div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap"><button class="abtn go" id="aragain">Play again with new words</button><button class="abtn ghost" id="arsetup">Change game or settings</button></div>`);
+arLater(()=>{arSfx("fan");confetti(AR.el);arMusic(true,"lobby")},2600);
+w.querySelector("#aragain").onclick=()=>{AR.qs=arHmWords();AR.H=null;arHostLobby()};
+w.querySelector("#arsetup").onclick=()=>{arNetClose();AR.pin=null;AR.players=[];AR.hteam={};arHost()}}
+// ---------- phone ----------
+function arHmMyTeam(st){const t=st.pt?st.pt[AR_UID]:undefined;return t===undefined?null:{i:t,...st.teams[t]}}
+function arHmHead(st){const t=arHmMyTeam(st);return arTop(`<span class="badge">${AR.me.av} ${arEsc(AR.me.name)}</span>${t?`<span class="teamtag" style="background:${t.c}">${t.av} ${t.name} · ${t.s}</span>`:""}`)}
+function arHmPlayerWait(st){const t=arHmMyTeam(st);const w=arPaint(`${arHmHead(st)}<div class="phone"><div class="full wait" ${t?`style="background:${t.c}"`:""}><div style="font-size:4.5rem;animation:arbounce 1.2s infinite">${AR.me.av}</div><div class="big" style="font-size:2rem">You're in, ${arEsc(AR.me.name)}!</div>${t?`<div class="big" style="font-size:1.6rem">Team ${t.av} ${t.name}</div>`:""}<p>🪢 Hangman Showdown. When it's your team's turn, tap a letter. A wrong letter passes the turn to the other team!</p><div class="spin"></div></div>${arRxBar()}</div>`);arBindRx(w)}
+function arHmPlayer(st){const h=st.h;const me=arHmMyTeam(st);const head=arHmHead(st);let w;
+if(st.ph==="end"){const T=st.teams.map((t,i)=>({...t,i})).sort((a,b)=>b.s-a.s);const place=me?T.findIndex(t=>t.i===me.i)+1:0;
+w=arPaint(`${head}<div class="phone"><div class="full ${place===1?"ok":"wait"}"><div class="big">${["🥇","🥈","🥉"][place-1]||"🎯"}</div><div class="big" style="font-size:1.8rem">${me?`${me.name} finished ${arOrd(place)}`:"Game over"}</div><p style="font-weight:700">You earned ${st.hp&&st.hp[AR_UID]||0} points for your team</p><button class="abtn" id="arleave">Back to the lab</button></div>${arRxBar()}</div>`);
+if(place===1)setTimeout(()=>confetti(AR.el),2600);arBindRx(w);w.querySelector("#arleave").onclick=()=>arCloseAll();return}
+if(!h)return arHmPlayerWait(st);
+const slots=`<div class="slots" style="--n:${h.len}">${(st.ph==="hmrev"?h.word.split(""):h.pat).map(c=>`<span class="slot">${c}</span>`).join("")}</div>`;
+if(st.ph==="hmrev"){const T=st.teams[h.turn];const won=h.over!=="lost"&&me&&me.i===h.turn;
+w=arPaint(`${head}<div class="phone" style="display:grid;gap:12px"><div class="full ${won?"ok":h.over==="lost"?"ko":"wait"}"><div class="big" style="font-size:1.8rem">${h.over==="lost"?"The hangman won 💀":won?"Your team got it! 🎉":`${T.av} ${T.name} got it`}</div>${slots}<p>${arEsc(h.clue)}</p></div>${arRxBar()}</div>`);arBindRx(w);return}
+const myTurn=me&&me.i===h.turn;const T=st.teams[h.turn];
+if(!myTurn){w=arPaint(`${head}<div class="phone" style="display:grid;gap:12px"><div class="full wait" style="background:${T.c}"><div class="big" style="font-size:1.6rem">${T.av} ${T.name} is playing</div><p>Watch the big screen. Your turn comes when they miss!</p></div>${slots}<div class="wrongs">${h.wrong.map(x=>`<span>${arEsc(x)}</span>`).join("")}</div><div style="display:flex;justify-content:center">${arHangSVG(h.miss)}</div>${arRxBar()}</div>`);arBindRx(w);return}
+if(AR.hlock===h.ti){arPaint(`${head}<div class="phone"><div class="full wait" style="background:${me.c}"><div class="big" style="font-size:1.8rem">Sent! ⚡</div><p>Look at the big screen…</p><div class="spin"></div></div></div>`);return}
+const T0=performance.now();const dur=Math.max(1000,h.left);
+w=arPaint(`${head}<div class="phone" style="display:grid;gap:10px"><div class="turnban" style="background:${me.c};font-size:1.3rem;justify-content:center">${me.av} Your team's turn!</div><div class="tbar"><i id="arpt"></i></div>
+<div class="apanel" style="padding:10px;text-align:center;font:700 1rem var(--display)"><div class="lbl">${arEsc(h.pos||"")} · ${h.len} letters · ${HM_MAX-h.miss} mistakes left</div>${arEsc(h.clue)}</div>${slots}
+<div class="kbd">${"abcdefghijklmnopqrstuvwxyz".split("").map(c=>{const used=h.guessed.includes(c)||h.wrong.includes(c);return `<button data-hl="${c}" class="${h.guessed.includes(c)?"y":h.wrong.includes(c)?"n":""}" ${used?"disabled":""}>${c}</button>`}).join("")}</div>
+<div class="solve"><input class="ain" id="hmsolve" placeholder="I know the word!" autocomplete="off" autocapitalize="none" spellcheck="false" style="font-size:1rem;padding:10px"><button class="abtn go sm" id="hmsend">Solve</button></div><p class="muted" style="text-align:center;font-size:.85rem">A wrong letter or a wrong word passes the turn. Agree with your team first!</p></div>`);
+AR.ptmr=setInterval(()=>{const left=dur-(performance.now()-T0);const b=AR.el&&AR.el.querySelector("#arpt");if(b)b.style.width=Math.max(0,left/AR.st.turnDur/10)+"%";if(left<=0)clearInterval(AR.ptmr)},150);
+const lock=()=>{AR.hlock=h.ti;arVib(30);arPlayerRender()};
+w.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>{arPsend({t:"hl",ti:h.ti,l:b.dataset.hl});lock()});
+const solve=()=>{const v=w.querySelector("#hmsolve").value.trim();if(!v)return;arPsend({t:"hs",ti:h.ti,w:v});lock()};
+w.querySelector("#hmsend").onclick=solve;w.querySelector("#hmsolve").onkeydown=e=>{if(e.key==="Enter")solve()}}
 render();
 </script><script>if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}</script></body></html>
