@@ -7469,6 +7469,9 @@ try{const r=await fetch(FB_URL,{method:"POST",headers:{"Content-Type":"applicati
 const j=await r.json().catch(()=>({}));if(r.ok&&String(j.success)!=="false"){out.innerHTML='<span class="ok">Thank you! Your suggestion was sent. 🙌</span>';$("#fbmsg",m).value=""}else throw new Error(j.message||"error")}
 catch(e){out.innerHTML='<span class="ko">It could not be sent. Check your internet connection and try again.</span>'}b.disabled=false}}
 const _viewBook16=viewBook;viewBook=function(m){_viewBook16(m);m.insertAdjacentHTML("beforeend",fbHTML());fbBind(m)};
+// visible shortcut in the header, on every page
+(function(){const sub=document.querySelector("header .sub");if(!sub||document.querySelector("#fbgo"))return;sub.insertAdjacentHTML("afterend",`<button class="btn small" id="fbgo" style="justify-self:start">💡 Suggest an improvement</button>`);
+document.querySelector("#fbgo").onclick=()=>{S.tab="home";save();render();setTimeout(()=>{const c=document.querySelector("#fbcard");if(c){c.scrollIntoView({behavior:"smooth",block:"start"});const n=c.querySelector("#fbname");if(n&&!n.value)n.focus({preventScroll:true})}},60)}})();
 
 // ===== C1.2 LEVEL SUPPORT =====
 function uNum(n){return ((n-1)%6)+1}
