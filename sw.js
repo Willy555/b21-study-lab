@@ -1,5 +1,5 @@
 // Future Simple: offline mode. Audio is saved the first time it plays (no big download on join).
-const VERSION = 'v25';
+const VERSION = 'v26';
 const CACHE = 'b21-lab-' + VERSION;
 const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 const AUDIO = [];
