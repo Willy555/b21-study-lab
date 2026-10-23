@@ -1,5 +1,5 @@
 // Future Simple: offline mode. Audio is saved the first time it plays (no big download on join).
-const VERSION = 'v24';
+const VERSION = 'v25';
 const CACHE = 'b21-lab-' + VERSION;
 const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 const AUDIO = [];
@@ -73,7 +73,7 @@ self.addEventListener('fetch', e => {
   }
 
   // Ilustraciones 3D de Word Wars: se guardan la primera vez
-  if (url.pathname.includes('/em/')) {
+  if (url.pathname.includes('/em/') || url.pathname.endsWith('/dict.json')) {
     e.respondWith(caches.open(CACHE).then(async c => {
       const hit = await c.match(req);
       if (hit) return hit;
