@@ -7078,7 +7078,7 @@ w.querySelectorAll("[data-ard]").forEach(b=>b.onclick=()=>{AR.cfg.dur=+b.dataset
 w.querySelectorAll("[data-arhw]").forEach(b=>b.onclick=()=>{AR.hm.words=+b.dataset.arhw;arHost()});w.querySelectorAll("[data-arht]").forEach(b=>b.onclick=()=>{AR.hm.turn=+b.dataset.arht;arHost()});w.querySelectorAll("[data-arhn]").forEach(b=>b.onclick=()=>{AR.hm.nt=+b.dataset.arhn;arHost()});
 arGramBind(w);arTopicBind(w);
 w.querySelector("#armus").onclick=()=>{AR.cfg.music=!AR.cfg.music;arHost()};w.querySelector("#arauto").onclick=()=>{AR.cfg.auto=!AR.cfg.auto;arHost()};
-w.querySelector("#arcreate").onclick=async()=>{arCtx();const msg=w.querySelector("#armsg");if(AR.cfg.game!=="hang"&&!arPicked().length){msg.textContent="Choose at least one topic first.";w.querySelector(".tlib").scrollIntoView({behavior:"smooth",block:"center"});return}const qs=AR.cfg.game==="hang"?arHmWordsPicked():arBuildMixed();if(qs.length<3){msg.textContent="Not enough content for these choices. Add more topics or question types.";return}
+w.querySelector("#arcreate").onclick=async()=>{arCtx();const msg=w.querySelector("#armsg");if(AR.cfg.game!=="hang"&&!arPicked().length){msg.textContent="Choose at least one topic first.";w.querySelector(".tlib").scrollIntoView({behavior:"smooth",block:"center"});return}const qs=arTakePreview()||arMakeQs();if(qs.length<3){msg.textContent="Not enough content for these choices. Add more topics or question types.";return}
 arResetGame(qs);AR.players=[];AR.names={};
 w.querySelector("#arcreate").disabled=true;msg.textContent="Opening the game room…";arNetClose();
 for(let t=0;t<3;t++){AR.pin=String(Math.floor(100000+Math.random()*900000));try{await arHostOpen(AR.pin);arHostLobby();return}catch(e){if(!(e&&e.type==="unavailable-id"))break}}
@@ -7900,6 +7900,33 @@ const a=p.querySelector("#dau");if(a)a.onclick=()=>dictSay(word);place()}
 document.addEventListener("click",e=>{if(!DICT.on)return;const t=e.target;if(t.closest("#dictbtn,#dictpop,#arena,#mockbar,input,textarea,select,#tabs,[data-tab]"))return;
 const w=dictWordAt(e.clientX,e.clientY);if(!w){dictClose();return}e.preventDefault();e.stopPropagation();dictShow(w,e.clientX,e.clientY)},true);
 document.addEventListener("keydown",e=>{if(e.key==="Escape")dictClose()});
+
+// ===== WORD WARS: PREVIEW THE QUESTIONS BEFORE PLAYING =====
+function arMakeQs(){return AR.cfg.game==="hang"?arHmWordsPicked():arBuildMixed()}
+const arSig=()=>{const c=Object.assign({},AR.cfg);delete c.music;delete c.auto;delete c.theme;return JSON.stringify([c,AR.hm&&AR.hm.words,S.levels])};
+function arTakePreview(){if(AR.pv&&AR.pv.sig===arSig()&&AR.pv.qs.length){const q=AR.pv.qs;AR.pv=null;return q}AR.pv=null;return null}
+(function(){const s=document.createElement("style");s.textContent=`
+#arena .pvq{background:#fff;color:#1B1446;border-radius:16px;padding:12px 14px;display:grid;gap:6px}
+#arena .pvq .hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:700 .8rem var(--body);color:#6B5BD6;text-transform:uppercase;letter-spacing:.06em}
+#arena .pvq .hd button{margin-left:auto}
+#arena .pvq .pp{font:700 1.1rem var(--display)}
+#arena .pvq .oo{display:flex;flex-wrap:wrap;gap:6px}
+#arena .pvq .oo span{border-radius:10px;padding:3px 10px;background:#EEF0F7;font-weight:600}
+#arena .pvq .oo span.ok{background:#1F9D55;color:#fff}
+#arena .pvq .why{font-size:.92rem;color:#475569}
+`;document.head.appendChild(s)})();
+function arPreview(){if(!AR.pv||AR.pv.sig!==arSig())AR.pv={sig:arSig(),qs:arMakeQs()};const qs=AR.pv.qs;const hang=AR.cfg.game==="hang";
+const w=arPaint(`${arTop()}<div class="apanel"><h1>Review the questions</h1><p class="muted">Only you see this screen. Check the questions before you project the game: remove any you don't want or get a new set. ${qs.length} ${hang?"words":"questions"} ready.</p></div>
+<div style="display:grid;gap:10px">${qs.map((q,i)=>hang?`<div class="pvq"><div class="hd">Word ${i+1} · ${esc(q.pos||"")}<button class="abtn ghost sm" data-pvdel="${i}" style="color:#1B1446;border-color:#cbd5e1">✕ Remove</button></div><div class="pp">${esc(q.w.toUpperCase())}</div><div class="why">Clue: ${esc(q.p)}</div></div>`
+:`<div class="pvq"><div class="hd">${i+1} · ${esc(q.h)}<button class="abtn ghost sm" data-pvdel="${i}" style="color:#1B1446;border-color:#cbd5e1">✕ Remove</button></div><div class="pp">${esc(q.p)}</div>${q.kind==="word"?`<div class="oo"><span class="ok">${esc(q.w)}</span></div>`:`<div class="oo">${q.o.map((o,k)=>`<span class="${k===q.c?"ok":""}">${k===q.c?"✓ ":""}${esc(o)}</span>`).join("")}</div>`}${q.why?`<div class="why">💡 ${esc(q.why)}</div>`:""}</div>`).join("")||`<p class="muted">No questions. Change the settings.</p>`}</div>
+<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:sticky;bottom:10px;background:rgba(18,13,51,.92);border-radius:18px;padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.4)"><button class="abtn ghost" id="pvback">← Settings</button><button class="abtn ghost" id="pvnew">🔄 New set</button><button class="abtn go" id="pvuse" ${qs.length>=3?"":"disabled"}>Use these questions ▶</button></div>`);
+w.querySelectorAll("[data-pvdel]").forEach(b=>b.onclick=()=>{AR.pv.qs.splice(+b.dataset.pvdel,1);arPreview()});
+w.querySelector("#pvnew").onclick=()=>{AR.pv=null;arPreview();AR.el.scrollTo({top:0})};
+w.querySelector("#pvback").onclick=()=>{arHost()};
+w.querySelector("#pvuse").onclick=()=>{arHost();const c=AR.el&&AR.el.querySelector("#arcreate");if(c)c.click()}}
+const _arHost18=arHost;arHost=function(){_arHost18();const c=AR.el&&AR.el.querySelector("#arcreate");if(!c||AR.el.querySelector("#arpv"))return;
+c.insertAdjacentHTML("beforebegin",`<button class="abtn ghost" id="arpv">👀 Preview questions</button>`);AR.el.querySelector("#arpv").onclick=()=>{arCtx();arPreview();AR.el.scrollTo({top:0})};
+if(AR.pv&&AR.pv.sig===arSig()){c.insertAdjacentHTML("afterend",`<span class="badge" style="align-self:center">✓ ${AR.pv.qs.length} reviewed questions will be used</span>`)}};
 
 render();
 </script>
