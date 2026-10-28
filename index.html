@@ -7627,7 +7627,7 @@ return `${v?`<div class="lbl">Vocabulary question types</div><div class="chips">
 ${g?`<div class="lbl" style="margin-top:${v?14:0}px">Grammar question types</div><div class="chips"><button class="chip" data-argq="gmc" aria-pressed="${!!AR.cfg.gtypes.gmc}">🧩 Choose the right form</button><button class="chip" data-argq="gtf" aria-pressed="${!!AR.cfg.gtypes.gtf}">✅ Correct or incorrect?</button></div>`:""}`}
 
 // ===== APP VERSION (number, update time and what's new) =====
-const APP_BUILD={v:28,t:"2026-10-26 22:05",log:[[19, "2026-10-22 22:50", "Word Wars: Kahoot-style topic library and 3D pictures for every question."], [20, "2026-10-22 22:54", "Word Wars: search box to find topics and words."], [21, "2026-10-22 23:12", "Word Wars: bigger projector screen, Create game bar, picture topic cards and clearer explanations."], [22, "2026-10-22 23:20", "Read the symbols: the options are almost identical, only one small detail changes."], [23, "2026-10-22 23:23", "The version number and update time now appear in the header and in Word Wars."], [24, "2026-10-22 23:50", "New Review tab: daily challenge with streak, my mistakes notebook with spaced review, and a full mock exam with a report. Tap-a-word dictionary. Word Wars: teams, results download and homework links."], [25, "2026-10-22 23:59", "Dictionary works without internet: 7.300 words from the lab with meaning, examples and pronunciation."], [26, "2026-10-23 00:02", "Dictionary: words outside the lab no longer use a synthetic voice; they link to Cambridge for real audio."], [27, "2026-10-23 09:40", "Word Wars: preview the questions before playing (remove or get a new set)."], [28, "2026-10-26 22:05", "Phones: nothing goes off the screen any more; Writing always shows a task of your level."]]};
+const APP_BUILD={v:29,t:"2026-10-28 08:10",log:[[19, "2026-10-22 22:50", "Word Wars: Kahoot-style topic library and 3D pictures for every question."], [20, "2026-10-22 22:54", "Word Wars: search box to find topics and words."], [21, "2026-10-22 23:12", "Word Wars: bigger projector screen, Create game bar, picture topic cards and clearer explanations."], [22, "2026-10-22 23:20", "Read the symbols: the options are almost identical, only one small detail changes."], [23, "2026-10-22 23:23", "The version number and update time now appear in the header and in Word Wars."], [24, "2026-10-22 23:50", "New Review tab: daily challenge with streak, my mistakes notebook with spaced review, and a full mock exam with a report. Tap-a-word dictionary. Word Wars: teams, results download and homework links."], [25, "2026-10-22 23:59", "Dictionary works without internet: 7.300 words from the lab with meaning, examples and pronunciation."], [26, "2026-10-23 00:02", "Dictionary: words outside the lab no longer use a synthetic voice; they link to Cambridge for real audio."], [27, "2026-10-23 09:40", "Word Wars: preview the questions before playing (remove or get a new set)."], [28, "2026-10-26 22:05", "Phones: nothing goes off the screen any more; Writing always shows a task of your level."], [29, "2026-10-28 08:10", "Grammar: new topic Mixed conditionals (B2.2) and a search box to find grammar topics."]]};
 (function(){const M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];const fmt=t=>{const [d,h]=t.split(" ");const [y,mo,da]=d.split("-");return `${+da} ${M[mo-1]} ${y}, ${h}`};
 const st=document.createElement("style");st.textContent=`#appver{justify-self:start;border:0;background:none;padding:2px 0;font:600 .82rem var(--body);color:var(--muted,#667);cursor:pointer;text-align:left}#appver b{color:var(--ink,#16213A)}#appver:hover{text-decoration:underline}
 #appvlog{justify-self:stretch;background:var(--surface,#fff);border:1.5px solid var(--line,#ddd);border-radius:12px;padding:10px 14px;font-size:.88rem;display:grid;gap:6px;max-width:720px}#appvlog div{display:grid;grid-template-columns:auto 1fr;gap:10px}#appvlog span{color:var(--muted,#667);white-space:nowrap}
@@ -7934,6 +7934,64 @@ w.querySelector("#pvuse").onclick=()=>{arHost();const c=AR.el&&AR.el.querySelect
 const _arHost18=arHost;arHost=function(){_arHost18();const c=AR.el&&AR.el.querySelector("#arcreate");if(!c||AR.el.querySelector("#arpv"))return;
 c.insertAdjacentHTML("beforebegin",`<button class="abtn ghost" id="arpv">👀 Preview questions</button>`);AR.el.querySelector("#arpv").onclick=()=>{arCtx();arPreview();AR.el.scrollTo({top:0})};
 if(AR.pv&&AR.pv.sig===arSig()){c.insertAdjacentHTML("afterend",`<span class="badge" style="align-self:center">✓ ${AR.pv.qs.length} reviewed questions will be used</span>`)}};
+
+// ===== EXTRA GRAMMAR: MIXED CONDITIONALS (B2.2, after the third conditional) =====
+(function(){if(GRAMMAR.some(g=>g.id==="b22-mixed-cond"))return;
+const g={id:"b22-mixed-cond",unit:12,lesson:"Unit 6 · Extra",title:"Mixed conditionals",
+what:"Mixed conditionals combine two different times in one sentence. Both parts are unreal (imaginary). Type 1: an unreal past condition with a present or future result (3rd + 2nd). Type 2: an unreal present state with a past result (2nd + 3rd). Each clause keeps its own time.",
+form:["<b>Type 1 · past condition, present result:</b> If + past perfect, would / wouldn't + base form: If I <b>had accepted</b> the job in Guayaquil, I <b>would be living</b> there now.",
+"<b>Type 2 · present state, past result:</b> If + past simple / past continuous, would / wouldn't have + past participle: If Marco <b>weren't</b> so shy, he <b>would have spoken</b> up in yesterday's meeting.",
+"Use time markers to see which time each clause talks about: <b>last year, yesterday</b> (past) vs <b>now, today, always, in general</b> (present).",
+"The clauses can change order (no comma): She <b>would have helped</b> you move last weekend if she <b>didn't hate</b> heavy lifting.",
+"could / might can replace would: If I <b>had studied</b> engineering, I <b>might be working</b> at CELEC now."],
+uses:[["Type 1: a past decision or event changes the present","If I hadn't lost my passport yesterday, I wouldn't be in the queue at the consulate now."],
+["Type 1: regret about the past with a present consequence","If we hadn't spent our savings on the car, we could afford a holiday this summer."],
+["Type 2: a permanent quality or habit explains a past result","If she weren't afraid of heights, she would have come paragliding with us yesterday."],
+["Type 2: a present fact that made a past action impossible","If I spoke Kichwa, I would have understood the guide in Otavalo last weekend."],
+["Present or future result with continuous form","If he had trained harder in the pre-season, he would be playing in today's final."]],
+mistakes:["<s>If I would have accepted the job, I would live in London now.</s> If I <b>had accepted</b> the job, I would be living in London now. (no would in the if clause)",
+"<s>If Marco wasn't shy, he would speak in yesterday's meeting.</s> If Marco weren't so shy, he <b>would have spoken</b> in yesterday's meeting. (past result: would have + past participle)",
+"<s>If I had taken Spanish lessons, I would have been able to speak with the clients today.</s> ... I <b>would be able</b> to speak with the clients today. (today = present result)",
+"<s>If she wasn't afraid of heights, she would come skydiving yesterday.</s> ... she <b>would have come</b> skydiving yesterday.",
+"Don't mix a real time with an unreal form: <s>If I studied harder last year...</s> If I <b>had studied</b> harder last year... (last year = past perfect)"],
+practice:[
+["If I ___ that job offer in London last year, I would be living in England right now.",["had accepted","accepted","would have accepted"],0,"last year = unreal past condition: if + past perfect. The result (right now) is present: would + base form."],
+["If Marco weren't so shy, he ___ up during yesterday's meeting.",["would have spoken","would speak","had spoken"],0,"weren't so shy = a permanent present quality. yesterday = past result: would have + past participle."],
+["If we hadn't spent all our savings on home renovations, we ___ a vacation this summer.",["could afford","could have afforded","can afford"],0,"Past condition, present or future result (this summer): could + base form."],
+["She would have helped you move last weekend if she ___ heavy lifting so much.",["didn't dislike","wouldn't dislike","doesn't dislike"],0,"Her dislike is a general present state: if + past simple. Past result: would have helped."],
+["If he had trained harder during the pre-season, he ___ in today's final.",["would be playing","would have played","will be playing"],0,"today = present result: would be + -ing."],
+["If I hadn't lost my passport yesterday, I ___ in the queue at the consulate now.",["wouldn't be standing","wouldn't have stood","won't be standing"],0,"now = present result: wouldn't be + -ing."],
+["If Sarah ___ more organised, she wouldn't have missed her flight this morning.",["were","would be","has been"],0,"More organised describes her in general (present state): if + past simple (were). The result is past: wouldn't have missed."],
+["If they had locked the doors properly, the burglars ___ inside the building right now.",["wouldn't be","wouldn't have been","won't be"],0,"right now = present result: wouldn't be."],
+["If you weren't so afraid of heights, you ___ skydiving with us yesterday.",["would have come","would come","had come"],0,"yesterday = past result: would have + past participle."],
+["If I had taken those Spanish lessons, I ___ able to speak with the clients today.",["would be","would have been","am"],0,"today = present result: would be able to."],
+["If the engineers ___ the transformer last month, the town wouldn't be without power now.",["had checked","checked","would check"],0,"last month = past condition: had checked. now = present result."],
+["If Ana ___ Kichwa, she would have understood the guide in Otavalo last weekend.",["spoke","would speak","speaks"],0,"Speaking Kichwa is a present ability (present state): if + past simple. Past result: would have understood."]]};
+GMORE_MIXED=[
+["If I ___ engineering, I might be working at CELEC now.",["had studied","have studied","would study"],0,"Past decision: had studied. Present result: might be working."],
+["If my brother weren't so stubborn, he ___ my advice last year.",["would have taken","would take","had taken"],0,"Present quality (stubborn), past result (last year): would have taken."],
+["We ___ lost now if you had brought the map.",["wouldn't be","wouldn't have been","aren't"],0,"now = present result: wouldn't be."],
+["If it ___ raining all the time in Quito in April, we would have gone hiking last Saturday.",["weren't","wouldn't be","isn't"],0,"A general situation (it rains a lot in April): if + past simple. Past result: would have gone."],
+["If the bus hadn't broken down this morning, I ___ at work by now.",["would be","would have been","will be"],0,"by now = present result: would be."],
+["If I ___ so tired, I would have finished the report last night.",["weren't","wouldn't be","am not"],0,"I'm always tired lately (present state): if + past simple. Past result."],
+["If she had saved more money, she ___ in a bigger flat now.",["would live","would have lived","lives"],0,"now = present result: would + base form."],
+["If you ___ such a good cook, we would have ordered pizza yesterday.",["weren't","wouldn't be","aren't"],0,"Good cook = general quality (present): if + past simple."],
+["If I hadn't eaten so much at lunch, I ___ so sleepy now.",["wouldn't feel","wouldn't have felt","don't feel"],0,"now = present result."],
+["If Luis ___ allergic to cats, he would have stayed at our house last week.",["weren't","wouldn't be","isn't"],0,"Allergy = permanent present state: if + past simple. Past result: would have stayed."],
+["If the city had built the metro earlier, traffic in Quito ___ so bad today.",["wouldn't be","wouldn't have been","won't be"],0,"Past condition, present result (today)."],
+["If I were better at maths, I ___ the engineering entrance exam two years ago.",["would have passed","would pass","had passed"],0,"Present ability, past result: would have passed."]];
+g.bank=g.practice.concat(GMORE_MIXED);
+const i=GRAMMAR.findIndex(x=>x.id==="b22-third-cond");GRAMMAR.splice(i>=0?i+1:GRAMMAR.length,0,g);
+if(typeof BOOK!=="undefined"&&BOOK[12]&&BOOK[12].grammar&&!BOOK[12].grammar.includes(g.id))BOOK[12].grammar.push(g.id)})();
+var GMORE_MIXED;
+// ===== GRAMMAR TOPIC SEARCH =====
+SQ.gram=SQ.gram||"";
+function sGram(m){const q=sNorm(SQ.gram.trim());const box=$("#sr-gram",m);if(!box)return;if(!q){box.innerHTML="";return}
+const txt=g=>[g.title,g.what,(g.form||[]).join(" "),(g.uses||[]).map(u=>u.join(" ")).join(" ")].join(" ").replace(/<[^>]+>/g,"");
+const gs=GRAMMAR.filter(g=>activeUnits().includes(g.unit)&&sNorm(txt(g)).includes(q)).map(g=>[g,sNorm(g.title).includes(q)?0:1]).sort((a,b)=>a[1]-b[1]).map(x=>x[0]);
+box.innerHTML=gs.length?gs.map(g=>`<button class="hit uu${g.unit}" data-sgram="${esc(g.id)}" style="text-align:left;cursor:pointer;font:inherit"><div class="top"><b>${sMark(g.title,q)}</b><span class="meta" style="margin-left:auto">${esc(uLabel(g.unit))} · ${esc(g.lesson)}</span></div><div class="meta">${sMark(g.what.slice(0,160),q)}${g.what.length>160?"…":""}</div></button>`).join(""):`<div class="none">No grammar topics found for "${esc(SQ.gram.trim())}". Try: conditional, passive, reported, relative…</div>`;
+$$("[data-sgram]",box).forEach(b=>b.onclick=()=>{const g=GRAMMAR.find(x=>x.id===b.dataset.sgram);if(!g)return;if(U()&&U()!==g.unit)S.unit=0;G.cur=g.id;G.ans={};SQ.gram="";save();viewGram($("#main"));const gb=$("#gbox");if(gb)gb.scrollIntoView({behavior:"smooth"})})}
+const _viewGramS=viewGram;viewGram=function(m){_viewGramS(m);m.insertAdjacentHTML("afterbegin",sBox("gram","Search a grammar topic: conditional, passive, reported speech…"));sBind(m,"gram",()=>sGram(m),()=>viewGram(m))};
 
 render();
 </script>
