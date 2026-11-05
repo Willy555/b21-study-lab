@@ -107,11 +107,14 @@ const DX={q:"",res:null,busy:false,err:"",hist:[],saved:[]};
 try{const d=JSON.parse(localStorage.getItem("dx-hist")||"null");if(d){DX.hist=d.h||[];DX.saved=d.s||[]}}catch(e){}
 function dxSave(){try{localStorage.setItem("dx-hist",JSON.stringify({h:DX.hist.slice(0,20),s:DX.saved.slice(0,200)}))}catch(e){}}
 ICON.dict='<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/><path d="M8 10.5h5M10.5 8v5"/>';TABIC.dict="dict";
-TABS.splice(TABS.findIndex(t=>t[0]==="sounds")+1,0,["dict","Dictionary"]);
+TABS.splice(TABS.findIndex(t=>t[0]==="sounds")+1,0,["dict","Word search"]);
 (function(){const st=document.createElement("style");st.textContent=`
-.dxbar{display:flex;gap:8px;align-items:center;border:2px solid var(--line);border-radius:16px;padding:6px 6px 6px 14px;background:#fff;position:relative}
+.dxwrap{min-width:0;max-width:100%;box-sizing:border-box}
+.dxwrap *{min-width:0}
+.dxbar{box-sizing:border-box;width:100%;max-width:100%;display:flex;gap:8px;align-items:center;border:2px solid var(--line);border-radius:16px;padding:6px 6px 6px 14px;background:#fff;position:relative}
 .dxbar:focus-within{border-color:var(--accent,#6B5BD6)}
-.dxbar input{flex:1;min-width:0;border:0;outline:0;font:600 1.15rem var(--body);padding:8px 0;background:none;color:var(--ink)}
+.dxbar .btn{flex:none}
+.dxbar input{flex:1;width:100%;min-width:0;border:0;outline:0;font:600 1.15rem var(--body);padding:8px 0;background:none;color:var(--ink)}
 .dxsug{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:2px solid var(--line);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.12);z-index:20;overflow:hidden}
 .dxsug button{display:flex;gap:8px;width:100%;border:0;background:none;text-align:left;padding:10px 14px;font:600 1rem var(--body);cursor:pointer;color:var(--ink)}
 .dxsug button:hover,.dxsug button.on{background:#F1F0FB}.dxsug small{color:var(--muted,#667);margin-left:auto}
@@ -158,7 +161,7 @@ return `<section class="card" style="display:grid;gap:6px">${off.ipa?`<div><span
 function dxDefFor(r){const o=r.online&&r.online[0]&&r.online[0].meanings&&r.online[0].meanings[0];if(o&&o.definitions[0])return {pos:o.partOfSpeech,def:o.definitions[0].definition,ex:o.definitions[0].example||""};
 if(r.book.length)return {pos:r.book[0].pos,def:r.book[0].def,ex:r.book[0].ex};const off=r.off&&(r.off.own||r.off.base);if(off&&off.s[0])return {pos:off.s[0][0],def:off.s[0][1],ex:off.s[0][2]||""};return null}
 function viewDict(m){const r=DX.res;const au=r&&r.online?dxAudio(r.online):[];const ipas=r&&r.online?dxIpa(r.online):[];const saved=r&&DX.saved.some(x=>x.w===r.w.toLowerCase());
-m.innerHTML=`<section class="card" style="display:grid;gap:12px"><span class="label">Dictionary</span><h1 style="margin:0">Look up a new word</h1><p class="sub" style="margin:0">Search any English word or phrase: meaning, examples, pronunciation with real voices, similar words and opposites. Words from your book appear first. Needs internet for new words.</p>
+m.innerHTML=`<section class="card dxwrap" style="display:grid;gap:12px"><span class="label">Word search</span><h1 style="margin:0">Look up a new word</h1><p class="sub" style="margin:0">Search any English word or phrase: meaning, examples, pronunciation with real voices, similar words and opposites. Words from your book appear first. Needs internet for new words.</p>
 <form class="dxbar" id="dxf" autocomplete="off"><span>🔎</span><input id="dxq" type="search" enterkeyhint="search" placeholder="Type a word: baffle, take up with, resilient…" value="${esc(DX.q)}" aria-label="Word to look up"><button class="btn primary" type="submit">Search</button><div class="dxsug" id="dxsug" hidden></div></form>
 ${DX.hist.length&&!r?`<div><div class="sub" style="margin-bottom:6px">Recent searches</div><div class="dxlist">${DX.hist.slice(0,12).map(x=>`<button data-dxq="${esc(x)}">${esc(x)}</button>`).join("")}</div></div>`:""}</section>
 ${r?`<section class="card" style="display:grid;gap:10px"><div class="dxhead"><h2>${esc(r.w)}</h2><div class="dxph">${(ipas.length?ipas:r.book[0]?["/"+r.book[0].uk+"/"]:r.off&&r.off.ipa?["/"+r.off.ipa+"/"]:[]).map(x=>`<span class="ipa">${esc(x)}</span>`).join(" ")}
@@ -187,4 +190,4 @@ const cl=$("#dxclr",m);if(cl)cl.onclick=()=>{if(!confirm("Remove all the words f
 if(!r)setTimeout(()=>{try{inp.focus({preventScroll:true})}catch(e){}},50)}
 const _renderDx=render;render=function(){if(S.tab==="dict"){try{lpStop()}catch(e){}tabs();stats();viewDict($("#main"));return}_renderDx()};
 // the tap-a-word pop-up links to the full dictionary
-const _dictShowDx=dictShow;dictShow=function(word,x,y){_dictShowDx(word,x,y);const p=document.querySelector("#dictpop");if(!p)return;const a=p.querySelector(".actions")||p;const add=()=>{const box=p.querySelector(".actions")||p;if(box.querySelector(".dxgo"))return;box.insertAdjacentHTML("beforeend",`<button class="btn small dxgo">🔎 Full dictionary</button>`);box.querySelector(".dxgo").onclick=()=>{dictClose();S.tab="dict";save();render();dxLookup(word)}};add();setTimeout(add,400);setTimeout(add,1500)};
+const _dictShowDx=dictShow;dictShow=function(word,x,y){_dictShowDx(word,x,y);const p=document.querySelector("#dictpop");if(!p)return;const a=p.querySelector(".actions")||p;const add=()=>{const box=p.querySelector(".actions")||p;if(box.querySelector(".dxgo"))return;box.insertAdjacentHTML("beforeend",`<button class="btn small dxgo">🔎 Word search</button>`);box.querySelector(".dxgo").onclick=()=>{dictClose();S.tab="dict";save();render();dxLookup(word)}};add();setTimeout(add,400);setTimeout(add,1500)};

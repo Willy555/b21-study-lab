@@ -48,6 +48,7 @@ lm = open(os.path.join(HERE, "audio", "lman_b23.json"), encoding="utf-8").read()
 patch = r'''
 // ===== B2.3 LEVEL SUPPORT =====
 LVPRE["B2.3"]="b23";
+if(typeof TR_B23!=="undefined"&&typeof TR_DATA!=="undefined")Object.assign(TR_DATA,TR_B23);
 const _lvPackB23=lvPack;lvPack=function(l){return l==="B2.3"?{gx:[null,GX_B23_P1,GX_B23_P2,GX_B23_P3,GX_B23_P4],lx:[null,LX_B23_P1,LX_B23_P2],rx:RX_B23,wx:WX_B23}:_lvPackB23(l)};
 const _lsSetsB23=lsSets;lsSets=function(){const add=(arr,pre)=>(arr||[]).map((d,i)=>({d,key:pre+i,lv:"B2.3"}));const extra=S.levels.includes("B2.3")?({p1:add(CL_B23_1,"b23cl1-"),p2:add(CL_B23_2,"b23cl2-"),p3:add(LX_B23_P2,"b23ef2-"),p4:add(CL_B23_4,"b23cl4-")}[LS.part]||[]):[];return _lsSetsB23().concat(extra).sort((a,b)=>LEVELS.indexOf(a.lv)-LEVELS.indexOf(b.lv))};
 (function(){const A=__AUDMAN_B23__;for(const acc in A){AUDMAN[acc]=AUDMAN[acc]||{};Object.assign(AUDMAN[acc],A[acc])}Object.assign(LMAN,__LMAN_B23__)})();
@@ -74,7 +75,7 @@ if mv:
     stamp = os.environ.get("BUILD_TIME", "2026-11-05 09:00")
     js = js[:mv.start()] + f'const APP_BUILD={{v:{v},t:"{stamp}",log:[' + js[mv.end():]
     end = js.index("]]};", mv.start())
-    js = js[:end] + f'], [{v}, "{stamp}", "New level B2.3 (units 1-6). Word Wars: Grammar test games (the 4 exam parts, choose or write the answer). New Dictionary tab to look up any word."]' + js[end + 1:]
+    js = js[:end] + f'], [{v}, "{stamp}", "New level B2.3 (units 1-6). Word Wars: Grammar test games (the 4 exam parts, choose or write the answer). New Word search tab to look up any English word."]' + js[end + 1:]
 
 # ---------- 4. CSS unit colours and header text ----------
 COL = [(19, "#7C3AED"), (20, "#0D9488"), (21, "#DB2777"), (22, "#2563EB"), (23, "#0891B2"), (24, "#CA8A04")]
