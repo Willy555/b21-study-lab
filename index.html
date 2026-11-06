@@ -8742,7 +8742,7 @@ return `${v?`<div class="lbl">Vocabulary question types</div><div class="chips">
 ${g?`<div class="lbl" style="margin-top:${v?14:0}px">Grammar question types</div><div class="chips"><button class="chip" data-argq="gmc" aria-pressed="${!!AR.cfg.gtypes.gmc}">🧩 Choose the right form</button><button class="chip" data-argq="gtf" aria-pressed="${!!AR.cfg.gtypes.gtf}">✅ Correct or incorrect?</button></div>`:""}`}
 
 // ===== APP VERSION (number, update time and what's new) =====
-const APP_BUILD={v:31,t:"2026-11-05 03:19",log:[[19, "2026-10-22 22:50", "Word Wars: Kahoot-style topic library and 3D pictures for every question."], [20, "2026-10-22 22:54", "Word Wars: search box to find topics and words."], [21, "2026-10-22 23:12", "Word Wars: bigger projector screen, Create game bar, picture topic cards and clearer explanations."], [22, "2026-10-22 23:20", "Read the symbols: the options are almost identical, only one small detail changes."], [23, "2026-10-22 23:23", "The version number and update time now appear in the header and in Word Wars."], [24, "2026-10-22 23:50", "New Review tab: daily challenge with streak, my mistakes notebook with spaced review, and a full mock exam with a report. Tap-a-word dictionary. Word Wars: teams, results download and homework links."], [25, "2026-10-22 23:59", "Dictionary works without internet: 7.300 words from the lab with meaning, examples and pronunciation."], [26, "2026-10-23 00:02", "Dictionary: words outside the lab no longer use a synthetic voice; they link to Cambridge for real audio."], [27, "2026-10-23 09:40", "Word Wars: preview the questions before playing (remove or get a new set)."], [28, "2026-10-26 22:05", "Phones: nothing goes off the screen any more; Writing always shows a task of your level."], [29, "2026-10-28 08:10", "Grammar: new topic Mixed conditionals (B2.2) and a search box to find grammar topics."], [30, "2026-10-28 13:40", "Grammar: new part 6, Sentence transformation, in every topic (6 rewrites each)."], [31, "2026-11-05 03:19", "New level B2.3 (units 1-6). Word Wars: Grammar test games (the 4 exam parts, choose or write the answer). New Word search tab to look up any English word."]]};
+const APP_BUILD={v:32,t:"2026-11-06 09:50",log:[[19, "2026-10-22 22:50", "Word Wars: Kahoot-style topic library and 3D pictures for every question."], [20, "2026-10-22 22:54", "Word Wars: search box to find topics and words."], [21, "2026-10-22 23:12", "Word Wars: bigger projector screen, Create game bar, picture topic cards and clearer explanations."], [22, "2026-10-22 23:20", "Read the symbols: the options are almost identical, only one small detail changes."], [23, "2026-10-22 23:23", "The version number and update time now appear in the header and in Word Wars."], [24, "2026-10-22 23:50", "New Review tab: daily challenge with streak, my mistakes notebook with spaced review, and a full mock exam with a report. Tap-a-word dictionary. Word Wars: teams, results download and homework links."], [25, "2026-10-22 23:59", "Dictionary works without internet: 7.300 words from the lab with meaning, examples and pronunciation."], [26, "2026-10-23 00:02", "Dictionary: words outside the lab no longer use a synthetic voice; they link to Cambridge for real audio."], [27, "2026-10-23 09:40", "Word Wars: preview the questions before playing (remove or get a new set)."], [28, "2026-10-26 22:05", "Phones: nothing goes off the screen any more; Writing always shows a task of your level."], [29, "2026-10-28 08:10", "Grammar: new topic Mixed conditionals (B2.2) and a search box to find grammar topics."], [30, "2026-10-28 13:40", "Grammar: new part 6, Sentence transformation, in every topic (6 rewrites each)."], [31, "2026-11-05 03:19", "New level B2.3 (units 1-6). Word Wars: Grammar test games (the 4 exam parts, choose or write the answer). New Word search tab to look up any English word."], [32, "2026-11-06 09:50", "Word Wars: new Kahoot-style preview. See every question with its answers as a list or as slides, hide or show answers, swap a question and print the answer key."]]};
 (function(){const M=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];const fmt=t=>{const [d,h]=t.split(" ");const [y,mo,da]=d.split("-");return `${+da} ${M[mo-1]} ${y}, ${h}`};
 const st=document.createElement("style");st.textContent=`#appver{justify-self:start;border:0;background:none;padding:2px 0;font:600 .82rem var(--body);color:var(--muted,#667);cursor:pointer;text-align:left}#appver b{color:var(--ink,#16213A)}#appver:hover{text-decoration:underline}
 #appvlog{justify-self:stretch;background:var(--surface,#fff);border:1.5px solid var(--line,#ddd);border-radius:12px;padding:10px 14px;font-size:.88rem;display:grid;gap:6px;max-width:720px}#appvlog div{display:grid;grid-template-columns:auto 1fr;gap:10px}#appvlog span{color:var(--muted,#667);white-space:nowrap}
@@ -9332,6 +9332,84 @@ const _renderDx=render;render=function(){if(S.tab==="dict"){try{lpStop()}catch(e
 // the tap-a-word pop-up links to the full dictionary
 const _dictShowDx=dictShow;dictShow=function(word,x,y){_dictShowDx(word,x,y);const p=document.querySelector("#dictpop");if(!p)return;const a=p.querySelector(".actions")||p;const add=()=>{const box=p.querySelector(".actions")||p;if(box.querySelector(".dxgo"))return;box.insertAdjacentHTML("beforeend",`<button class="btn small dxgo">🔎 Word search</button>`);box.querySelector(".dxgo").onclick=()=>{dictClose();S.tab="dict";save();render();dxLookup(word)}};add();setTimeout(add,400);setTimeout(add,1500)};
 
+
+// ===== WORD WARS: QUESTION PREVIEW (Kahoot style: list or slides, show or hide answers, swap, print) =====
+AR.pvo={ans:true,view:"list",i:0};
+(function(){const s=document.createElement("style");s.textContent=`
+#arena .pvsum{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#arena .pvtools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+#arena .pvseg{display:inline-flex;background:rgba(255,255,255,.12);border-radius:999px;padding:3px}
+#arena .pvseg button{border:0;background:none;color:#fff;font:800 .9rem var(--body);padding:7px 14px;border-radius:999px;cursor:pointer}
+#arena .pvseg button[aria-pressed="true"]{background:#fff;color:#1B1446}
+#arena .pvk{background:#fff;color:#1B1446;border-radius:18px;padding:14px;display:grid;gap:10px;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+#arena :is(.pvk,.pvslide) .hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#arena :is(.pvk,.pvslide) .num{background:#1B1446;color:#FFD84D;border-radius:10px;min-width:34px;height:34px;display:grid;place-items:center;font:900 1rem var(--display)}
+#arena :is(.pvk,.pvslide) .typ{font:800 .74rem var(--body);color:#6B5BD6;text-transform:uppercase;letter-spacing:.05em;flex:1;min-width:150px}
+#arena :is(.pvk,.pvslide) .tm{background:#EEF0F7;border-radius:999px;padding:4px 10px;font:800 .85rem var(--body)}
+#arena :is(.pvk,.pvslide) .act{display:flex;gap:6px}
+#arena :is(.pvk,.pvslide) .act button{border:1px solid #cbd5e1;background:#fff;color:#1B1446;border-radius:10px;padding:5px 10px;font:700 .82rem var(--body);cursor:pointer}
+#arena .pvk .qq{font:800 1.12rem/1.35 var(--display);display:flex;gap:10px;align-items:flex-start}
+#arena .pvk .qq .em{font-size:1.6rem;line-height:1}
+#arena .pvk .gxpre span{background:#F1F0FB}
+#arena .pvt{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#arena .pvt .t{display:flex;align-items:center;gap:8px;border-radius:12px;padding:10px 12px;color:#fff;font:700 1rem/1.25 var(--display);min-height:46px;transition:opacity .2s}
+#arena .pvt .t .arsh{width:22px;height:22px;flex:none}
+#arena .pvt .t .ck{margin-left:auto;background:#fff;color:#1F9D55;border-radius:50%;width:26px;height:26px;display:grid;place-items:center;font:900 1rem var(--body);flex:none}
+#arena .pvt .t.no{opacity:.35}
+#arena .pvt .t.wr{grid-column:1/-1;background:#1B1446;flex-wrap:wrap}
+#arena .pvt .t.wr b{color:#FFD84D}
+#arena .pvt .t.wr .hid{filter:blur(7px);user-select:none}
+#arena :is(.pvk,.pvslide) .why{font-size:.92rem;color:#475569;background:#F8FAFC;border-radius:10px;padding:8px 10px}
+#arena .pvslide{background:#fff;color:#1B1446;border-radius:22px;padding:clamp(14px,3vw,28px);display:grid;gap:14px;min-height:52vh;align-content:start}
+#arena .pvslide .qq{font:800 clamp(1.2rem,3vw,2rem)/1.3 var(--display);text-align:center}
+#arena .pvslide .em{font-size:clamp(2.4rem,6vw,4rem);text-align:center}
+#arena .pvslide .pvt .t{font-size:clamp(1rem,2.2vw,1.4rem);min-height:70px;padding:14px 16px}
+#arena .pvslide .pvt .t .arsh{width:30px;height:30px}
+#arena .pvdots{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}
+#arena .pvdots button{width:28px;height:28px;border-radius:8px;border:0;background:rgba(255,255,255,.18);color:#fff;font:800 .78rem var(--body);cursor:pointer}
+#arena .pvdots button[aria-current="true"]{background:#FFD84D;color:#1B1446}
+@media(max-width:560px){#arena .pvt{grid-template-columns:1fr}}
+`;document.head.appendChild(s)})();
+function pvTiles(q,show){if(q.kind==="word"){const acc=(q.acc&&q.acc.length?q.acc:[q.w]);return `<div class="pvt"><div class="t wr">✍️ Players write ${arEsc(q.pos&&/word/.test(q.pos)?q.pos:"the word")}:<span class="${show?"":"hid"}"><b>${arEsc(acc[0])}</b>${acc.length>1?` <span style="opacity:.8">(also: ${arEsc(acc.slice(1).join(" / "))})</span>`:""}</span></div></div>`}
+return `<div class="pvt">${(q.o||[]).map((o,k)=>{const c=AR_COL[k%4];const ok=k===q.c;return `<div class="t ${show&&!ok?"no":""}" style="background:${c[0]}">${arShape(c[1])}<span>${arEsc(o)}</span>${show&&ok?`<span class="ck">✓</span>`:""}</div>`}).join("")}</div>`}
+function pvQ(q,i,show,slide){const hang=AR.cfg.game==="hang";const dur=q.dur||AR.cfg.dur;
+if(hang)return `<div class="${slide?"pvslide":"pvk"}"><div class="hd"><span class="num">${i+1}</span><span class="typ">🪢 Hangman · ${arEsc(q.pos||"")}</span><span class="tm">⏱ ${dur} s</span>${slide?"":`<span class="act"><button data-pvsw="${i}">🔄 Swap</button><button data-pvdel="${i}">✕ Remove</button></span>`}</div><div class="qq">Clue: ${arEsc(q.p)}</div><div class="pvt"><div class="t wr">Word:<span class="${show?"":"hid"}"><b>${arEsc(String(q.w).toUpperCase())}</b></span></div></div></div>`;
+const head=`<div class="hd"><span class="num">${i+1}</span><span class="typ">${arEsc(q.h||"")}</span><span class="tm">⏱ ${dur} s</span>${slide?"":`<span class="act"><button data-pvsw="${i}" title="Change this question for another one">🔄 Swap</button><button data-pvdel="${i}">✕ Remove</button></span>`}</div>`;
+const pre=q.pre?gxPreHTML(q,slide):"";
+return `<div class="${slide?"pvslide":"pvk"}">${head}${slide&&q.em?`<div class="em">${q.em}</div>`:""}${pre}<div class="qq">${!slide&&q.em?`<span class="em">${q.em}</span>`:""}<span>${arEsc(q.p)}</span></div>${pvTiles(q,show)}${show&&q.why?`<div class="why">💡 ${arEsc(q.why)}</div>`:""}</div>`}
+function pvPrint(qs){const hang=AR.cfg.game==="hang";const T=arPicked().map(t=>t.name).join(", ");
+const rows=qs.map((q,i)=>{let a;if(hang||q.kind==="word"){const acc=hang?[String(q.w).toUpperCase()]:(q.acc&&q.acc.length?q.acc:[q.w]);a=`<p class="a">Answer: <b>${arEsc(acc.join(" / "))}</b></p>`}else a=`<ol type="A">${q.o.map((o,k)=>`<li${k===q.c?' class="ok"':""}>${arEsc(o)}${k===q.c?" ✓":""}</li>`).join("")}</ol>`;
+return `<div class="q"><h3>${i+1}. ${arEsc(hang?"Clue: "+q.p:q.p)}</h3>${q.pre?`<p class="pre">${arEsc(q.pre)} <b>${arEsc(q.key||"")}</b></p>`:""}${a}${q.why?`<p class="w">${arEsc(q.why)}</p>`:""}</div>`}).join("");
+const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Word Wars answer key</title><style>body{font:15px/1.45 system-ui,sans-serif;color:#111;max-width:800px;margin:24px auto;padding:0 16px}h1{font-size:22px;margin:0}.sub{color:#555;margin:4px 0 18px}.q{border-bottom:1px solid #ddd;padding:10px 0;break-inside:avoid}h3{font-size:16px;margin:0 0 6px}ol{margin:4px 0;padding-left:24px}li.ok{font-weight:700;color:#137333}.a b{color:#137333}.pre{background:#f3f3f8;padding:6px 8px;border-radius:6px}.w{color:#555;font-size:13px;margin:4px 0 0}@media print{button{display:none}}</style></head><body><button onclick="print()" style="float:right;padding:8px 14px">Print</button><h1>Word Wars · answer key</h1><p class="sub">${arEsc(T)} · ${qs.length} questions</p>${rows}</body></html>`;
+try{const w=window.open("","_blank");if(w){w.document.write(html);w.document.close();return}}catch(e){}
+const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([html],{type:"text/html"}));a.download="word-wars-answer-key.html";document.body.appendChild(a);a.click();a.remove()}
+arPreview=function(){if(!AR.pv||AR.pv.sig!==arSig())AR.pv={sig:arSig(),qs:arMakeQs()};const qs=AR.pv.qs;const O=AR.pvo;const hang=AR.cfg.game==="hang";
+if(O.i>=qs.length)O.i=Math.max(0,qs.length-1);
+const tot=qs.reduce((a,q)=>a+(q.dur||AR.cfg.dur)+8,0);const mode=arGame()||{};const T=arPicked();
+const nWrite=qs.filter(q=>q.kind==="word").length;
+const body=!qs.length?`<p class="muted">No questions. Change the settings.</p>`:O.view==="slides"?
+`<div class="pvdots">${qs.map((q,i)=>`<button data-pvgo="${i}" aria-current="${i===O.i}">${i+1}</button>`).join("")}</div>${pvQ(qs[O.i],O.i,O.ans,true)}
+<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:90px"><button class="abtn ghost" id="pvprev" ${O.i?"":"disabled"}>◀ Previous</button><button class="abtn ghost" id="pvans2">${O.ans?"🙈 Hide answer":"👁 Show answer"}</button><button class="abtn ghost" data-pvsw="${O.i}">🔄 Swap</button><button class="abtn ghost" data-pvdel="${O.i}">✕ Remove</button><button class="abtn ghost" id="pvnext" ${O.i<qs.length-1?"":"disabled"}>Next ▶</button></div>`
+:`<div style="display:grid;gap:12px">${qs.map((q,i)=>pvQ(q,i,O.ans,false)).join("")}</div>`;
+const w=arPaint(`${arTop()}<div class="apanel"><h1>Preview the game</h1><p class="muted">Only you see this screen. Check every question and its answer before you project the game. Swap or remove the ones you don't want.</p>
+<div class="pvsum"><span class="badge">${mode.ic||"⚡"} ${arEsc(mode.name||"")}</span><span class="badge">❓ ${qs.length} ${hang?"words":"questions"}</span>${nWrite&&!hang?`<span class="badge">✍️ ${nWrite} written</span>`:""}<span class="badge">⏱ about ${Math.max(1,Math.round(tot/60))} min</span>${T.slice(0,4).map(t=>`<span class="badge">${t.em||""} ${arEsc(t.name)}</span>`).join("")}${T.length>4?`<span class="badge">+${T.length-4} more</span>`:""}</div>
+<div class="pvtools"><span class="pvseg"><button data-pvv="list" aria-pressed="${O.view==="list"}">☰ List</button><button data-pvv="slides" aria-pressed="${O.view==="slides"}">🖥 Slides</button></span><span class="pvseg"><button data-pva="1" aria-pressed="${O.ans}">👁 Show answers</button><button data-pva="0" aria-pressed="${!O.ans}">🙈 Hide</button></span><button class="abtn ghost sm" id="pvprint">🖨 Answer key</button></div></div>
+${body}
+<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:sticky;bottom:10px;background:rgba(18,13,51,.92);border-radius:18px;padding:10px;box-shadow:0 10px 30px rgba(0,0,0,.4)"><button class="abtn ghost" id="pvback">← Settings</button><button class="abtn ghost" id="pvnew">🔄 New set</button><button class="abtn go" id="pvuse" ${qs.length>=3?"":"disabled"}>Use these questions ▶</button></div>`);
+const keep=()=>{const y=AR.el.scrollTop;arPreview();AR.el.scrollTop=y};
+w.querySelectorAll("[data-pvdel]").forEach(b=>b.onclick=()=>{AR.pv.qs.splice(+b.dataset.pvdel,1);keep()});
+w.querySelectorAll("[data-pvsw]").forEach(b=>b.onclick=()=>{const i=+b.dataset.pvsw;const have=new Set(AR.pv.qs.map(q=>q.p+"|"+q.w));let n=null;for(let k=0;k<6&&!n;k++){n=arMakeQs().find(q=>!have.has(q.p+"|"+q.w))}
+if(n){AR.pv.qs[i]=n;keep()}else{b.textContent="No other question";b.disabled=true}});
+w.querySelectorAll("[data-pvv]").forEach(b=>b.onclick=()=>{O.view=b.dataset.pvv;arPreview();AR.el.scrollTo({top:0})});
+w.querySelectorAll("[data-pva]").forEach(b=>b.onclick=()=>{O.ans=b.dataset.pva==="1";keep()});
+w.querySelectorAll("[data-pvgo]").forEach(b=>b.onclick=()=>{O.i=+b.dataset.pvgo;O.ans=false;keep()});
+const pv=w.querySelector("#pvprev"),nx=w.querySelector("#pvnext"),a2=w.querySelector("#pvans2");
+if(pv)pv.onclick=()=>{O.i--;O.ans=false;keep()};if(nx)nx.onclick=()=>{O.i++;O.ans=false;keep()};if(a2)a2.onclick=()=>{O.ans=!O.ans;keep()};
+w.querySelector("#pvprint").onclick=()=>pvPrint(AR.pv.qs);
+w.querySelector("#pvnew").onclick=()=>{AR.pv=null;O.i=0;arPreview();AR.el.scrollTo({top:0})};
+w.querySelector("#pvback").onclick=()=>{arHost()};
+w.querySelector("#pvuse").onclick=()=>{arHost();const c=AR.el&&AR.el.querySelector("#arcreate");if(c)c.click()}};
+document.addEventListener("keydown",e=>{try{if(!AR.el||!AR.pv||AR.pvo.view!=="slides"||!AR.el.querySelector(".pvslide"))return;if(e.key==="ArrowRight"&&AR.pvo.i<AR.pv.qs.length-1){AR.pvo.i++;AR.pvo.ans=false;arPreview()}else if(e.key==="ArrowLeft"&&AR.pvo.i>0){AR.pvo.i--;AR.pvo.ans=false;arPreview()}else if(e.key===" "){e.preventDefault();AR.pvo.ans=!AR.pvo.ans;arPreview()}}catch(x){}});
 
 render();
 </script>
