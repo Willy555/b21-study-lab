@@ -63,6 +63,7 @@ for g in gram_ids:
     gem[g] = next((e for k, e in EMO.items() if k in g), "🧩")
 patch = patch.replace("__AUDMAN_B23__", am).replace("__LMAN_B23__", lm).replace("__GRAM_EM__", json.dumps(gem, ensure_ascii=False))
 patch += "\n" + open(os.path.join(HERE, "addons.js"), encoding="utf-8").read() + "\n"
+patch += "\n" + open(os.path.join(HERE, "dict_ctx.js"), encoding="utf-8").read() + "\n"
 i = js.rfind("\nrender();")
 if i < 0:
     raise SystemExit("final render() not found")
