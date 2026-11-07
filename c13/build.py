@@ -35,9 +35,9 @@ const groups=body.split(" || ").map(g=>{const m=g.trim().match(/^(.*)\s+#(FR|F|R
 INTO.push({id:INTO.length,unit:u,type,groups,text:groups.map(g=>g.words.map(w=>w.w).join(" ")).join(" ")})});
 WXA.push(...WX_C13.map(x=>Object.assign(x,{lv:"C1.3"})));
 '''
-anchor = js.find('WXA.push(...WX_C13.map(x=>Object.assign(x,{lv:"C1.3"})));')
+anchor = js.find('WXA.push(...WX_B23.map(x=>Object.assign(x,{lv:"B2.3"})));')
 if anchor < 0:
-    raise SystemExit("C1.3 merge anchor missing")
+    raise SystemExit("B2.3 merge anchor missing")
 anchor = js.index("\n", anchor)
 js = js[:anchor] + "\n" + data + merge + js[anchor:]
 
