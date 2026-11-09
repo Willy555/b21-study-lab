@@ -56,7 +56,7 @@ Object.assign(AR_EM.gram,__GRAM_EM__);
 (function(){const add=(id,ids)=>{const p=AR_EM.packs.find(x=>x[0]===id);if(p)ids.forEach(i=>{if(GRAMMAR.some(g=>g.id===i)&&!p[4].includes(i))p[4].push(i)})};add("p-cond",GRAMMAR.filter(g=>g.unit>=25&&/conditional/i.test(g.title)).map(g=>g.id));add("p-modals",GRAMMAR.filter(g=>g.unit>=25&&/modal|advice|should/i.test(g.title)).map(g=>g.id));add("p-future",GRAMMAR.filter(g=>g.unit>=25&&/future/i.test(g.title)).map(g=>g.id));add("p-linking",GRAMMAR.filter(g=>g.unit>=25&&/conjunction|contrast/i.test(g.title)).map(g=>g.id))})();
 '''
 gram_ids = re.findall(r'id:"(c13-[a-z0-9-]+)"', open(os.path.join(HERE, "data", "grammar_c13.js"), encoding="utf-8").read())
-EMO = {"quote": "❝", "two-obj": "🎁", "number": "📊", "viewpoint": "👁️", "focus": "🔦", "question": "❓", "reflex": "🪞", "possess": "🔑", "that": "👉", "it-cleft": "🎯", "compar": "⚖️", "spec": "🕵️", "passive": "🔄", "cleft": "🎯", "wish": "🌠", "phrasal": "🧩", "adjective": "🎨", "order": "🎨", "mixed": "🔀", "cond": "🔀", "participle": "😮", "advice": "💡", "should": "💡", "future": "🔮", "gerund": "🔁", "verb": "🔁", "conj": "⚖️", "contrast": "⚖️"}
+EMO = {"quote": "❝", "semicolon": "✒️", "two-obj": "🎁", "number": "📊", "viewpoint": "👁️", "focus": "🔦", "question": "❓", "reflex": "🪞", "possess": "🔑", "that": "👉", "it-cleft": "🎯", "compar": "⚖️", "spec": "🕵️", "passive": "🔄", "cleft": "🎯", "wish": "🌠", "phrasal": "🧩", "adjective": "🎨", "order": "🎨", "mixed": "🔀", "cond": "🔀", "participle": "😮", "advice": "💡", "should": "💡", "future": "🔮", "gerund": "🔁", "verb": "🔁", "conj": "⚖️", "contrast": "⚖️"}
 gem = {}
 for g in gram_ids:
     gem[g] = next((e for k, e in EMO.items() if k in g), "🧩")
