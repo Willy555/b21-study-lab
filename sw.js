@@ -1,5 +1,5 @@
 // Future Simple: offline mode. Audio is saved the first time it plays (no big download on join).
-const VERSION = 'v38';
+const VERSION = 'v39';
 const CACHE = 'b21-lab-' + VERSION;
 const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 const AUDIO = [];
@@ -83,12 +83,16 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Pagina: intenta la version nueva en linea; sin internet usa la guardada
+  // Paginas: intenta la version nueva en linea; sin internet usa la copia guardada DE ESA MISMA pagina.
+  // (Antes toda pagina se guardaba como index.html y otra pagina podia reemplazar al laboratorio.)
   if (req.mode === 'navigate' || url.pathname.endsWith('.html') || url.pathname.endsWith('/')) {
     e.respondWith((async () => {
       const c = await caches.open(CACHE);
-      try { const r = await fetch(req); if (r.ok) c.put('index.html', r.clone()); return r; }
-      catch (err) { return (await c.match('index.html')) || (await c.match('./')); }
+      const root = new URL(self.registration.scope).pathname;
+      const isApp = url.pathname === root || url.pathname === root + 'index.html';
+      const key = isApp ? 'index.html' : url.origin + url.pathname;
+      try { const r = await fetch(req); if (r.ok) c.put(key, r.clone()); return r; }
+      catch (err) { return (await c.match(key)) || (isApp ? await c.match('./') : null) || new Response('Offline', { status: 503 }); }
     })());
     return;
   }
