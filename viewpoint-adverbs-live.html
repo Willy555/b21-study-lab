@@ -182,6 +182,14 @@ body.player{background:linear-gradient(180deg,#fff7fb,#ffeef5)}
 .mid .pic{min-height:260px}
 .pic.mini{min-height:120px;font-size:54px;border-radius:12px;margin-top:8px}.pic.mini .sticker{font-size:26px;right:6px;bottom:4px}
 .swap{padding:4px 10px;font-size:16px;margin-left:6px}
+.avlab{font-weight:800;color:var(--mut);margin:4px 0 8px}
+.avgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:14px}
+.avgrid button{font-size:30px;padding:6px 0;border-radius:12px;background:#f7f3f8;border:3px solid transparent;line-height:1.2}
+.avgrid button.on{border-color:var(--rose);background:#fff;transform:scale(1.08)}
+.plist span .av{font-size:20px;margin-right:6px;vertical-align:-2px}
+.nm .av{font-size:22px;margin-right:8px;vertical-align:-3px}
+.pav{font-size:54px;line-height:1;margin-bottom:4px;animation:pop .5s}
+.bounce{animation:bnc 1.2s ease-in-out infinite}@keyframes bnc{50%{transform:translateY(-10px)}}
 </style>
 </head>
 <body>
@@ -232,6 +240,7 @@ const MUS=(()=>{
 })();
 const PAGES_URL="https://willy555.github.io/b21-study-lab/viewpoint-adverbs-live.html";
 const pageURL=()=>/^https?:$/.test(location.protocol)&&!/^(localhost|127\.)/.test(location.hostname)?location.href.split("#")[0].split("?")[0]:PAGES_URL;
+const AVS=["🦊","🐼","🐯","🦁","🐸","🐵","🐨","🐰","🐶","🐱","🦄","🐙","🦉","🐧","🐢","🐬","🦖","🐝","🦋","🐳","🦩","🐹","🐻","🐮"];
 const OPT=[{c:"#e21b3c",s:"▲"},{c:"#1368ce",s:"◆"},{c:"#d89e00",s:"●"},{c:"#26890c",s:"■"}];
 const CAT={Meaning:"#1368ce",Usage:"#26890c",Form:"#d97706",Position:"#7c3aed"};
 
@@ -489,8 +498,10 @@ function onMsg(conn,m){
    let name=base,k=2;while(taken.has(name.toLowerCase()))name=base+" "+(k++);
    p={pid,name,score:0,ans:[],online:true,conn:null};G.players.set(pid,p);
   }
+  {const av=String(m.av||"");p.av=AVS.includes(av)?av:(p.av||AVS[G.players.size%AVS.length]);
+  }
   p.conn=conn;p.online=true;conn._pid=pid;
-  send(p,{t:"joined",pid,name:p.name});resync(p);render();
+  send(p,{t:"joined",pid,name:p.name,av:p.av});resync(p);render();
  }else if(m.t==="answer"){
   const p=G.players.get(conn._pid);
   if(!p||G.phase!=="question"||m.qi!==G.qi||p.ans[G.qi])return;
@@ -664,7 +675,7 @@ function mountLobby(){
  const err=G.err?`<div class="warn">${G.err==="script"?"Could not load the live engine. Check the internet connection.":G.err==="timeout"?"The live connection can't open here. Open the page from its GitHub Pages link in Chrome.":"Connection problem ("+esc(G.err)+"). Reload the page."}</div>`:"";
  $("#side",lobbyEl).innerHTML=`${G.revealedQR?`<div class="scan"><div class="qrlab">Scan to play</div><div class="code">Room <b>${esc(G.code)}</b></div><div class="url">${esc(joinURL())}</div><button class="btn ghost" data-act="qrhide" style="width:100%;margin-top:8px">Back to the tree</button></div>`:""}
  <h4><span>Players</span><span>${on}</span></h4>
- <div class="plist">${ps.length?ps.map(p=>`<span class="${p.online?"":"off"}">${esc(p.name)}</span>`).join(""):`<span style="opacity:.6;border-style:dashed">Waiting for players...</span>`}</div>
+ <div class="plist">${ps.length?ps.map(p=>`<span class="${p.online?"":"off"}"><b class="av">${p.av||""}</b>${esc(p.name)}</span>`).join(""):`<span style="opacity:.6;border-style:dashed">Waiting for players...</span>`}</div>
  <div class="qsel"><span>How many questions? <b>${G.sel.size}</b></span><div class="nsel">${[10,15,20,30,BANK.length].map(n=>`<button class="${G.sel.size===n?"on":""}" data-act="nsel" data-v="${n}">${n===BANK.length?"All":n}</button>`).join("")}</div><button class="btn ghost" data-act="popen" style="width:100%;margin-top:6px">Preview questions</button></div>
  ${fileWarn}${err}
  <button class="btn rose" data-act="gstart" ${on&&G.sel.size?"":"disabled"}>Start game</button>`;
@@ -672,7 +683,7 @@ function mountLobby(){
 
 function optTile(j,txt,extra=""){return `<div class="opt ${extra}" style="background:${OPT[j].c}"><span class="sh">${OPT[j].s}</span><span>${esc(txt)}</span>`;}
 function pdots(p){return `<div class="pdots">${G.QS.map((_,i)=>{const a=p.ans[i];let c="";if(i<=G.qi&&G.phase!=="question"||i<G.qi){c=a?(a.ok?"y":"n"):"s";}return `<i class="${c}"></i>`;}).join("")}</div>`;}
-function board(list){return `<div class="board">${list.map((p,i)=>`<div class="row"><div class="rk">${i+1}</div><div class="nm">${esc(p.name)}</div><div class="sc">${fmt(p.score)}</div></div>`).join("")}</div>`;}
+function board(list){return `<div class="board">${list.map((p,i)=>`<div class="row"><div class="rk">${i+1}</div><div class="nm"><span class="av">${p.av||""}</span>${esc(p.name)}</div><div class="sc">${fmt(p.score)}</div></div>`).join("")}</div>`;}
 
 function renderGame(){
  foot.style.display="none";
@@ -691,7 +702,7 @@ function renderGame(){
   <h2 class="qbar">${esc(q.q)}</h2>
   <div class="mid"><div class="ring" id="ring" style="--p:${rem/G.dur*100}"><span id="tm">${Math.ceil(rem)}</span></div>${picBox(q)}<div class="acount"><b>${done}</b><span>of ${on.length}<br>answers</span></div></div>
   <div class="opts">${G.perm.map((k,j)=>optTile(j,q.o[k])+"</div>").join("")}</div>
-  <div class="who" style="margin-top:12px">${on.map(p=>`<span class="${p.ans[G.qi]?"done":""}">${esc(p.name)}</span>`).join("")}</div></div>`;
+  <div class="who" style="margin-top:12px">${on.map(p=>`<span class="${p.ans[G.qi]?"done":""}">${p.av||""} ${esc(p.name)}</span>`).join("")}</div></div>`;
  }else if(G.phase==="reveal"){
   const cnt=G.perm.map(()=>0);G.players.forEach(p=>{const a=p.ans[G.qi];if(a)cnt[a.ch]++;});
   const ci=G.perm.indexOf(q.a),r=ranking(),mx=Math.max(1,...cnt);
@@ -705,7 +716,7 @@ function renderGame(){
   const r=ranking(),top=r.slice(0,3);
   const order=[1,0,2].filter(i=>top[i]),hs=[210,150,110],cs=["#d89e00","#9ca3af","#b45309"];
   stage.innerHTML=`<div class="hq"><h1 style="text-align:center">Final results</h1>
-  <div class="podium">${order.map(i=>`<div class="pod"><div class="pn">${esc(top[i].name)}</div><div class="ps">${fmt(top[i].score)} pts</div><div class="bar" style="height:${hs[i]}px;background:${cs[i]}">${i+1}</div></div>`).join("")}</div>
+  <div class="podium">${order.map(i=>`<div class="pod"><div class="pav">${top[i].av||""}</div><div class="pn">${esc(top[i].name)}</div><div class="ps">${fmt(top[i].score)} pts</div><div class="bar" style="height:${hs[i]}px;background:${cs[i]}">${i+1}</div></div>`).join("")}</div>
   ${r.length>3?`<h3 style="margin:10px 0 6px">Top 5</h3>${board(r.slice(0,5))}`:""}<div style="text-align:center;margin-top:20px"><button class="btn ghost" data-act="greset">Back to lobby</button></div></div>`;
  }
 }
@@ -769,7 +780,7 @@ function startPlayer(room){
  document.body.classList.add("player");
  const app=$("#app");
  let store={};try{store=window.localStorage;}catch(e){store={};}
- const S={view:room?"join":"code",room,name:(store["vadv-name"]||""),err:"",q:null,ends:0,choice:null,rev:null,fin:null,me:""};
+ const S={view:room?"join":"code",room,name:(store["vadv-name"]||""),av:(AVS.includes(store["vadv-av"])?store["vadv-av"]:AVS[Math.random()*AVS.length|0]),myav:"",err:"",q:null,ends:0,choice:null,rev:null,fin:null,me:""};
  const pidKey="vadv-pid-"+room;
  let pid=store[pidKey];if(!pid){pid="p"+Math.random().toString(36).slice(2,10);try{store[pidKey]=pid;}catch(e){}}
  let peer=null,conn=null,tmr=null,joinTimer=null;
@@ -784,14 +795,14 @@ function startPlayer(room){
  }
  function open(){
   conn=peer.connect("vadv-"+S.room.toLowerCase(),{reliable:true});
-  conn.on("open",()=>conn.send({t:"join",pid,name:S.name}));
+  conn.on("open",()=>conn.send({t:"join",pid,name:S.name,av:S.av}));
   conn.on("data",onData);
   conn.on("close",()=>{if(S.view!=="error"){S.lost=true;render();setTimeout(()=>{if(S.lost)open();},2000);}});
  }
  function onData(m){
   if(!m||typeof m!=="object")return;
   S.lost=false;
-  if(m.t==="joined"){clearTimeout(joinTimer);S.me=m.name;if(S.view==="connecting")S.view="wait";}
+  if(m.t==="joined"){clearTimeout(joinTimer);S.me=m.name;S.myav=m.av||S.av;if(S.view==="connecting")S.view="wait";}
   else if(m.t==="wait"){S.view="wait";}
   else if(m.t==="intro"){S.intro=m;S.choice=null;S.timeUp=false;S.view="intro";clearInterval(tmr);}
   else if(m.t==="q"){if(!S.q||S.q.qi!==m.qi)S.choice=null;S.q=m;S.ends=Date.now()+m.remain*1000;S.view="question";clearInterval(tmr);tmr=setInterval(tickP,250);}
@@ -807,13 +818,13 @@ function startPlayer(room){
   if(S.view==="code"){
    h=`<div class="pcard"><div class="brand" style="justify-content:center"><i></i>Viewpoint Adverbs</div><input id="rc" placeholder="Room code" maxlength="5" autocapitalize="characters" value="${esc(S.room)}"><button class="btn rose" data-p="code" style="width:100%">Next</button></div>`;
   }else if(S.view==="join"){
-   h=`<div class="pcard"><div class="brand" style="justify-content:center"><i></i>Viewpoint Adverbs</div><p style="color:var(--mut)">Room <b>${esc(S.room)}</b></p><input id="nm" placeholder="Your name" maxlength="16" value="${esc(S.name)}"><button class="btn rose" data-p="join" style="width:100%;font-size:19px">Join the game</button></div>`;
+   h=`<div class="pcard"><div class="brand" style="justify-content:center"><i></i>Viewpoint Adverbs</div><p style="color:var(--mut)">Room <b>${esc(S.room)}</b></p><input id="nm" placeholder="Your name" maxlength="16" value="${esc(S.name)}"><div class="avlab">Choose your avatar</div><div class="avgrid">${AVS.map(a=>`<button class="${a===S.av?"on":""}" data-p="av" data-v="${a}">${a}</button>`).join("")}</div><button class="btn rose" data-p="join" style="width:100%;font-size:19px">Join the game</button></div>`;
   }else if(S.view==="connecting"){
    h=`<div class="pcard"><div class="spin"></div><b>Joining room ${esc(S.room)}...</b></div>`;
   }else if(S.view==="error"){
    h=`<div class="pcard"><div class="big-ico">🌸</div><p>${esc(S.err)}</p><button class="btn" data-p="retry">Try again</button></div>`;
   }else if(S.view==="wait"){
-   h=`<div class="pcard"><div class="big-ico">🌸</div><h2 style="margin:6px 0">You're in, ${esc(S.me)}!</h2><p style="color:var(--mut)">Look at the screen. The game starts soon.</p><div class="spin"></div></div>`;
+   h=`<div class="pcard"><div class="big-ico bounce">${S.myav||S.av}</div><h2 style="margin:6px 0">You're in, ${esc(S.me)}!</h2><p style="color:var(--mut)">Look at the screen. The game starts soon.</p><div class="spin"></div></div>`;
   }else if(S.view==="intro"){
    const q=S.intro;h=`<div class="ptop"><span>${q.qi+1} / ${q.n}</span><span class="tag" style="--c:${CAT[q.cat]}">${q.cat}</span><span></span></div><div class="pcard"><div class="big-ico">👀</div><h2 style="margin:4px 0">Get ready!</h2><p class="pq">${esc(q.text)}</p><div class="spin"></div></div>`;
   }else if(S.view==="question"){
@@ -828,10 +839,10 @@ function startPlayer(room){
    <h2 style="margin:4px 0">${r.ok?"Correct!":r.answered?"Not quite":"No answer"}</h2>
    ${r.ok?`<div class="pts">+${fmt(r.pts)}</div>`:`<p>Correct answer: <b>${esc(r.answer)}</b></p>`}
    <p style="color:var(--mut)">${esc(r.expl)}</p>
-   <p style="font-size:18px">You are <b>${ord(r.rank)}</b> of ${r.total} · <b>${fmt(r.score)}</b> pts</p></div>`;
+   <p style="font-size:18px">${S.myav||""} You are <b>${ord(r.rank)}</b> of ${r.total} · <b>${fmt(r.score)}</b> pts</p></div>`;
   }else if(S.view==="final"){
    const f=S.fin;
-   h=`<div class="pcard"><div class="big-ico">${f.rank===1?"🏆":f.rank<=3?"🌸":"🎉"}</div><h2 style="margin:4px 0">You finished ${ord(f.rank)} of ${f.total}</h2>
+   h=`<div class="pcard"><div class="big-ico">${S.myav||""}${f.rank===1?"🏆":f.rank<=3?"🥈":"🎉"}</div><h2 style="margin:4px 0">You finished ${ord(f.rank)} of ${f.total}</h2>
    <div class="pts">${fmt(f.score)} pts</div><p>${f.correct} / ${f.n} correct</p>
    <div style="margin-top:10px">${Object.keys(f.cats).map(c=>{const [a,t]=f.cats[c];return `<div class="catbar"><span style="color:${CAT[c]}">${c}</span><div class="tr"><i style="width:${t?a/t*100:0}%;background:${CAT[c]}"></i></div><span>${a}/${t}</span></div>`;}).join("")}</div>
    <p style="color:var(--mut);margin-top:12px">Top 3: ${f.top.map((t,i)=>`${i+1}. ${esc(t.name)}`).join(" · ")}</p></div>`;
@@ -842,6 +853,7 @@ function startPlayer(room){
   const b=e.target.closest("[data-p]");if(!b||b.disabled)return;
   const a=b.dataset.p;
   if(a==="code"){const v=($("#rc").value||"").trim().toUpperCase();if(v.length<4)return;S.room=v;S.view="join";render();}
+  else if(a==="av"){const nm=$("#nm");if(nm)S.name=nm.value;S.av=b.dataset.v;try{store["vadv-av"]=S.av;}catch(e){}render();}
   else if(a==="join"){const v=($("#nm").value||"").trim();if(!v){$("#nm").focus();return;}S.name=v;try{store["vadv-name"]=v;}catch(e){}connect();}
   else if(a==="retry"){S.view="join";render();}
   else if(a==="ans"){if(S.choice!==null||!conn)return;S.choice=+b.dataset.v;try{conn.send({t:"answer",qi:S.q.qi,choice:S.choice});}catch(e){}render();}
