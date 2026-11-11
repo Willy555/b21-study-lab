@@ -161,7 +161,7 @@ body.player{background:linear-gradient(180deg,#fff7fb,#ffeef5)}
 .bars{display:flex;justify-content:center;align-items:flex-end;gap:22px;height:190px;margin:4px 0 14px}
 .bcol{display:flex;flex-direction:column;align-items:center;width:90px}.bcol.dim{opacity:.35}
 .bnum{font-weight:900;font-size:22px;margin-bottom:4px}.bfill{width:100%;border-radius:8px 8px 0 0}.bsh{width:100%;color:#fff;text-align:center;font-size:20px;padding:4px 0;border-radius:0 0 8px 8px}
-.qsel{font-size:15px}.hqtop .btn{margin-left:8px}.endarm{background:#e21b3c;color:#fff}.nsel{display:flex;gap:6px;margin-top:6px}.nsel button{flex:1;padding:8px 0;border-radius:10px;background:#fff;border:2px solid #cfe8c9;font-weight:800}.nsel button.on{background:#166534;border-color:#166534;color:#fff}
+.qsel{font-size:15px}.hswitch{display:inline-flex;background:#f3eef5;border-radius:999px;padding:4px;margin:4px 0 10px}.hswitch button{padding:9px 18px;border-radius:999px;background:transparent;font-weight:800;font-size:17px}.hswitch button.on{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.12)}.hqtop .btn{margin-left:8px}.endarm{background:#e21b3c;color:#fff}.nsel{display:flex;gap:6px;margin-top:6px}.nsel button{flex:1;padding:8px 0;border-radius:10px;background:#fff;border:2px solid #cfe8c9;font-weight:800}.nsel button.on{background:#166534;border-color:#166534;color:#fff}
 #pv{position:fixed;inset:0;background:#fbfafc;z-index:60;display:flex;flex-direction:column}
 .pvhead{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:14px 22px;background:#fff;border-bottom:1px solid var(--line)}
 .pvtools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.shuf{font-weight:700;display:flex;gap:6px;align-items:center;padding:0 6px}
@@ -272,7 +272,7 @@ const PAGES_URL="https://willy555.github.io/b21-study-lab/viewpoint-adverbs-live
 const pageURL=()=>/^https?:$/.test(location.protocol)&&!/^(localhost|127\.)/.test(location.hostname)?location.href.split("#")[0].split("?")[0]:PAGES_URL;
 const AVS=["🦊","🐼","🐯","🦁","🐸","🐵","🐨","🐰","🐶","🐱","🦄","🐙","🦉","🐧","🐢","🐬","🦖","🐝","🦋","🐳","🦩","🐹","🐻","🐮"];
 const OPT=[{c:"#e21b3c",s:"▲"},{c:"#1368ce",s:"◆"},{c:"#d89e00",s:"●"},{c:"#26890c",s:"■"}];
-const CAT={Meaning:"#1368ce",Usage:"#26890c",Form:"#d97706",Position:"#7c3aed"};
+const CAT={Meaning:"#1368ce",Usage:"#26890c",Form:"#d97706",Position:"#7c3aed",Hedging:"#0d9488"};
 
 /* ================= question bank ================= */
 const BANK=[
@@ -317,9 +317,14 @@ const BANK=[
 {c:"Position",img:"🤪",t:20,q:"Choose the correct sentence.",o:["You obviously think I'm crazy!","You think obviously I'm crazy!","You think I'm crazy obviously!","Obviously think you I'm crazy!"],a:0,e:"No auxiliary verb: the adverb goes before the main verb \"think\"."},
 {c:"Position",img:"🧴",t:20,q:"Where does \"definitely\" go? \"I would buy that cream again.\"",o:["After \"would\"","After \"buy\"","After \"cream\"","After \"again\", with no comma"],a:0,e:"After the modal: \"I would definitely buy...\""},
 {c:"Position",img:"💪",t:20,q:"\"Bravely, she decided to continue.\" Why is \"bravely\" at the beginning?",o:["To add emphasis","It's the only correct place","Because it's a certainty adverb","Because there's no subject"],a:0,e:"Judgement adverbs normally go after the subject. At the beginning they add emphasis."},
-{c:"Position",img:"⏸️",t:20,q:"\"This is, as far as I'm concerned, a very small issue.\" Why the commas?",o:["The phrase interrupts the sentence","Adverbs always need commas","Because it's a question","Because it's at the end"],a:0,e:"Use commas in the middle only when the phrase interrupts the flow."}
+{c:"Position",img:"⏸️",t:20,q:"\"This is, as far as I'm concerned, a very small issue.\" Why the commas?",o:["The phrase interrupts the sentence","Adverbs always need commas","Because it's a question","Because it's at the end"],a:0,e:"Use commas in the middle only when the phrase interrupts the flow."},
+{c:"Hedging",img:"🤏",t:20,q:"Which sentence is more cautious (hedged)?",o:["This might not be the best option.","This is a terrible option.","This is the worst option ever.","This option is wrong."],a:0,e:"\"Might not be\" softens the idea. The others are very direct."},
+{c:"Hedging",img:"🌤️",t:15,q:"Which modal verb is used for hedging?",o:["might","must","will always","have to"],a:0,e:"Hedging modals: may, might, could, would."},
+{c:"Hedging",img:"📚",t:20,q:"\"___, the library closes at 8 PM.\" (You are not 100% sure.)",o:["As far as I know","Definitely","Obviously","Undoubtedly"],a:0,e:"As far as I know = I think this is true, but I'm not completely sure."},
+{c:"Hedging",img:"🔍",t:15,q:"Which verb is used for hedging?",o:["seem","prove","insist","guarantee"],a:0,e:"Hedging verbs: seem, appear, tend to, suggest. \"It seems that...\""},
+{c:"Hedging",img:"🕊️",t:20,q:"We use hedging to...",o:["sound cautious and polite","sound rude and direct","give strong orders","talk about the past"],a:0,e:"Hedging softens what we say, so we sound careful and less direct."}
 ];
-const KW=["thinking woman","magnifying glass","closed shop","coins money","warning sign","dice","bullseye target","four leaf clover","whispering","surprised face","contract signing","business meeting","mountain trekking","umbrella sunshine","open door dog","piggy bank","family dinner","headphones music","ocean plastic","students exam","justice scales","telescope","puzzle pieces","foggy landscape","workshop tools","stock market chart","parliament building","compass","forest","dollar bills","clock","finish line","yoga","credit card shopping","map pin","firefighter","pencil writing","stop sign","funny face","face cream","weightlifting","traffic light"];
+const KW=["thinking woman","magnifying glass","closed shop","coins money","warning sign","dice","bullseye target","four leaf clover","whispering","surprised face","contract signing","business meeting","mountain trekking","umbrella sunshine","open door dog","piggy bank","family dinner","headphones music","ocean plastic","students exam","justice scales","telescope","puzzle pieces","foggy landscape","workshop tools","stock market chart","parliament building","compass","forest","dollar bills","clock","finish line","yoga","credit card shopping","map pin","firefighter","pencil writing","stop sign","funny face","face cream","weightlifting","traffic light","balance scale","weather forecast","library books","magnifying glass detective","white dove"];
 BANK.forEach((q,i)=>{q.k=KW[i];});
 /* ---------- real photos from Openverse (CC licensed), cached in the browser ---------- */
 const IMG=(()=>{try{return JSON.parse(localStorage.getItem("vadv-img3")||"{}");}catch(e){return {};}})();
@@ -343,7 +348,7 @@ function picBox(q,cls=""){needImg(q.k);return `<div class="pic ${cls}" data-kw="
 function paintImg(kw){document.querySelectorAll(".pic[data-kw]").forEach(el=>{if(el.dataset.kw!==kw)return;const q=BANK.find(b=>b.k===kw);if(q)el.innerHTML=picInner(q,!!el.dataset.small);});}
 function nextPhoto(i){const q=BANK[i],e=IMG[q.k];if(!e||!e.list.length)return;e.i=(e.i+1)%e.list.length;saveImg();paintImg(q.k);}
 const selN=n=>{const s=new Set();if(n>=BANK.length){BANK.forEach((_,i)=>s.add(i));return s;}for(let k=0;k<n;k++)s.add(Math.floor(k*BANK.length/n));return s;};
-const defaultSel=()=>{const s=new Set();["Meaning","Usage","Form","Position"].forEach(c=>{const ids=BANK.map((q,i)=>q.c===c?i:-1).filter(i=>i>=0);const k=c==="Form"?3:4;for(let j=0;j<k;j++)s.add(ids[Math.floor(j*ids.length/k)]);});return s;};
+const defaultSel=()=>{const s=new Set();["Meaning","Usage","Form","Position","Hedging"].forEach(c=>{const ids=BANK.map((q,i)=>q.c===c?i:-1).filter(i=>i>=0);const k=c==="Form"||c==="Hedging"?2:c==="Usage"?3:4;for(let j=0;j<k;j++)s.add(ids[Math.floor(j*ids.length/k)]);});return s;};
 
 const params=new URLSearchParams(location.search);
 const ROOM=(params.get("room")||"").trim();
@@ -395,8 +400,8 @@ const GAPS=[
  {t:["You","think","I'm","crazy!"],adv:"obviously",ok:1,hint:"No auxiliary here: the adverb goes before the main verb."},
  {t:["I","would","buy","that","cream","again."],adv:"definitely",ok:2,hint:"\"would\" is a modal: the adverb goes right after it."}
 ];
-const L={i:0,type:"Certainty",w:{Certainty:"certainly",Attitude:"interestingly",Judgement:"rightly",Perspective:"morally"},sk:0,spick:null,sscore:0,use:null,angle:null,vp:"ethical",padv:"Officially",ppos:"B",gk:0,gdone:false,gscore:0,gtries:0,gwrong:-1};
-const SLIDES=[slMeaning,slUsage,slForm,slPosition,slGaps,slRecap];
+const L={i:0,type:"Certainty",w:{Certainty:"certainly",Attitude:"interestingly",Judgement:"rightly",Perspective:"morally"},sk:0,spick:null,sscore:0,use:null,angle:null,vp:"ethical",padv:"Officially",ppos:"B",gk:0,gdone:false,gscore:0,gtries:0,gwrong:-1,hk:0,hc:0};
+const SLIDES=[slMeaning,slUsage,slForm,slPosition,slGaps,slHedge,slRecap];
 
 function hlS(parts,c){return `${esc(parts[0])}<span class="hl" style="--c:${c}">${esc(parts[1])}</span>${esc(parts[2]).replace(/^, /,"<span class='cm'>,</span> ").replace(/, $/,"<span class='cm'>,</span> ")}`;}
 function sentWithComma(p,c){
@@ -474,6 +479,26 @@ function slGaps(){
  <div class="card" style="--c:#7c3aed"><div class="toks">${h}</div>
  ${L.gwrong>=0&&!L.gdone?`<div class="note" style="color:#e21b3c;font-weight:700">Not there. ${esc(g.hint)}</div>`:""}
  ${L.gdone?`<div class="note" style="color:#16a34a;font-weight:700">Correct! ${esc(g.hint)}</div><br><button class="btn" data-act="gnext">Next (${L.gk+1}/${GAPS.length})</button>`:""}</div>`;
+}
+const HEDGE=[
+ ["This plan is wrong.","This plan [might not be] the best option."],
+ ["Students don't read.","[As far as I know], students [tend to] read less these days."],
+ ["The price will go up.","[It seems that] the price will [probably] go up."],
+ ["Your essay is bad.","[I'd say] your essay [could] be [a bit] clearer."]
+];
+const HGROUPS=[["Modal verbs","may, might, could, would","This might be a problem."],["Adverbs","perhaps, possibly, probably, apparently, presumably, generally, rarely","It's probably true."],["Verbs","seem, appear, tend to, suggest","It seems that people agree."],["Chunks / phrases","as far as I know, as far as I can tell, as far as I'm concerned, to some extent, I'd say, in my opinion","As far as I know, it's free."]];
+function slHedge(){
+ const p=HEDGE[L.hk],c=L.hc;
+ const txt=c?esc(p[1]).replace(/\[(.+?)\]/g,'<span class="hl" style="--c:#0d9488">$1</span>'):esc(p[0]);
+ return `<div class="kick" style="--c:#0d9488">Bonus · Hedging</div><h1>Be cautious, not too direct</h1>
+ <p class="lead"><b>Hedging</b> = softening what you say. You sound more <b>polite</b> and <b>careful</b>, and less <b>direct</b>. Very useful in essays, reports and discussions.</p>
+ <div class="card" style="--c:${c?"#0d9488":"#e21b3c"}">
+  <div class="pills" style="margin-top:0">${HEDGE.map((_,i)=>`<button class="pill ${i===L.hk?"on":""}" style="--c:#4a044e" data-act="hk" data-v="${i}">Example ${i+1}</button>`).join("")}</div>
+  <div class="hswitch"><button class="${c?"":"on"}" data-act="hc" data-v="0">😠 Direct</button><button class="${c?"on":""}" data-act="hc" data-v="1">😌 Cautious</button></div>
+  <div class="sent" style="font-size:clamp(24px,3.2vw,38px)">${txt}</div>
+  <div class="note">${c?"Hedging words are highlighted.":"Too direct? Tap <b>Cautious</b>."}</div></div>
+ <h3>4 ways to hedge</h3>
+ <div class="grid4">${HGROUPS.map(g=>`<div class="recap" style="--c:#0d9488"><b>${g[0]}</b><p>${g[1]}</p><p style="font-style:italic;color:var(--mut)">"${g[2]}"</p></div>`).join("")}</div>`;
 }
 function slRecap(){
  return `<div class="kick">Recap</div><h1>Viewpoint adverbs in 4 ideas</h1>
@@ -794,7 +819,7 @@ function renderPreview(){
  if(!G.preview||G.phase!=="lobby"){if(pv)pv.remove();return;}
  if(!pv){pv=document.createElement("div");pv.id="pv";document.body.appendChild(pv);}
  const st=pv.querySelector(".pvbody")?pv.querySelector(".pvbody").scrollTop:0;
- const cats=["Meaning","Usage","Form","Position"];
+ const cats=["Meaning","Usage","Form","Position","Hedging"];
  pv.innerHTML=`<div class="pvhead"><div><b style="font-size:22px">Preview questions</b><div class="note" style="margin:2px 0 0">${G.sel.size} of ${BANK.length} selected · tap a card to add or remove it</div></div>
  <div class="pvtools"><button class="btn ghost" data-act="psel" data-v="all">All</button><button class="btn ghost" data-act="psel" data-v="none">None</button><button class="btn ghost" data-act="psel" data-v="def">Quick 15</button>
  <label class="shuf"><input type="checkbox" data-chg="shuf" ${G.shuf?"checked":""}> Shuffle order</label><button class="btn rose" data-act="pclose">Done</button></div></div>
@@ -816,7 +841,7 @@ const ACT={
  type:d=>{L.type=d.v;},word:d=>{L.w[L.type]=d.v;},
  spick:d=>{if(L.spick)return;L.spick=d.v;if(d.v===SORT[L.sk][1])L.sscore++;},
  snext:()=>{L.sk++;L.spick=null;},sreset:()=>{L.sk=0;L.sscore=0;L.spick=null;},
- use:d=>{L.use=d.v;},angle:d=>{L.angle=d.v;},vp:d=>{L.vp=d.v;},
+ use:d=>{L.use=d.v;},hk:d=>{L.hk=+d.v;L.hc=0;},hc:d=>{L.hc=+d.v;},angle:d=>{L.angle=d.v;},vp:d=>{L.vp=d.v;},
  padv:d=>{L.padv=d.v;},ppos:d=>{L.ppos=d.v;},
  gap:d=>{const g=GAPS[L.gk];if(+d.v===g.ok){L.gdone=true;if(L.gtries===0)L.gscore++;}else{L.gtries++;L.gwrong=+d.v;}},
  gnext:()=>{L.gk++;L.gdone=false;L.gtries=0;L.gwrong=-1;},greset:()=>{L.gk=0;L.gscore=0;L.gdone=false;L.gtries=0;L.gwrong=-1;},
