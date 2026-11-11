@@ -117,7 +117,7 @@ h3{margin:26px 0 10px;font-size:19px}
 .who span.done{background:#dcfce7;color:#166534}
 .expl{margin:18px 0;padding:14px 18px;border-radius:14px;background:#f5f3ff;border-left:6px solid var(--pur);font-size:18px;line-height:1.45}
 .board{margin-top:12px;display:flex;flex-direction:column;gap:6px}
-.row{display:grid;grid-template-columns:46px 170px 1fr 90px;align-items:center;gap:12px;padding:8px 12px;border-radius:12px;background:#fbf8fc}
+.row{display:grid;grid-template-columns:46px 1fr 110px;align-items:center;gap:12px;padding:8px 12px;border-radius:12px;background:#fbf8fc}
 .row .rk{font-weight:900;font-size:18px;color:var(--rose)}
 .row .nm{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row .sc{text-align:right;font-weight:900;font-size:18px}
@@ -161,7 +161,7 @@ body.player{background:linear-gradient(180deg,#fff7fb,#ffeef5)}
 .bars{display:flex;justify-content:center;align-items:flex-end;gap:22px;height:190px;margin:4px 0 14px}
 .bcol{display:flex;flex-direction:column;align-items:center;width:90px}.bcol.dim{opacity:.35}
 .bnum{font-weight:900;font-size:22px;margin-bottom:4px}.bfill{width:100%;border-radius:8px 8px 0 0}.bsh{width:100%;color:#fff;text-align:center;font-size:20px;padding:4px 0;border-radius:0 0 8px 8px}
-.qsel{font-size:15px}.nsel{display:flex;gap:6px;margin-top:6px}.nsel button{flex:1;padding:8px 0;border-radius:10px;background:#fff;border:2px solid #cfe8c9;font-weight:800}.nsel button.on{background:#166534;border-color:#166534;color:#fff}
+.qsel{font-size:15px}.hqtop .btn{margin-left:8px}.endarm{background:#e21b3c;color:#fff}.nsel{display:flex;gap:6px;margin-top:6px}.nsel button{flex:1;padding:8px 0;border-radius:10px;background:#fff;border:2px solid #cfe8c9;font-weight:800}.nsel button.on{background:#166534;border-color:#166534;color:#fff}
 #pv{position:fixed;inset:0;background:#fbfafc;z-index:60;display:flex;flex-direction:column}
 .pvhead{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:14px 22px;background:#fff;border-bottom:1px solid var(--line)}
 .pvtools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.shuf{font-weight:700;display:flex;gap:6px;align-items:center;padding:0 6px}
@@ -173,6 +173,15 @@ body.player{background:linear-gradient(180deg,#fff7fb,#ffeef5)}
 .pvimg{font-size:26px}.pvq{font-weight:700;margin:8px 0;font-size:15px;line-height:1.35}
 .pvo{display:grid;gap:4px;font-size:13px}.pvo span{display:flex;gap:6px;align-items:center;color:var(--mut)}.pvo i{width:10px;height:10px;border-radius:3px;flex:none}.pvo .ok2{color:#166534;font-weight:800}.pvo .ok2:after{content:" ✓"}
 @media(max-width:700px){.mid{flex-wrap:wrap}.pic{min-height:140px}}
+.pic{position:relative;overflow:hidden}
+.pic .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pic .sticker{position:absolute;right:12px;bottom:10px;font-size:44px;letter-spacing:0;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35))}
+.pic .credit{position:absolute;left:10px;bottom:8px;font-size:11px;letter-spacing:0;color:#fff;background:rgba(0,0,0,.45);padding:2px 8px;border-radius:6px;font-weight:600}
+.pic .emo{font-size:inherit}
+.pic.big{min-height:300px;max-width:620px;margin:0 auto 8px}
+.mid .pic{min-height:260px}
+.pic.mini{min-height:120px;font-size:54px;border-radius:12px;margin-top:8px}.pic.mini .sticker{font-size:26px;right:6px;bottom:4px}
+.swap{padding:4px 10px;font-size:16px;margin-left:6px}
 </style>
 </head>
 <body>
@@ -240,6 +249,29 @@ const BANK=[
 {c:"Position",img:"💪",t:20,q:"\"Bravely, she decided to continue.\" Why is \"bravely\" at the beginning?",o:["To add emphasis","It's the only correct place","Because it's a certainty adverb","Because there's no subject"],a:0,e:"Judgement adverbs normally go after the subject. At the beginning they add emphasis."},
 {c:"Position",img:"⏸️",t:20,q:"\"This is, as far as I'm concerned, a very small issue.\" Why the commas?",o:["The phrase interrupts the sentence","Adverbs always need commas","Because it's a question","Because it's at the end"],a:0,e:"Use commas in the middle only when the phrase interrupts the flow."}
 ];
+const KW=["thinking woman","magnifying glass","closed shop","coins money","warning sign","dice","bullseye target","four leaf clover","whispering","surprised face","contract signing","business meeting","mountain trekking","umbrella sunshine","open door dog","piggy bank","family dinner","headphones music","ocean plastic","students exam","justice scales","telescope","puzzle pieces","foggy landscape","workshop tools","stock market chart","parliament building","compass","forest","dollar bills","clock","finish line","yoga","credit card shopping","map pin","firefighter","pencil writing","stop sign","funny face","face cream","weightlifting","traffic light"];
+BANK.forEach((q,i)=>{q.k=KW[i];});
+/* ---------- real photos from Openverse (CC licensed), cached in the browser ---------- */
+const IMG=(()=>{try{return JSON.parse(localStorage.getItem("vadv-img3")||"{}");}catch(e){return {};}})();
+const imgQ=[],imgPend=new Set();let imgBusy=false;
+function saveImg(){try{localStorage.setItem("vadv-img3",JSON.stringify(IMG));}catch(e){}}
+function needImg(kw){if(!kw||IMG[kw]||imgPend.has(kw))return;imgPend.add(kw);imgQ.push(kw);pumpImg();}
+function pumpImg(){
+ if(imgBusy||!imgQ.length)return;imgBusy=true;const kw=imgQ.shift();
+ fetch("https://api.openverse.org/v1/images/?q="+encodeURIComponent(kw)+"&page_size=10&aspect_ratio=wide&mature=false")
+ .then(r=>{if(r.status===429)throw new Error("429");return r.json();})
+ .then(j=>{const list=(j.results||[]).filter(r=>r.url).map(r=>({u:r.url,t:r.thumbnail,c:(r.creator||"").slice(0,40),l:(r.license||"").toUpperCase()}));IMG[kw]={list,i:0};imgPend.delete(kw);saveImg();paintImg(kw);setTimeout(()=>{imgBusy=false;pumpImg();},3200);})
+ .catch(e=>{if(String(e.message)==="429"){imgQ.unshift(kw);setTimeout(()=>{imgBusy=false;pumpImg();},30000);}else{IMG[kw]={list:[],i:0};imgPend.delete(kw);paintImg(kw);setTimeout(()=>{imgBusy=false;pumpImg();},3200);}});
+}
+function photoOf(q){const e=IMG[q.k];return e&&e.list.length?e.list[e.i%e.list.length]:null;}
+function picInner(q,small){
+ const p=photoOf(q);
+ if(!p)return `<span class="emo">${q.img||"❓"}</span>`;
+ return `<img class="photo" src="${esc(p.u)}" data-t="${esc(p.t||"")}" onerror="if(this.dataset.t&&this.src!==this.dataset.t){this.src=this.dataset.t}else{this.remove()}" alt=""><span class="sticker">${q.img||""}</span>${small?"":`<span class="credit">Photo: ${esc(p.c||"unknown")} · CC ${esc(p.l)}</span>`}`;
+}
+function picBox(q,cls=""){needImg(q.k);return `<div class="pic ${cls}" data-kw="${esc(q.k)}" data-small="${cls.includes("mini")?1:""}">${picInner(q,cls.includes("mini"))}</div>`;}
+function paintImg(kw){document.querySelectorAll(".pic[data-kw]").forEach(el=>{if(el.dataset.kw!==kw)return;const q=BANK.find(b=>b.k===kw);if(q)el.innerHTML=picInner(q,!!el.dataset.small);});}
+function nextPhoto(i){const q=BANK[i],e=IMG[q.k];if(!e||!e.list.length)return;e.i=(e.i+1)%e.list.length;saveImg();paintImg(q.k);}
 const selN=n=>{const s=new Set();if(n>=BANK.length){BANK.forEach((_,i)=>s.add(i));return s;}for(let k=0;k<n;k++)s.add(Math.floor(k*BANK.length/n));return s;};
 const defaultSel=()=>{const s=new Set();["Meaning","Usage","Form","Position"].forEach(c=>{const ids=BANK.map((q,i)=>q.c===c?i:-1).filter(i=>i>=0);const k=c==="Form"?3:4;for(let j=0;j<k;j++)s.add(ids[Math.floor(j*ids.length/k)]);});return s;};
 
@@ -456,6 +488,8 @@ function resync(p){
 }
 const INTRO=4;
 function startQ(i){
+ if(G.QS[i+1])needImg(G.QS[i+1].k);
+ G.endArm=false;
  G.qi=i;const q=G.QS[i];G.perm=shuffle(q.o.map((_,k)=>k));G.dur=q.t||20;G.introStart=Date.now();G.phase="intro";
  G.players.forEach(p=>send(p,introMsg()));
  clearInterval(G.timer);G.timer=setInterval(tick,200);render();
@@ -471,6 +505,7 @@ function tick(){
 function reveal(){if(G.phase!=="question")return;clearInterval(G.timer);G.phase="reveal";G.players.forEach(p=>send(p,revMsg(p)));render();}
 function nextQ(){if(G.qi+1<G.QS.length)startQ(G.qi+1);else{G.phase="final";G.players.forEach(p=>send(p,finMsg(p)));render();}}
 function buildQS(){const ids=[...G.sel].sort((a,b)=>a-b);const qs=ids.map(i=>BANK[i]);return G.shuf?shuffle(qs):qs;}
+function endGame(){clearInterval(G.timer);G.QS=G.QS.slice(0,G.phase==="reveal"?G.qi+1:G.qi);G.qi=G.QS.length-1;G.endArm=false;G.phase="final";G.players.forEach(p=>{p.ans=p.ans.slice(0,G.QS.length);p.score=p.ans.reduce((t,a)=>t+(a?a.pts:0),0);send(p,finMsg(p));});render();}
 function resetGame(){clearInterval(G.timer);G.phase="lobby";G.qi=-1;G.players.forEach(p=>{p.score=0;p.ans=[];send(p,{t:"wait"});});render();}
 
 /* ---------- pretty QR ---------- */
@@ -589,6 +624,7 @@ function mountLobby(){
  if(!lobbyEl){buildLobby();}
  if(lobbyEl.parentNode!==stage){stage.innerHTML="";stage.appendChild(lobbyEl);drawQR();}
  if(fx)fx.resume();
+ [...G.sel].sort((a,b)=>a-b).forEach(i=>needImg(BANK[i].k));
  lobbyEl.classList.toggle("revealed",G.revealedQR);
  const qb=$("#qbtn",lobbyEl);if(qb){qb.disabled=!G.qrMatrix;qb.textContent=G.qrMatrix?"Show the QR":"Connecting...";}
  const ps=[...G.players.values()],on=online().length;
@@ -604,7 +640,7 @@ function mountLobby(){
 
 function optTile(j,txt,extra=""){return `<div class="opt ${extra}" style="background:${OPT[j].c}"><span class="sh">${OPT[j].s}</span><span>${esc(txt)}</span>`;}
 function pdots(p){return `<div class="pdots">${G.QS.map((_,i)=>{const a=p.ans[i];let c="";if(i<=G.qi&&G.phase!=="question"||i<G.qi){c=a?(a.ok?"y":"n"):"s";}return `<i class="${c}"></i>`;}).join("")}</div>`;}
-function board(list){return `<div class="board">${list.map((p,i)=>`<div class="row"><div class="rk">${i+1}</div><div class="nm">${esc(p.name)}</div>${pdots(p)}<div class="sc">${fmt(p.score)}</div></div>`).join("")}</div>`;}
+function board(list){return `<div class="board">${list.map((p,i)=>`<div class="row"><div class="rk">${i+1}</div><div class="nm">${esc(p.name)}</div><div class="sc">${fmt(p.score)}</div></div>`).join("")}</div>`;}
 
 function renderGame(){
  foot.style.display="none";
@@ -612,33 +648,33 @@ function renderGame(){
  if(G.phase==="lobby"){stage.className="wide";mountLobby();return;}
  if(fx)fx.pause();
  stage.className="wide";
- const q=G.QS[G.qi],head=`<div class="hqtop"><span class="tag" style="--c:${CAT[q.c]};font-size:15px">${q.c}</span><span class="qn">Question ${G.qi+1} of ${G.QS.length}</span>`;
+ const q=G.QS[G.qi],endB=`<button class="btn ${G.endArm?"endarm":"ghost"}" data-act="gend">${G.endArm?"Tap again to end":"End game"}</button>`,head=`<div class="hqtop"><span class="tag" style="--c:${CAT[q.c]};font-size:15px">${q.c}</span><span class="qn">Question ${G.qi+1} of ${G.QS.length}</span>`;
  if(G.phase==="intro"){
-  stage.innerHTML=`<div class="hq">${head}<span class="qn" style="margin-left:auto">${q.t||20} seconds</span></div>
-  <div class="introbox"><div class="pic big">${q.img||"❓"}</div><h2 class="qtext">${esc(q.q)}</h2><div class="ready">Get ready...</div><div class="tbar"><i id="ibar" style="width:0%"></i></div></div></div>`;
+  stage.innerHTML=`<div class="hq">${head}<span class="qn" style="margin-left:auto">${q.t||20} seconds</span>${endB}</div>
+  <div class="introbox">${picBox(q,"big")}<h2 class="qtext">${esc(q.q)}</h2><div class="ready">Get ready...</div><div class="tbar"><i id="ibar" style="width:0%"></i></div></div></div>`;
  }else if(G.phase==="question"){
   const rem=Math.max(0,G.dur-(Date.now()-G.qStart)/1000),on=online();
   const done=on.filter(p=>p.ans[G.qi]).length;
-  stage.innerHTML=`<div class="hq">${head}<button class="btn ghost" style="margin-left:auto" data-act="greveal">Skip</button></div>
+  stage.innerHTML=`<div class="hq">${head}<button class="btn ghost" style="margin-left:auto" data-act="greveal">Skip</button>${endB}</div>
   <h2 class="qbar">${esc(q.q)}</h2>
-  <div class="mid"><div class="ring" id="ring" style="--p:${rem/G.dur*100}"><span id="tm">${Math.ceil(rem)}</span></div><div class="pic">${q.img||"❓"}</div><div class="acount"><b>${done}</b><span>of ${on.length}<br>answers</span></div></div>
+  <div class="mid"><div class="ring" id="ring" style="--p:${rem/G.dur*100}"><span id="tm">${Math.ceil(rem)}</span></div>${picBox(q)}<div class="acount"><b>${done}</b><span>of ${on.length}<br>answers</span></div></div>
   <div class="opts">${G.perm.map((k,j)=>optTile(j,q.o[k])+"</div>").join("")}</div>
   <div class="who" style="margin-top:12px">${on.map(p=>`<span class="${p.ans[G.qi]?"done":""}">${esc(p.name)}</span>`).join("")}</div></div>`;
  }else if(G.phase==="reveal"){
   const cnt=G.perm.map(()=>0);G.players.forEach(p=>{const a=p.ans[G.qi];if(a)cnt[a.ch]++;});
   const ci=G.perm.indexOf(q.a),r=ranking(),mx=Math.max(1,...cnt);
-  stage.innerHTML=`<div class="hq">${head}<button class="btn rose" style="margin-left:auto" data-act="gnextq">${G.qi+1<G.QS.length?"Next question":"Final results"}</button></div>
+  stage.innerHTML=`<div class="hq">${head}<button class="btn rose" style="margin-left:auto" data-act="gnextq">${G.qi+1<G.QS.length?"Next question":"Final results"}</button>${endB}</div>
   <h2 class="qbar">${esc(q.q)}</h2>
   <div class="bars">${cnt.map((c,j)=>`<div class="bcol ${j===ci?"":"dim"}"><div class="bnum">${c}${j===ci?" ✓":""}</div><div class="bfill" style="height:${8+c/mx*120}px;background:${OPT[j].c}"></div><div class="bsh" style="background:${OPT[j].c}">${OPT[j].s}</div></div>`).join("")}</div>
   <div class="opts">${G.perm.map((k,j)=>optTile(j,q.o[k],j===ci?"right":"dim")+"</div>").join("")}</div>
   <div class="expl">${esc(q.e)}</div>
-  <h3 style="margin:10px 0 6px">Leaderboard</h3>${board(r.slice(0,6))}${r.length>6?`<div class="note">+ ${r.length-6} more players</div>`:""}</div>`;
+  <h3 style="margin:10px 0 6px">Top 5</h3>${board(r.slice(0,5))}</div>`;
  }else if(G.phase==="final"){
   const r=ranking(),top=r.slice(0,3);
   const order=[1,0,2].filter(i=>top[i]),hs=[210,150,110],cs=["#d89e00","#9ca3af","#b45309"];
   stage.innerHTML=`<div class="hq"><h1 style="text-align:center">Final results</h1>
   <div class="podium">${order.map(i=>`<div class="pod"><div class="pn">${esc(top[i].name)}</div><div class="ps">${fmt(top[i].score)} pts</div><div class="bar" style="height:${hs[i]}px;background:${cs[i]}">${i+1}</div></div>`).join("")}</div>
-  ${board(r)}<div style="text-align:center;margin-top:20px"><button class="btn ghost" data-act="greset">Play again</button></div></div>`;
+  ${r.length>3?`<h3 style="margin:10px 0 6px">Top 5</h3>${board(r.slice(0,5))}`:""}<div style="text-align:center;margin-top:20px"><button class="btn ghost" data-act="greset">Back to lobby</button></div></div>`;
  }
 }
 function renderPreview(){
@@ -650,7 +686,7 @@ function renderPreview(){
  pv.innerHTML=`<div class="pvhead"><div><b style="font-size:22px">Preview questions</b><div class="note" style="margin:2px 0 0">${G.sel.size} of ${BANK.length} selected · tap a card to add or remove it</div></div>
  <div class="pvtools"><button class="btn ghost" data-act="psel" data-v="all">All</button><button class="btn ghost" data-act="psel" data-v="none">None</button><button class="btn ghost" data-act="psel" data-v="def">Quick 15</button>
  <label class="shuf"><input type="checkbox" data-chg="shuf" ${G.shuf?"checked":""}> Shuffle order</label><button class="btn rose" data-act="pclose">Done</button></div></div>
- <div class="pvbody">${cats.map(c=>`<h3 style="color:${CAT[c]}">${c}</h3><div class="pvgrid">${BANK.map((q,i)=>q.c!==c?"":`<div class="pvc ${G.sel.has(i)?"on":""}" data-act="ptog" data-v="${i}" style="--c:${CAT[c]}"><div class="pvtop"><span class="pvchk">${G.sel.has(i)?"✓":""}</span><span class="pvimg">${q.img}</span><span class="note" style="margin:0 0 0 auto">${q.t}s</span></div><div class="pvq">${esc(q.q)}</div><div class="pvo">${q.o.map((o,j)=>`<span class="${j===q.a?"ok2":""}"><i style="background:${OPT[j].c}"></i>${esc(o)}</span>`).join("")}</div></div>`).join("")}</div>`).join("")}</div>`;
+ <div class="pvbody">${cats.map(c=>`<h3 style="color:${CAT[c]}">${c}</h3><div class="pvgrid">${BANK.map((q,i)=>q.c!==c?"":`<div class="pvc ${G.sel.has(i)?"on":""}" data-act="ptog" data-v="${i}" style="--c:${CAT[c]}"><div class="pvtop"><span class="pvchk">${G.sel.has(i)?"✓":""}</span><span class="pvimg">${q.img}</span><button class="btn ghost swap" data-act="pswap" data-v="${i}" title="Change photo">↻</button><span class="note" style="margin:0 0 0 auto">${q.t}s</span></div>${picBox(q,"mini")}<div class="pvq">${esc(q.q)}</div><div class="pvo">${q.o.map((o,j)=>`<span class="${j===q.a?"ok2":""}"><i style="background:${OPT[j].c}"></i>${esc(o)}</span>`).join("")}</div></div>`).join("")}</div>`).join("")}</div>`;
  const b=pv.querySelector(".pvbody");if(b)b.scrollTop=st;
 }
 
@@ -671,16 +707,17 @@ const ACT={
  gnext:()=>{L.gk++;L.gdone=false;L.gtries=0;L.gwrong=-1;},greset:()=>{L.gk=0;L.gscore=0;L.gdone=false;L.gtries=0;L.gwrong=-1;},
  qrshow:()=>{if(fx&&fx.ready())fx.show();else G.revealedQR=true;},qrhide:()=>{if(fx)fx.hide();else G.revealedQR=false;},
  gstart:()=>{if(!G.sel.size)return;G.preview=false;G.QS=buildQS();G.players.forEach(p=>{p.score=0;p.ans=[];});startQ(0);},
- popen:()=>{G.preview=true;},nsel:d=>{G.sel=+d.v===15?defaultSel():selN(+d.v);},pclose:()=>{G.preview=false;},
+ popen:()=>{G.preview=true;},pswap:d=>{nextPhoto(+d.v);},nsel:d=>{G.sel=+d.v===15?defaultSel():selN(+d.v);},pclose:()=>{G.preview=false;},
  ptog:d=>{const i=+d.v;if(G.sel.has(i))G.sel.delete(i);else G.sel.add(i);},
  psel:d=>{G.sel=d.v==="all"?new Set(BANK.map((_,i)=>i)):d.v==="none"?new Set():defaultSel();},
+ gend:()=>{if(G.endArm){endGame();return;}G.endArm=true;render();clearTimeout(G.endT);G.endT=setTimeout(()=>{if(G.endArm){G.endArm=false;if(G.phase!=="final")render();}},3000);},
  greveal:()=>reveal(),gnextq:()=>nextQ(),
 };
 document.addEventListener("click",e=>{
- const b=e.target.closest("[data-act]");if(!b||b.disabled)return;
+ const b=e.target.closest("[data-act]");if(!b||b.disabled)return;if(b.dataset.act==="pswap")e.stopPropagation();
  const a=b.dataset.act;
  if(a==="greset"&&tab==="game"){resetGame();return;}
- if(ACT[a]){ACT[a](b.dataset);if(a!=="greveal"&&a!=="gnextq")render();}
+ if(ACT[a]){ACT[a](b.dataset);if(a==="pswap")return;if(a!=="greveal"&&a!=="gnextq"&&a!=="gend")render();}
 });
 document.addEventListener("change",e=>{if(e.target.dataset.chg==="shuf"){G.shuf=e.target.checked;}});
 document.addEventListener("keydown",e=>{
