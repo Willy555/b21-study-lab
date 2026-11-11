@@ -214,12 +214,16 @@ body.player{background:linear-gradient(180deg,#fff7fb,#ffeef5)}
 .crew.jump .ava{animation:jmp .45s ease-in-out 4}.crew.jump .mem:nth-child(2) .ava{animation-delay:.1s}.crew.jump .mem:nth-child(3) .ava{animation-delay:.2s}@keyframes jmp{50%{transform:translateY(-34px)}}
 #cf{position:absolute;inset:0;pointer-events:none;z-index:7}.cfp{position:absolute;top:-30px;width:10px;height:16px;border-radius:2px;animation:fall linear forwards}@keyframes fall{to{top:110%;transform:rotate(720deg) translateX(40px)}}
 .teamed{position:absolute;right:18px;top:18px;z-index:9;background:#fff;color:var(--ink);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;width:min(520px,92vw);box-shadow:0 20px 50px rgba(0,0,0,.4)}
-.terow{display:grid;grid-template-columns:70px 1fr 1.4fr;gap:8px}.terow select,.terow input{font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line)}.terow select{font-size:24px;padding:4px}
+.terow{display:grid;grid-template-columns:70px minmax(0,1fr) minmax(0,1.4fr);gap:8px}.terow input{min-width:0;width:100%}.terow select,.terow input{font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line)}.terow select{font-size:24px;padding:4px}
 .letsgo{position:absolute;inset:0;display:grid;place-items:center;z-index:7;font-size:clamp(60px,12vw,170px);font-weight:900;font-style:italic;letter-spacing:-2px;color:#fff;-webkit-text-stroke:4px #b91c1c;text-shadow:0 0 30px #f97316,0 0 60px #dc2626;opacity:0;transform:scale(4) rotate(-10deg);pointer-events:none}
 .letsgo.on{opacity:1;transform:scale(1) rotate(-6deg);transition:.35s cubic-bezier(.3,1.7,.5,1)}
 .show.shake{animation:shk .08s linear 14}@keyframes shk{25%{transform:translate(6px,-4px)}75%{transform:translate(-6px,4px)}}
 .prop{position:absolute;right:-34%;bottom:-4%;font-size:.48em;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
 .ava.rock{animation:hb .315s ease-in-out infinite alternate;transform-origin:50% 90%}@keyframes hb{from{transform:rotate(-9deg) translateY(0)}to{transform:rotate(9deg) translateY(6px)}}
+#ythost{position:fixed;left:0;bottom:0;width:220px;height:220px;opacity:0;pointer-events:none;z-index:-1}
+.songbox{border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:8px}
+.songopts{display:flex;gap:14px;flex-wrap:wrap;font-weight:600}.songbox input[data-chg=surl]{font:inherit;padding:9px;border-radius:10px;border:1px solid var(--line)}
+.stl{font-weight:600;display:flex;gap:8px;align-items:center}.stl input{width:90px;font:inherit;padding:6px;border-radius:8px;border:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -556,6 +560,28 @@ function renderLesson(){
  foot.innerHTML=`<button class="btn ghost" data-act="prev" ${L.i===0?"disabled":""}>Back</button><div class="dots">${SLIDES.map((_,i)=>`<b class="${i===L.i?"on":""}" data-act="go" data-v="${i}"></b>`).join("")}</div><button class="btn" data-act="next" ${L.i===SLIDES.length-1?"disabled":""}>Next</button>`;
 }
 
+/* ---------- custom intro song (YouTube link or own audio file) ---------- */
+const SONG={get(){try{return JSON.parse(localStorage.getItem("vadv-song")||"{}");}catch(e){return {};}},set(o){try{localStorage.setItem("vadv-song",JSON.stringify(o));}catch(e){}}};
+const ytId=u=>{const m=String(u||"").match(/(?:youtu\.be\/|v=|embed\/|shorts\/|live\/)([\w-]{11})/);return m?m[1]:null;};
+let ytP=null,ytReady=false,ytLoaded="",audEl=null,songState="";
+function idb(){return new Promise((res,rej)=>{const r=indexedDB.open("vadv",1);r.onupgradeneeded=()=>r.result.createObjectStore("f");r.onsuccess=()=>res(r.result);r.onerror=rej;});}
+function idbPut(b){return idb().then(d=>new Promise(res=>{const t=d.transaction("f","readwrite");t.objectStore("f").put(b,"song");t.oncomplete=res;}));}
+function idbGet(){return idb().then(d=>new Promise(res=>{const q=d.transaction("f").objectStore("f").get("song");q.onsuccess=()=>res(q.result);q.onerror=()=>res(null);})).catch(()=>null);}
+function prepSong(){
+ const s=SONG.get();
+ if(s.type==="yt"){const id=ytId(s.url);if(!id){songState="bad";return;}if(ytLoaded===id&&ytP)return;ytLoaded=id;ytReady=false;songState="loading";
+  let host=document.getElementById("ythost");if(!host){host=document.createElement("div");host.id="ythost";document.body.appendChild(host);}host.innerHTML='<div id="ytp"></div>';
+  const make=()=>{ytP=new YT.Player("ytp",{width:"220",height:"220",videoId:id,playerVars:{start:+s.start||0,controls:0,playsinline:1},events:{onReady:()=>{ytReady=true;songState="ready";refreshSongUI();},onError:()=>{songState="bad";refreshSongUI();}}});};
+  if(window.YT&&YT.Player)make();else{window.onYouTubeIframeAPIReady=make;loadScript(["https://www.youtube.com/iframe_api"]).catch(()=>{songState="bad";refreshSongUI();});}}
+ else if(s.type==="file"){songState="loading";idbGet().then(b=>{if(b){if(audEl)URL.revokeObjectURL(audEl.src);audEl=new Audio(URL.createObjectURL(b));audEl.preload="auto";songState="ready";}else songState="bad";refreshSongUI();});}
+ else songState="";
+}
+const hasSong=()=>{const s=SONG.get();return (s.type==="yt"&&ytReady&&ytP)||(s.type==="file"&&!!audEl);};
+function songArm(){const s=SONG.get(),st=+s.start||0;try{if(s.type==="yt"){ytP.mute();ytP.seekTo(st,true);ytP.playVideo();}else if(audEl){audEl.muted=true;audEl.currentTime=st;audEl.play().catch(()=>{});}}catch(e){}}
+function songGo(){const s=SONG.get(),st=+s.start||0;try{if(s.type==="yt"){ytP.seekTo(st,true);ytP.unMute();ytP.setVolume(100);ytP.playVideo();}else if(audEl){audEl.currentTime=st;audEl.muted=false;audEl.volume=1;audEl.play().catch(()=>{});}}catch(e){}}
+function songStop(){try{if(ytP&&ytP.pauseVideo)ytP.pauseVideo();if(audEl)audEl.pause();}catch(e){}}
+function refreshSongUI(){const el=document.getElementById("songst");if(!el)return;const s=SONG.get();el.textContent=!s.type?"Using the built-in metal.":songState==="ready"?"✓ Song ready":songState==="loading"?"Loading...":songState==="bad"?"Can't load this song. Check the link or file.":"";}
+
 /* ---------- team intro show ---------- */
 const TEAM_DEF=[{name:"Will",av:"🦊",tag:"Undoubtedly the brains"},{name:"Amanda",av:"🦄",tag:"Apparently the funny one"},{name:"Alex",av:"🐸",tag:"Technically still awake"}];
 let TEAM=(()=>{try{const t=JSON.parse(localStorage.getItem("vadv-team2")||"null");if(Array.isArray(t)&&t.length===3)return t;}catch(e){}return JSON.parse(JSON.stringify(TEAM_DEF));})();
@@ -563,7 +589,7 @@ const saveTeam=()=>{try{localStorage.setItem("vadv-team2",JSON.stringify(TEAM));
 const SH0={timers:[],edit:false,played:false};
 function showClear(){SH0.timers.forEach(clearTimeout);SH0.timers.forEach(clearInterval);SH0.timers=[];}
 function renderIntro(){
- showClear();SH0.played=false;
+ showClear();songStop();SH0.played=false;prepSong();
  stage.className="wide";foot.style.display="none";
  stage.innerHTML=`<div class="show" id="show"><div class="spot"></div>
  <div class="annc" id="annc"></div><div class="letsgo" id="lg">LET'S GOOO!!!</div>
@@ -572,19 +598,25 @@ function renderIntro(){
  <div class="curtain l"></div><div class="curtain r"></div>
  <div class="ctrl" id="ctrl"><button class="btn rose big" data-act="showplay">▶ Play intro</button><button class="btn ghost" data-act="showedit">✏️ Edit team</button></div>
  <div id="cf"></div>
- ${SH0.edit?`<div class="teamed"><b style="font-size:20px">Our team</b>${TEAM.map((m,i)=>`<div class="terow"><select data-chg="tav" data-i="${i}">${AVS.map(a=>`<option ${a===m.av?"selected":""}>${a}</option>`).join("")}</select><input data-chg="tname" data-i="${i}" value="${esc(m.name)}" maxlength="18" placeholder="Name"><input data-chg="ttag" data-i="${i}" value="${esc(m.tag)}" maxlength="34" placeholder="Funny line"></div>`).join("")}<div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" data-act="showreset">Reset</button><button class="btn" data-act="showedit">Done</button></div></div>`:""}
+${""}${SH0.edit?`<div class="teamed"><b style="font-size:20px">Our team</b>${TEAM.map((m,i)=>`<div class="terow"><select data-chg="tav" data-i="${i}">${AVS.map(a=>`<option ${a===m.av?"selected":""}>${a}</option>`).join("")}</select><input data-chg="tname" data-i="${i}" value="${esc(m.name)}" maxlength="18" placeholder="Name"><input data-chg="ttag" data-i="${i}" value="${esc(m.tag)}" maxlength="34" placeholder="Funny line"></div>`).join("")}<div class="songbox"><b>Intro song</b><div class="songopts">${[["","Built-in metal"],["yt","YouTube link"],["file","My audio file"]].map(([v,l])=>`<label><input type="radio" name="stype" data-chg="stype" value="${v}" ${(SONG.get().type||"")===v?"checked":""}> ${l}</label>`).join("")}</div>
+ ${SONG.get().type==="yt"?`<input data-chg="surl" value="${esc(SONG.get().url||"")}" placeholder="Paste the YouTube link (e.g. Enter Sandman)">`:""}
+ ${SONG.get().type==="file"?`<input type="file" accept="audio/*" data-chg="sfile">`:""}
+ ${SONG.get().type?`<label class="stl">Start at second <input type="number" min="0" data-chg="sstart" value="${+SONG.get().start||0}"></label>`:""}
+ <div class="note" id="songst" style="margin:0"></div></div>
+ <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" data-act="showreset">Reset</button><button class="btn" data-act="showedit">Done</button></div></div>`:""}
  </div>`;
 }
 function playShow(){
  showClear();SH0.played=true;MUS.init();MUS.set("");
+ const custom=hasSong();if(custom)songArm();
  const S=document.getElementById("show");if(!S)return;
  const at=(ms,f)=>SH0.timers.push(setTimeout(f,ms));
  const ann=t=>{const a=$("#annc");a.classList.remove("on");at(60,()=>{a.textContent=t;a.classList.add("on");});};
  const type=(i,txt)=>{const el=$("#tg"+i);let k=0;const iv=setInterval(()=>{el.textContent=txt.slice(0,++k);if(k>=txt.length)clearInterval(iv);},45);SH0.timers.push(iv);};
  $("#ctrl").classList.add("hide");
  MUS.sfx("drum");
- at(2100,()=>{S.classList.add("open");MUS.sfx("letsgo");$("#lg").classList.add("on");S.classList.add("shake");});
- at(3300,()=>{MUS.set("metal");$("#lg").classList.remove("on");S.classList.remove("shake");ann("Ladies and gentlemen...");});
+ at(2100,()=>{S.classList.add("open");if(custom)songGo();MUS.sfx("letsgo");$("#lg").classList.add("on");S.classList.add("shake");});
+ at(3300,()=>{if(!custom)MUS.set("metal");$("#lg").classList.remove("on");S.classList.remove("shake");ann("Ladies and gentlemen...");});
  at(4300,()=>ann("Please welcome the team!"));
  [[5200,"in1"],[7400,"in2"],[9600,"in3"]].forEach(([t,c],i)=>{
   at(t,()=>{$("#mem"+i).classList.add(c);MUS.sfx("hit");MUS.sfx(i===1?"whoosh":"boing");});
@@ -592,9 +624,9 @@ function playShow(){
   at(t+1050,()=>{$("#ava"+i).classList.add("wig");type(i,TEAM[i].tag);if(i===2){$("#gl").classList.add("on");}});
   if(i===2)at(t+1800,()=>MUS.sfx("cool"));
  });
- at(10600,()=>{ann("And now... today's topic!");MUS.set("");MUS.sfx("roll",1.68);});
- at(12300,()=>{MUS.sfx("stab");$("#annc").classList.remove("on");$("#crew").classList.add("jump");$("#ttl").classList.add("on");confetti();document.querySelectorAll(".ava").forEach(a=>a.classList.remove("rock"));});
- at(15400,()=>{if(tab==="intro")MUS.set("metal");});
+ at(10600,()=>{ann("And now... today's topic!");if(!custom){MUS.set("");MUS.sfx("roll",1.68);}});
+ at(12300,()=>{if(!custom)MUS.sfx("stab");$("#annc").classList.remove("on");$("#crew").classList.add("jump");$("#ttl").classList.add("on");confetti();document.querySelectorAll(".ava").forEach(a=>a.classList.remove("rock"));});
+ at(15400,()=>{if(tab==="intro"&&!custom)MUS.set("metal");});
  at(14200,()=>{const c=$("#ctrl");c.innerHTML=`<button class="btn rose big" data-act="tab" data-v="lesson">Start the lesson</button><button class="btn ghost" data-act="showagain">↺ Replay</button>`;c.classList.remove("hide");});
 }
 function confetti(){const box=$("#cf");if(!box)return;const cols=["#f472b6","#fde68a","#60a5fa","#34d399","#a78bfa","#fb923c"];let h="";for(let i=0;i<120;i++){h+=`<i class="cfp" style="left:${Math.random()*100}%;background:${cols[i%6]};animation-duration:${2+Math.random()*2.5}s;animation-delay:${Math.random()*.8}s;transform:rotate(${Math.random()*360}deg)"></i>`;}box.innerHTML=h;}
@@ -871,7 +903,7 @@ function renderPreview(){
 
 function render(){
  document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===tab));
- if(tab!=="intro")showClear();
+ if(tab!=="intro"){showClear();songStop();}
  if(tab==="intro"){if(fx)fx.pause();if(!document.getElementById("show")||!SH0.played)renderIntro();}
  else if(tab==="lesson"){if(fx)fx.pause();renderLesson();}else{initPeer();renderGame();}
  MUS.set(tab!=="game"?"":G.phase==="lobby"?"lobby":(G.phase==="question"||G.phase==="intro")?"metalq":"");
@@ -904,7 +936,11 @@ document.addEventListener("click",e=>{
  if(a==="greset"&&tab==="game"){resetGame();return;}
  if(ACT[a]){ACT[a](b.dataset);if(a==="pswap"||a==="mute"||a.startsWith("show"))return;if(a!=="greveal"&&a!=="gnextq"&&a!=="gend")render();}
 });
-document.addEventListener("change",e=>{const c=e.target.dataset.chg;if(c==="shuf"){G.shuf=e.target.checked;}if(c==="tav"){TEAM[+e.target.dataset.i].av=e.target.value;saveTeam();}});
+document.addEventListener("change",e=>{const c=e.target.dataset.chg;if(c==="shuf"){G.shuf=e.target.checked;}if(c==="tav"){TEAM[+e.target.dataset.i].av=e.target.value;saveTeam();}
+ if(c==="stype"){const o=SONG.get();o.type=e.target.value;SONG.set(o);prepSong();renderIntro();}
+ if(c==="surl"){const o=SONG.get();o.url=e.target.value.trim();SONG.set(o);ytLoaded="";prepSong();refreshSongUI();}
+ if(c==="sstart"){const o=SONG.get();o.start=Math.max(0,+e.target.value||0);SONG.set(o);}
+ if(c==="sfile"){const f=e.target.files&&e.target.files[0];if(f){songState="loading";refreshSongUI();idbPut(f).then(()=>{prepSong();});}}});
 document.addEventListener("input",e=>{const c=e.target.dataset.chg,i=+e.target.dataset.i;if(c==="tname"){TEAM[i].name=e.target.value;saveTeam();}if(c==="ttag"){TEAM[i].tag=e.target.value;saveTeam();}});
 document.addEventListener("keydown",e=>{
  if(tab==="lesson"){if(e.key==="ArrowRight"&&L.i<SLIDES.length-1){L.i++;render();}if(e.key==="ArrowLeft"&&L.i>0){L.i--;render();}}
