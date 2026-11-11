@@ -273,6 +273,27 @@ const MUS=(()=>{
  function gtr2(t,root,dur,mute,vol){vol*=1.8;guitar(t,root,dur,mute,vol,-.6);guitar(t+.004,root,dur,mute,vol*.95,.6);}
  function bass(t,root,dur){const o=ctx.createOscillator(),f=ctx.createBiquadFilter(),g=ctx.createGain();o.type="sawtooth";o.frequency.value=N(root-12);f.type="lowpass";f.frequency.value=500;g.gain.setValueAtTime(.32,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(f);f.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.02);}
  function crowd(t){const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=nb;s.loop=true;s.playbackRate.value=.5;f.type="bandpass";f.frequency.value=1100;f.Q.value=.6;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.5,t+.6);g.gain.exponentialRampToValueAtTime(.0001,t+3.2);s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+3.3);}
+ let tuneBus=null;
+ function tuneStop(){if(tuneBus&&ctx){tuneBus.gain.setTargetAtTime(0,ctx.currentTime,.15);tuneBus=null;}}
+ function introTune(t0){
+  tuneStop();const bus=ctx.createGain();bus.gain.value=1;bus.connect(master);tuneBus=bus;
+  const out=bus;
+  const pn=(t,m,d,v)=>{[[ "triangle",1,v],["sine",.5,v*.5],["sine",2,v*.12]].forEach(([ty,mul,vv])=>{const o=ctx.createOscillator(),g=ctx.createGain(),f=ctx.createBiquadFilter();o.type=ty;o.frequency.value=N(m)*mul;f.type="lowpass";f.frequency.value=3000;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vv,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(f);f.connect(g);g.connect(out);o.start(t);o.stop(t+d+.05);});};
+  const bell=(t,m,v)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.value=N(m);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.005);g.gain.exponentialRampToValueAtTime(.0001,t+.5);o.connect(g);g.connect(out);o.start(t);o.stop(t+.55);};
+  const bs=(t,m,d)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.value=N(m);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.32,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(out);o.start(t);o.stop(t+d+.05);};
+  const sk=t=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(45,t+.1);g.gain.setValueAtTime(.35,t);g.gain.exponentialRampToValueAtTime(.0001,t+.15);o.connect(g);g.connect(out);o.start(t);o.stop(t+.17);};
+  const nz=(t,v,d,fq,type)=>{const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=nb;s.loop=true;f.type=type||"highpass";f.frequency.value=fq;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(out);s.start(t);s.stop(t+d+.02);};
+  const B=10.85/20;
+  const CH=[[48,[60,64,67]],[43,[59,62,67]],[45,[60,64,69]],[41,[60,65,69]],[43,[59,62,65]]];
+  const MEL=[[76,79,84,79,76,79,84,86],[74,79,83,79,74,79,83,86],[72,76,81,76,72,76,81,83],[72,77,81,77,72,77,81,84],[74,77,79,83,86,83,79,77]];
+  CH.forEach(([root,ch],bar)=>{const tb=t0+bar*4*B;
+   for(let q=0;q<4;q++){const t=tb+q*B;ch.forEach(m=>pn(t,m,.42,.055));if(q%2===0)sk(t);else nz(t,.12,.12,1800,"bandpass");}
+   bs(tb,root-12,B*1.6);bs(tb+2*B,root-12,B*1.2);bs(tb+3.5*B,root-12,B*.45);
+   for(let e=0;e<8;e++){nz(tb+e*B/2,.035,.04,8000);bell(tb+e*B/2,MEL[bar][e],bar===4?.075:.06);}
+  });
+  const te=t0+5*4*B;for(let i=0;i<6;i++)nz(te-.75+i*.125,.06+i*.025,.08,1500,"bandpass");
+  const tf=te+.1;[48,60,64,67,72,76].forEach(m=>pn(tf,m,2.6,.07));bs(tf,36,2.4);sk(tf);nz(tf,.18,2.2,5000);bell(tf,84,.09);
+ }
  function roll(t,dur){const n=Math.floor(dur*30);for(let i=0;i<n;i++){const k=i/n;snare(t+i/30+(Math.random()-.5)*.004,.05+.33*k*k+Math.random()*.03);}}
  function cym(t,v,d){const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=nb;s.loop=true;f.type="highpass";f.frequency.value=4500;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+d+.05);}
  function metalStep(st,t){const S=song,s=st%16,bar=Math.floor(st/16),r=S.roots[bar%S.roots.length],sp=60/S.bpm/4;
@@ -293,7 +314,9 @@ const MUS=(()=>{
  function set(name){if(name===cur)return;cur=name;clearInterval(timer);song=null;if(!name||!ctx)return;song=SONGS[name];step=0;next=ctx.currentTime+.05;timer=setInterval(loop,25);}
  function sfx(n,a){if(!ctx)return;const t=ctx.currentTime+.02;
   if(n==="roll"){roll(t,a||1.2);return;}
-  if(n==="hit"){snare(t,.45);kick(t);cym(t,.3,1.1);return;}
+  if(n==="tune"){introTune(t);return;}
+  if(n==="tunestop"){tuneStop();return;}
+  if(n==="hit"){cym(t,.12,.8);return;}
   if(n==="letsgo"){crowd(t);cym(t,.4,2);kick(t);snare(t,.5);try{const u=new SpeechSynthesisUtterance("Let's gooooo!");u.rate=1.05;u.pitch=.7;u.volume=1;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}return;}
   if(n==="stab"){kick(t);snare(t,.5);cym(t,.45,3);crowd(t);return;}
   if(n==="stop"){set("");return;}
@@ -587,7 +610,7 @@ function songArm(){const s=SONG.get(),st=+s.start||0;try{if(s.type==="yt"){ytP.m
 function songGo(){const s=SONG.get(),st=+s.start||0;try{if(s.type==="yt"){ytP.seekTo(st,true);ytP.unMute();ytP.setVolume(100);ytP.playVideo();}else if(audEl){audEl.currentTime=st;audEl.muted=false;audEl.volume=1;audEl.play().catch(()=>{});}}catch(e){}}
 function songFade(sec){const steps=30;let k=0;const iv=setInterval(()=>{k++;const v=Math.max(0,1-k/steps);try{if(audEl)audEl.volume=v;if(ytP&&ytP.setVolume)ytP.setVolume(v*100);}catch(e){}if(k>=steps){clearInterval(iv);songStop();try{if(audEl)audEl.volume=1;if(ytP&&ytP.setVolume)ytP.setVolume(100);}catch(e){}}},sec*1000/steps);SH0.timers.push(iv);}
 function songStop(){try{if(ytP&&ytP.pauseVideo)ytP.pauseVideo();if(audEl)audEl.pause();}catch(e){}}
-function refreshSongUI(){const el=document.getElementById("songst");if(!el)return;const s=SONG.get();el.textContent=!s.type?"Only drumroll, cymbals and crowd.":songState==="ready"?"✓ Song ready":songState==="loading"?"Loading...":songState==="bad"?"Can't load this song. Check the link or file.":"";}
+function refreshSongUI(){const el=document.getElementById("songst");if(!el)return;const s=SONG.get();el.textContent=!s.type?"Using the built-in intro tune.":songState==="ready"?"✓ Song ready":songState==="loading"?"Loading...":songState==="bad"?"Can't load this song. Check the link or file.":"";}
 
 /* ---------- team intro show ---------- */
 const TEAM_DEF=[{name:"Will",av:"🦊",tag:"Undoubtedly the brains"},{name:"Amanda",av:"🦄",tag:"Apparently the funny one"},{name:"Alex",av:"🐸",tag:"Technically still awake"}];
@@ -596,7 +619,7 @@ const saveTeam=()=>{try{localStorage.setItem("vadv-team2",JSON.stringify(TEAM));
 const SH0={timers:[],edit:false,played:false};
 function showClear(){SH0.timers.forEach(clearTimeout);SH0.timers.forEach(clearInterval);SH0.timers=[];}
 function renderIntro(){
- showClear();songStop();SH0.played=false;prepSong();
+ showClear();songStop();MUS.sfx("tunestop");SH0.played=false;prepSong();
  stage.className="wide";foot.style.display="none";
  stage.innerHTML=`<div class="show" id="show"><div class="spot"></div>
  <div class="annc" id="annc"></div>
@@ -605,7 +628,7 @@ function renderIntro(){
  <div class="curtain l"></div><div class="curtain r"></div>
  <div class="ctrl" id="ctrl"><button class="btn rose big" data-act="showplay">▶ Play intro</button><button class="btn ghost" data-act="showedit">✏️ Edit team</button></div>
  <div id="cf"></div>
-${""}${SH0.edit?`<div class="teamed"><b style="font-size:20px">Our team</b>${TEAM.map((m,i)=>`<div class="terow"><select data-chg="tav" data-i="${i}">${AVS.map(a=>`<option ${a===m.av?"selected":""}>${a}</option>`).join("")}</select><input data-chg="tname" data-i="${i}" value="${esc(m.name)}" maxlength="18" placeholder="Name"><input data-chg="ttag" data-i="${i}" value="${esc(m.tag)}" maxlength="34" placeholder="Funny line"></div>`).join("")}<div class="songbox"><b>Intro song</b><div class="songopts">${[["","No song (sound effects only)"],["yt","YouTube link"],["file","My audio file"]].map(([v,l])=>`<label><input type="radio" name="stype" data-chg="stype" value="${v}" ${(SONG.get().type||"")===v?"checked":""}> ${l}</label>`).join("")}</div>
+${""}${SH0.edit?`<div class="teamed"><b style="font-size:20px">Our team</b>${TEAM.map((m,i)=>`<div class="terow"><select data-chg="tav" data-i="${i}">${AVS.map(a=>`<option ${a===m.av?"selected":""}>${a}</option>`).join("")}</select><input data-chg="tname" data-i="${i}" value="${esc(m.name)}" maxlength="18" placeholder="Name"><input data-chg="ttag" data-i="${i}" value="${esc(m.tag)}" maxlength="34" placeholder="Funny line"></div>`).join("")}<div class="songbox"><b>Intro song</b><div class="songopts">${[["","Built-in intro tune"],["yt","YouTube link"],["file","My audio file"]].map(([v,l])=>`<label><input type="radio" name="stype" data-chg="stype" value="${v}" ${(SONG.get().type||"")===v?"checked":""}> ${l}</label>`).join("")}</div>
  ${SONG.get().type==="yt"?`<input data-chg="surl" value="${esc(SONG.get().url||"")}" placeholder="Paste the YouTube link (e.g. Enter Sandman)">`:""}
  ${SONG.get().type==="file"?`<input type="file" accept="audio/*" data-chg="sfile">`:""}
  ${SONG.get().type?`<label class="stl">Start at second <input type="number" min="0" data-chg="sstart" value="${+SONG.get().start||0}"></label>`:""}
@@ -622,7 +645,7 @@ function playShow(){
  const type=(i,txt)=>{const el=$("#tg"+i);let k=0;const iv=setInterval(()=>{el.textContent=txt.slice(0,++k);if(k>=txt.length)clearInterval(iv);},45);SH0.timers.push(iv);};
  $("#ctrl").classList.add("hide");
  MUS.sfx("drum");
- at(2100,()=>{S.classList.add("open");if(custom)songGo();MUS.sfx("crash");ann("Ladies and gentlemen...");});
+ at(2100,()=>{S.classList.add("open");if(custom)songGo();else MUS.sfx("tune");ann("Ladies and gentlemen...");});
  at(4300,()=>ann("Please welcome the team!"));
  [[5200,"in1"],[7400,"in2"],[9600,"in3"]].forEach(([t,c],i)=>{
   at(t,()=>{$("#mem"+i).classList.add(c);MUS.sfx("hit");MUS.sfx(i===1?"whoosh":"boing");});
@@ -630,8 +653,8 @@ function playShow(){
   at(t+1050,()=>{$("#ava"+i).classList.add("wig");type(i,TEAM[i].tag);if(i===2){$("#gl").classList.add("on");}});
   if(i===2)at(t+1800,()=>MUS.sfx("cool"));
  });
- at(11400,()=>{ann("And now... today's topic!");if(!custom)MUS.sfx("roll",1.5);});
- at(12950,()=>{if(!custom)MUS.sfx("stab");$("#annc").classList.remove("on");$("#crew").classList.add("jump");$("#ttl").classList.add("on");confetti();document.querySelectorAll(".ava").forEach(a=>a.classList.remove("rock"));});
+ at(11400,()=>{ann("And now... today's topic!");});
+ at(12950,()=>{$("#annc").classList.remove("on");$("#crew").classList.add("jump");$("#ttl").classList.add("on");confetti();document.querySelectorAll(".ava").forEach(a=>a.classList.remove("rock"));});
  if(custom)at(16000,()=>songFade(3));
  at(14800,()=>{const c=$("#ctrl");c.innerHTML=`<button class="btn rose big" data-act="tab" data-v="lesson">Start the lesson</button><button class="btn ghost" data-act="showagain">↺ Replay</button>`;c.classList.remove("hide");});
 }
@@ -909,7 +932,7 @@ function renderPreview(){
 
 function render(){
  document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===tab));
- if(tab!=="intro"){showClear();songStop();}
+ if(tab!=="intro"){showClear();songStop();MUS.sfx("tunestop");}
  if(tab==="intro"){if(fx)fx.pause();if(!document.getElementById("show")||!SH0.played)renderIntro();}
  else if(tab==="lesson"){if(fx)fx.pause();renderLesson();}else{initPeer();renderGame();}
  MUS.set(tab!=="game"?"":G.phase==="lobby"?"lobby":(G.phase==="question"||G.phase==="intro")?"question":"");
