@@ -1,5 +1,5 @@
 // Future Simple: offline mode. Audio is saved the first time it plays (no big download on join).
-const VERSION = 'v39';
+const VERSION = 'v40';
 const CACHE = 'b21-lab-' + VERSION;
 const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 const AUDIO = [];
@@ -17,6 +17,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil((async () => {
     for (const k of await caches.keys()) if (k.startsWith('b21-lab-') && k !== CACHE) await caches.delete(k);
+    try { const c = await caches.open(CACHE); for (const r of await c.keys()) if (/viewpoint-adverbs-live/.test(r.url)) await c.delete(r); } catch (err) {}
     await self.clients.claim();
   })());
 });
@@ -55,6 +56,8 @@ self.addEventListener('fetch', e => {
     return;
   }
   if (url.origin !== location.origin) return;
+  // Paginas que no son parte del laboratorio (ej. la presentacion): siempre directo de internet, sin copia guardada
+  if (/\/viewpoint-adverbs-live\.html$/.test(url.pathname)) return;
 
   // Audios: primero la copia guardada
   if (url.pathname.includes('/audio/')) {
