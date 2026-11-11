@@ -599,7 +599,7 @@ function renderIntro(){
  showClear();songStop();SH0.played=false;prepSong();
  stage.className="wide";foot.style.display="none";
  stage.innerHTML=`<div class="show" id="show"><div class="spot"></div>
- <div class="annc" id="annc"></div><div class="letsgo" id="lg">LET'S GOOO!!!</div>
+ <div class="annc" id="annc"></div>
  <div class="ttl" id="ttl"><div class="kick" style="--c:#fde68a">Unit 2 · Lesson 5</div><div class="big">Viewpoint Adverbs</div><div class="sub">Meaning · Usage · Form · Position</div></div>
  <div class="crew" id="crew">${TEAM.map((m,i)=>`<div class="mem" id="mem${i}"><div class="ava" id="ava${i}">${esc(m.av)}${i===2?`<span class="glasses" id="gl">🕶️</span>`:""}<span class="prop">${["🎸","🎤","🥁"][i]}</span></div><div class="nm2">${esc(m.name)}</div><div class="tg" id="tg${i}"></div></div>`).join("")}</div>
  <div class="curtain l"></div><div class="curtain r"></div>
@@ -622,8 +622,7 @@ function playShow(){
  const type=(i,txt)=>{const el=$("#tg"+i);let k=0;const iv=setInterval(()=>{el.textContent=txt.slice(0,++k);if(k>=txt.length)clearInterval(iv);},45);SH0.timers.push(iv);};
  $("#ctrl").classList.add("hide");
  MUS.sfx("drum");
- at(2100,()=>{S.classList.add("open");if(custom)songGo();MUS.sfx("letsgo");$("#lg").classList.add("on");S.classList.add("shake");});
- at(3300,()=>{$("#lg").classList.remove("on");S.classList.remove("shake");ann("Ladies and gentlemen...");});
+ at(2100,()=>{S.classList.add("open");if(custom)songGo();MUS.sfx("crash");ann("Ladies and gentlemen...");});
  at(4300,()=>ann("Please welcome the team!"));
  [[5200,"in1"],[7400,"in2"],[9600,"in3"]].forEach(([t,c],i)=>{
   at(t,()=>{$("#mem"+i).classList.add(c);MUS.sfx("hit");MUS.sfx(i===1?"whoosh":"boing");});
