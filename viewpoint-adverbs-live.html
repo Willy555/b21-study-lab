@@ -199,6 +199,37 @@ function loadScript(urls){return new Promise((res,rej)=>{let i=0;(function next(
 const PEER_URLS=["https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js","https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"];
 const QR_URLS=["https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js","https://unpkg.com/qrcode-generator@1.4.4/qrcode.js","https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"];
 const THREE_URLS=["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js","https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"];
+/* ---------- music: synthesized in the browser (original tunes) ---------- */
+const MUS=(()=>{
+ let ctx=null,master=null,on=true,cur="",timer=null,step=0,next=0,song=null,nb=null;
+ try{on=localStorage.getItem("vadv-mute")!=="1";}catch(e){}
+ const N=n=>440*Math.pow(2,(n-69)/12);
+ const SH={maj:[0,4,7,12],m:[0,3,7,12],maj7:[0,4,7,11],m7:[0,3,7,10],dom:[0,4,7,10]};
+ const SONGS={
+  lobby:{bpm:104,ch:[[60,"maj7"],[57,"m7"],[53,"maj7"],[55,"dom"]],kick:[0,8],hat:[2,6,10,14],bass:[0,6,8],arp:2,wave:"triangle",av:.07,bv:.16},
+  question:{bpm:140,ch:[[57,"m"],[53,"maj"],[48,"maj"],[55,"maj"]],kick:[0,4,8,12],hat:[2,6,10,14],bass:[0,2,4,6,8,10,12,14],arp:1,wave:"square",av:.035,bv:.12}
+ };
+ function init(){if(ctx)return;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;try{ctx=new AC();}catch(e){return;}
+  const comp=ctx.createDynamicsCompressor();comp.connect(ctx.destination);master=ctx.createGain();master.gain.value=on?.55:0;master.connect(comp);
+  nb=ctx.createBuffer(1,ctx.sampleRate*.2,ctx.sampleRate);const d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
+ function tone(f,t,dur,type,vol){const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+.05);}
+ function kick(t){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(40,t+.12);g.gain.setValueAtTime(.55,t);g.gain.exponentialRampToValueAtTime(.0001,t+.18);o.connect(g);g.connect(master);o.start(t);o.stop(t+.2);}
+ function hat(t,v){const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=nb;f.type="highpass";f.frequency.value=7000;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+.05);s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+.06);}
+ function playStep(st,t){const S=song,s=st%16,c=S.ch[Math.floor(st/16)%S.ch.length],tones=SH[c[1]],sp=60/S.bpm/4;
+  if(S.kick.includes(s))kick(t);if(S.hat.includes(s))hat(t,.05);
+  if(S.bass.includes(s))tone(N(c[0]-24),t,sp*1.8,"triangle",S.bv);
+  if(s%S.arp===0){const k=(s/S.arp)%tones.length;tone(N(c[0]+12+tones[(s/S.arp|0)%4]),t,sp*1.6,S.wave,S.av);}
+  if(s===0)tones.slice(0,3).forEach(x=>tone(N(c[0]+x),t,sp*14,"sine",.035));}
+ function loop(){if(!song||!ctx)return;while(next<ctx.currentTime+.15){playStep(step,next);next+=60/song.bpm/4;step++;}}
+ function set(name){if(name===cur)return;cur=name;clearInterval(timer);song=null;if(!name||!ctx)return;song=SONGS[name];step=0;next=ctx.currentTime+.05;timer=setInterval(loop,25);}
+ function sfx(n){if(!ctx)return;const t=ctx.currentTime+.02;
+  if(n==="tick")tone(1600,t,.06,"square",.12);
+  else if(n==="ready")[60,64,67,72].forEach((x,i)=>tone(N(x),t+i*.09,.25,"triangle",.18));
+  else if(n==="reveal"){[72,76,79,84].forEach((x,i)=>tone(N(x),t+i*.07,.4,"triangle",.2));tone(N(48),t,.6,"sine",.25);}
+  else if(n==="fanfare"){[60,64,67,72,67,72].forEach((x,i)=>tone(N(x),t+i*.14,.3,"square",.08));[60,64,67,72].forEach(x=>tone(N(x),t+.9,1.6,"triangle",.14));kick(t+.9);}}
+ function toggle(){on=!on;try{localStorage.setItem("vadv-mute",on?"0":"1");}catch(e){}if(master)master.gain.setTargetAtTime(on?.55:0,ctx.currentTime,.05);return on;}
+ return{init,set,sfx,toggle,isOn:()=>on,ready:()=>!!ctx};
+})();
 const PAGES_URL="https://willy555.github.io/b21-study-lab/viewpoint-adverbs-live.html";
 const pageURL=()=>/^https?:$/.test(location.protocol)&&!/^(localhost|127\.)/.test(location.hostname)?location.href.split("#")[0].split("?")[0]:PAGES_URL;
 const OPT=[{c:"#e21b3c",s:"▲"},{c:"#1368ce",s:"◆"},{c:"#d89e00",s:"●"},{c:"#26890c",s:"■"}];
@@ -284,7 +315,7 @@ if(ROOM||params.has("play")) startPlayer(ROOM.toUpperCase()); else startHost();
    ===================================================================== */
 function startHost(){
 const app=$("#app");
-app.innerHTML=`<header class="top"><div class="brand"><i></i>Viewpoint Adverbs</div><nav class="tabs"><button data-act="tab" data-v="lesson">Lesson</button><button data-act="tab" data-v="game">Play live</button></nav></header><main id="stage"></main><div class="foot" id="foot"></div>`;
+app.innerHTML=`<header class="top"><div class="brand"><i></i>Viewpoint Adverbs</div><div style="display:flex;gap:10px;align-items:center"><button class="btn ghost" id="mute" data-act="mute">${MUS.isOn()?"🔊 Music":"🔇 Music"}</button><nav class="tabs"><button data-act="tab" data-v="lesson">Lesson</button><button data-act="tab" data-v="game">Play live</button></nav></div></header><main id="stage"></main><div class="foot" id="foot"></div>`;
 const stage=$("#stage"),foot=$("#foot");
 let tab="lesson";
 
@@ -491,7 +522,7 @@ function startQ(i){
  if(G.QS[i+1])needImg(G.QS[i+1].k);
  G.endArm=false;
  G.qi=i;const q=G.QS[i];G.perm=shuffle(q.o.map((_,k)=>k));G.dur=q.t||20;G.introStart=Date.now();G.phase="intro";
- G.players.forEach(p=>send(p,introMsg()));
+ G.players.forEach(p=>send(p,introMsg()));MUS.sfx("ready");G.lastTick=99;
  clearInterval(G.timer);G.timer=setInterval(tick,200);render();
 }
 function openQ(){G.qStart=Date.now();G.phase="question";G.players.forEach(p=>send(p,qMsg()));render();}
@@ -499,13 +530,14 @@ function tick(){
  if(G.phase==="intro"){const el=(Date.now()-G.introStart)/1000,b=$("#ibar");if(b)b.style.width=Math.min(100,el/INTRO*100)+"%";if(el>=INTRO)openQ();return;}
  const rem=G.dur-(Date.now()-G.qStart)/1000;
  const tm=$("#tm");if(tm)tm.textContent=Math.max(0,Math.ceil(rem));
+ const sec=Math.ceil(rem);if(sec<=5&&sec>0&&sec!==G.lastTick){G.lastTick=sec;MUS.sfx("tick");}
  const ring=$("#ring");if(ring)ring.style.setProperty("--p",Math.max(0,rem/G.dur*100));
  if(rem<=0)reveal();
 }
-function reveal(){if(G.phase!=="question")return;clearInterval(G.timer);G.phase="reveal";G.players.forEach(p=>send(p,revMsg(p)));render();}
-function nextQ(){if(G.qi+1<G.QS.length)startQ(G.qi+1);else{G.phase="final";G.players.forEach(p=>send(p,finMsg(p)));render();}}
+function reveal(){if(G.phase!=="question")return;clearInterval(G.timer);G.phase="reveal";MUS.sfx("reveal");G.players.forEach(p=>send(p,revMsg(p)));render();}
+function nextQ(){if(G.qi+1<G.QS.length)startQ(G.qi+1);else{G.phase="final";MUS.sfx("fanfare");G.players.forEach(p=>send(p,finMsg(p)));render();}}
 function buildQS(){const ids=[...G.sel].sort((a,b)=>a-b);const qs=ids.map(i=>BANK[i]);return G.shuf?shuffle(qs):qs;}
-function endGame(){clearInterval(G.timer);G.QS=G.QS.slice(0,G.phase==="reveal"?G.qi+1:G.qi);G.qi=G.QS.length-1;G.endArm=false;G.phase="final";G.players.forEach(p=>{p.ans=p.ans.slice(0,G.QS.length);p.score=p.ans.reduce((t,a)=>t+(a?a.pts:0),0);send(p,finMsg(p));});render();}
+function endGame(){clearInterval(G.timer);G.QS=G.QS.slice(0,G.phase==="reveal"?G.qi+1:G.qi);G.qi=G.QS.length-1;G.endArm=false;G.phase="final";MUS.sfx("fanfare");G.players.forEach(p=>{p.ans=p.ans.slice(0,G.QS.length);p.score=p.ans.reduce((t,a)=>t+(a?a.pts:0),0);send(p,finMsg(p));});render();}
 function resetGame(){clearInterval(G.timer);G.phase="lobby";G.qi=-1;G.players.forEach(p=>{p.score=0;p.ans=[];send(p,{t:"wait"});});render();}
 
 /* ---------- pretty QR ---------- */
@@ -693,6 +725,7 @@ function renderPreview(){
 function render(){
  document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===tab));
  if(tab==="lesson"){if(fx)fx.pause();renderLesson();}else{initPeer();renderGame();}
+ MUS.set(tab!=="game"?"":G.phase==="lobby"?"lobby":(G.phase==="question"||G.phase==="intro")?"question":"");
 }
 
 const ACT={
@@ -711,13 +744,15 @@ const ACT={
  ptog:d=>{const i=+d.v;if(G.sel.has(i))G.sel.delete(i);else G.sel.add(i);},
  psel:d=>{G.sel=d.v==="all"?new Set(BANK.map((_,i)=>i)):d.v==="none"?new Set():defaultSel();},
  gend:()=>{if(G.endArm){endGame();return;}G.endArm=true;render();clearTimeout(G.endT);G.endT=setTimeout(()=>{if(G.endArm){G.endArm=false;if(G.phase!=="final")render();}},3000);},
+ mute:()=>{MUS.init();const o=MUS.toggle();const b=$("#mute");if(b)b.textContent=o?"🔊 Music":"🔇 Music";},
  greveal:()=>reveal(),gnextq:()=>nextQ(),
 };
 document.addEventListener("click",e=>{
+ MUS.init();
  const b=e.target.closest("[data-act]");if(!b||b.disabled)return;if(b.dataset.act==="pswap")e.stopPropagation();
  const a=b.dataset.act;
  if(a==="greset"&&tab==="game"){resetGame();return;}
- if(ACT[a]){ACT[a](b.dataset);if(a==="pswap")return;if(a!=="greveal"&&a!=="gnextq"&&a!=="gend")render();}
+ if(ACT[a]){ACT[a](b.dataset);if(a==="pswap"||a==="mute")return;if(a!=="greveal"&&a!=="gnextq"&&a!=="gend")render();}
 });
 document.addEventListener("change",e=>{if(e.target.dataset.chg==="shuf"){G.shuf=e.target.checked;}});
 document.addEventListener("keydown",e=>{
