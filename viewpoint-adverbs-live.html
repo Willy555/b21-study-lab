@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Viewpoint Adverbs Live</title>
+<style>
+:root{--ink:#1f1630;--mut:#6b6478;--line:#efe7f1;--rose:#be185d;--plum:#4a044e;--blue:#1368ce;--green:#26890c;--org:#d97706;--pur:#7c3aed;--red:#e21b3c;--yel:#d89e00}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Inter,sans-serif;color:var(--ink);background:#fff;-webkit-tap-highlight-color:transparent}
+button{font:inherit;cursor:pointer;border:0;color:inherit}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.93);backdrop-filter:blur(6px);z-index:30}
+.brand{font-weight:800;display:flex;gap:10px;align-items:center;font-size:17px}
+.brand i{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 50% 50%,#fde68a 0 18%,#f9a8d4 20% 60%,#ec4899 62%);display:inline-block}
+.tabs{display:flex;gap:4px;background:#f7f1f8;padding:4px;border-radius:12px}
+.tabs button{padding:8px 16px;border-radius:9px;background:transparent;color:var(--mut);font-weight:700}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+main{max-width:1100px;margin:0 auto;padding:24px 22px 110px}
+main.wide{max-width:none;padding:0}
+.kick{font-size:13px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--c,var(--rose))}
+h1{font-size:clamp(28px,4vw,44px);margin:6px 0 8px;line-height:1.1}
+h3{margin:26px 0 10px;font-size:19px}
+.lead{font-size:clamp(17px,2vw,21px);color:var(--mut);margin:0 0 18px;line-height:1.45;max-width:860px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.pill{padding:9px 16px;border-radius:999px;border:2px solid var(--c);background:#fff;color:var(--c);font-weight:700;transition:.15s}
+.pill.on,.pill:hover{background:var(--c);color:#fff}
+.card{border:1px solid var(--line);border-left:6px solid var(--c,var(--rose));border-radius:16px;padding:18px 20px;background:#fdfbfd;margin:10px 0}
+.card .q{font-weight:800;font-size:19px;margin-bottom:10px;color:var(--c)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
+.chips button{padding:6px 12px;border-radius:9px;background:#fff;border:1px solid var(--line);font-size:16px}.chips button.on{background:var(--c);color:#fff;border-color:var(--c)}
+.idea{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 6px}.ib{flex:1 1 170px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:19px;font-weight:600}.ib small{display:block;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);font-weight:800;margin-bottom:6px}.op{display:grid;place-items:center;font-size:28px;font-weight:900;color:var(--mut)}
+.means{margin:10px 0;font-size:19px;background:#fff;border-radius:12px;padding:10px 14px;border:2px dashed var(--c)}
+.chips span{padding:5px 11px;border-radius:8px;background:#fff;border:1px solid var(--line);font-size:15px}
+.sent{font-size:clamp(21px,2.8vw,32px);font-weight:600;line-height:1.5;margin:6px 0}
+.hl{background:var(--c,var(--rose));color:#fff;padding:1px 9px;border-radius:9px;font-weight:800;white-space:nowrap}
+.cm{color:var(--red);font-weight:900;font-size:1.25em;padding:0 1px}
+.note{font-size:16px;color:var(--mut);margin-top:6px}
+.tag{display:inline-block;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:800;color:#fff;background:var(--c)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:800px){.grid2,.grid4{grid-template-columns:1fr}}
+.btn{padding:11px 20px;border-radius:12px;background:var(--ink);color:#fff;font-weight:800}
+.btn.ghost{background:#f3eef5;color:var(--ink)}
+.btn.rose{background:linear-gradient(135deg,#ec4899,#be185d);color:#fff;box-shadow:0 8px 24px rgba(190,24,93,.3)}
+.btn:disabled{opacity:.4;cursor:default}
+.quiz{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.word{font-size:32px;font-weight:800}
+.ok{background:#16a34a!important;color:#fff!important;border-color:#16a34a!important}
+.bad{background:#e21b3c!important;color:#fff!important;border-color:#e21b3c!important}
+.foot{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:center;padding:12px 22px;background:rgba(255,255,255,.95);border-top:1px solid var(--line);z-index:20}
+.dots{display:flex;gap:7px}
+.dots b{width:10px;height:10px;border-radius:50%;background:#e8dfea;cursor:pointer}
+.dots b.on{background:var(--rose);width:26px;border-radius:6px}
+.toks{display:flex;flex-wrap:wrap;align-items:center;gap:2px;font-size:clamp(20px,2.6vw,30px);font-weight:600;line-height:2}
+.gap{width:26px;height:34px;border:2px dashed #d8c8de;border-radius:8px;background:#fff;margin:0 3px;transition:.15s}
+.gap:hover{border-color:var(--pur);background:#f3e8ff}
+.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.form-row{display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:center;padding:10px 0;border-bottom:1px dashed var(--line)}
+.form-row .lab{font-weight:800;color:var(--org)}
+@media(max-width:700px){.form-row{grid-template-columns:1fr}}
+.recap{border-radius:16px;padding:16px;background:#fff;border:1px solid var(--line);border-top:6px solid var(--c)}
+.recap b{color:var(--c);font-size:14px;letter-spacing:1px;text-transform:uppercase}
+.recap p{margin:8px 0 0;font-size:16px;line-height:1.45}
+.lvl{display:inline-block;margin-top:10px;padding:5px 12px;border-radius:999px;font-weight:800;font-size:14px}
+.lvl.usual{background:#dcfce7;color:#166534}.lvl.emph{background:#e0e7ff;color:#3730a3}.lvl.less{background:#fef3c7;color:#92400e}.lvl.rare{background:#fee2e2;color:#991b1b}
+
+/* ---------- lobby with cherry tree ---------- */
+.lobby{position:relative;height:calc(100vh - 57px);min-height:560px;overflow:hidden;background:linear-gradient(180deg,#f4fbf3 0%,#e8f5e4 60%,#dcefd6 100%);perspective:1300px}
+.fx{position:absolute;inset:0}
+.fx canvas{display:block;width:100%;height:100%}
+.intro{position:absolute;left:0;right:0;bottom:7%;text-align:center;transition:transform 1s ease,opacity .7s ease}
+.intro h1{font-size:clamp(34px,5vw,62px);margin:4px 0 18px;text-shadow:0 2px 0 #fff}
+.btn.big{font-size:20px;padding:15px 30px;border-radius:16px}
+.intro{pointer-events:none}.intro .btn{pointer-events:auto}.hint{margin-top:10px;font-weight:700;color:var(--mut)}
+.lobby.lifting .intro{transform:translateY(60px);opacity:0}
+.lobby.lifting .intro .btn{pointer-events:none}
+.scan{text-align:center;padding-bottom:10px;border-bottom:1px solid #f5d0e1}
+.qrwrap{position:absolute;left:50%;bottom:4%;transform-origin:50% 100%;transform:translate(-50%,115%) rotateX(80deg) scale(.7);opacity:0;transition:transform 1.5s cubic-bezier(.17,.9,.25,1.12) .55s,opacity .6s ease .55s;pointer-events:none}
+.lobby.nofx.revealed .qrwrap{transform:translate(-50%,0) rotateX(0) scale(1);opacity:1;pointer-events:auto}
+.qrcard{background:#fff;border-radius:28px;padding:18px 20px 16px;text-align:center;box-shadow:0 30px 70px rgba(131,24,67,.28),0 0 0 8px rgba(255,255,255,.55);position:relative}
+.qrcard:before{content:"";position:absolute;inset:-3px;border-radius:30px;background:linear-gradient(135deg,#f9a8d4,#be185d,#7c3aed);z-index:-1}
+.qrlab{font-weight:900;font-size:22px;letter-spacing:.5px;background:linear-gradient(90deg,#be185d,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:6px}
+#qrc{width:min(300px,38vh);height:min(300px,38vh);display:block;margin:0 auto}
+.code{margin-top:8px;font-size:15px;color:var(--mut)}
+.code b{font-size:24px;letter-spacing:4px;color:var(--plum)}
+.url{font-size:12px;color:var(--mut);margin-top:4px;word-break:break-all;max-width:320px}
+.side{position:absolute;right:18px;top:18px;width:290px;max-height:calc(100% - 36px);display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,.82);backdrop-filter:blur(8px);border-radius:20px;padding:16px;box-shadow:0 10px 30px rgba(131,24,67,.12)}
+.side h4{margin:0;font-size:16px;display:flex;justify-content:space-between}
+.plist{display:flex;flex-wrap:wrap;gap:6px;overflow:auto;max-height:42vh}
+.plist span{padding:6px 11px;border-radius:999px;background:#fff;border:1px solid #cfe8c9;font-weight:700;font-size:14px;animation:pop .35s}
+.plist span.off{opacity:.4}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+.side select{padding:8px;border-radius:10px;border:1px solid var(--line);font:inherit;width:100%}
+.warn{font-size:13px;background:#fef3c7;color:#92400e;border-radius:10px;padding:8px 10px}
+@media(max-width:900px){.side{position:absolute;top:auto;bottom:12px;right:12px;width:220px}.qrwrap{left:38%}}
+
+/* ---------- host question / reveal ---------- */
+.hq{max-width:1150px;margin:0 auto;padding:22px}
+.hqtop{display:flex;align-items:center;gap:14px}
+.qn{font-weight:700;color:var(--mut)}
+.tm{margin-left:auto;width:64px;height:64px;border-radius:50%;background:var(--plum);color:#fff;font-size:28px;font-weight:900;display:grid;place-items:center}
+.tbar{height:8px;background:#f3eaf2;border-radius:6px;margin:14px 0;overflow:hidden}
+.tbar i{display:block;height:100%;background:linear-gradient(90deg,#ec4899,#7c3aed);transition:width .25s linear}
+.qtext{font-size:clamp(24px,3.2vw,40px);line-height:1.25;margin:16px 0 22px;text-align:center}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.opt{position:relative;display:flex;align-items:center;gap:14px;min-height:92px;padding:16px 20px;border-radius:14px;color:#fff;font-weight:800;font-size:clamp(17px,2vw,24px);box-shadow:0 5px 0 rgba(0,0,0,.18);text-align:left}
+.opt .sh{font-size:28px;opacity:.9}
+.opt.dim{opacity:.28}
+.opt.right{outline:5px solid #16a34a;outline-offset:3px}
+.opt .cnt{margin-left:auto;background:rgba(255,255,255,.25);border-radius:10px;padding:4px 12px;font-size:20px}
+.hqfoot{display:flex;align-items:center;gap:14px;margin-top:22px;flex-wrap:wrap}
+.answered{font-size:20px}
+.who{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.who span{padding:4px 10px;border-radius:999px;background:#f3eef5;font-size:13px;font-weight:700;color:var(--mut)}
+.who span.done{background:#dcfce7;color:#166534}
+.expl{margin:18px 0;padding:14px 18px;border-radius:14px;background:#f5f3ff;border-left:6px solid var(--pur);font-size:18px;line-height:1.45}
+.board{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.row{display:grid;grid-template-columns:46px 170px 1fr 90px;align-items:center;gap:12px;padding:8px 12px;border-radius:12px;background:#fbf8fc}
+.row .rk{font-weight:900;font-size:18px;color:var(--rose)}
+.row .nm{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .sc{text-align:right;font-weight:900;font-size:18px}
+.pdots{display:flex;gap:4px;flex-wrap:wrap}
+.pdots i{width:12px;height:12px;border-radius:4px;background:#ece4ee}
+.pdots i.y{background:#16a34a}.pdots i.n{background:#e21b3c}.pdots i.s{background:#c4b5c9}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:16px;margin:24px 0}
+.pod{width:180px;text-align:center}
+.pod .bar{border-radius:14px 14px 0 0;color:#fff;font-size:42px;font-weight:900;display:grid;place-items:center}
+.pod .pn{font-weight:900;font-size:20px;margin-bottom:4px}
+.pod .ps{color:var(--mut);font-weight:700;margin-bottom:8px}
+
+/* ---------- player (phone) ---------- */
+body.player{background:linear-gradient(180deg,#fff7fb,#ffeef5)}
+.pw{max-width:520px;margin:0 auto;padding:18px;min-height:100vh;display:flex;flex-direction:column}
+.pcard{background:#fff;border-radius:22px;padding:22px;box-shadow:0 10px 30px rgba(131,24,67,.12);text-align:center}
+.pcard input{width:100%;padding:14px;border-radius:12px;border:2px solid #f5d0e1;font:inherit;font-size:20px;text-align:center;margin:14px 0}
+.ptop{display:flex;justify-content:space-between;align-items:center;font-weight:800;color:var(--mut);margin-bottom:8px}
+.ptm{font-size:22px;color:var(--plum)}
+.pq{font-size:20px;font-weight:700;line-height:1.35;margin:6px 0 14px}
+.popts{display:grid;gap:10px;flex:1}
+.popts button{border-radius:16px;color:#fff;font-weight:800;font-size:18px;padding:16px;text-align:left;display:flex;gap:12px;align-items:center;box-shadow:0 5px 0 rgba(0,0,0,.18);min-height:66px}
+.popts button.pick{outline:5px solid var(--ink);outline-offset:2px}
+.popts button.faded{opacity:.3}
+.big-ico{font-size:66px;line-height:1;margin:8px 0}
+.pts{font-size:30px;font-weight:900;color:var(--rose)}
+.catbar{display:grid;grid-template-columns:90px 1fr 46px;gap:10px;align-items:center;margin:8px 0;text-align:left;font-weight:700}
+.catbar .tr{height:12px;background:#f3eaf2;border-radius:8px;overflow:hidden}
+.catbar .tr i{display:block;height:100%}
+.spin{width:44px;height:44px;border:5px solid #f5d0e1;border-top-color:var(--rose);border-radius:50%;animation:spn 1s linear infinite;margin:14px auto}
+@keyframes spn{to{transform:rotate(360deg)}}
+.introbox{text-align:center;max-width:900px;margin:30px auto 0}
+.introbox .ready{font-size:22px;font-weight:800;color:var(--mut);margin:8px 0}
+.pic{flex:1;min-height:200px;border-radius:22px;background:linear-gradient(135deg,#ecfdf5,#fdf2f8);display:grid;place-items:center;font-size:clamp(70px,10vw,130px);letter-spacing:8px;box-shadow:inset 0 0 0 2px #f1e8f3}
+.pic.big{min-height:230px;margin-bottom:6px}
+.qbar{background:#fff;border-radius:14px;box-shadow:0 4px 14px rgba(0,0,0,.08);padding:14px 20px;text-align:center;font-size:clamp(22px,2.8vw,34px);margin:14px 0}
+.mid{display:flex;align-items:center;gap:20px;margin-bottom:16px}
+.ring{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#7c3aed calc(var(--p)*1%),#efe7f1 0);flex:none}
+.ring span{width:88px;height:88px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:38px;font-weight:900;color:var(--plum)}
+.acount{width:110px;text-align:center;flex:none}.acount b{display:block;font-size:46px;line-height:1}.acount span{color:var(--mut);font-weight:700}
+.bars{display:flex;justify-content:center;align-items:flex-end;gap:22px;height:190px;margin:4px 0 14px}
+.bcol{display:flex;flex-direction:column;align-items:center;width:90px}.bcol.dim{opacity:.35}
+.bnum{font-weight:900;font-size:22px;margin-bottom:4px}.bfill{width:100%;border-radius:8px 8px 0 0}.bsh{width:100%;color:#fff;text-align:center;font-size:20px;padding:4px 0;border-radius:0 0 8px 8px}
+.qsel{font-size:15px}
+#pv{position:fixed;inset:0;background:#fbfafc;z-index:60;display:flex;flex-direction:column}
+.pvhead{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:14px 22px;background:#fff;border-bottom:1px solid var(--line)}
+.pvtools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.shuf{font-weight:700;display:flex;gap:6px;align-items:center;padding:0 6px}
+.pvbody{overflow:auto;padding:6px 22px 40px}
+.pvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.pvc{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;opacity:.55;transition:.12s}
+.pvc.on{border-color:var(--c);opacity:1;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+.pvtop{display:flex;align-items:center;gap:8px}.pvchk{width:24px;height:24px;border-radius:7px;border:2px solid var(--c);display:grid;place-items:center;color:#fff;font-weight:900;font-size:14px}.pvc.on .pvchk{background:var(--c)}
+.pvimg{font-size:26px}.pvq{font-weight:700;margin:8px 0;font-size:15px;line-height:1.35}
+.pvo{display:grid;gap:4px;font-size:13px}.pvo span{display:flex;gap:6px;align-items:center;color:var(--mut)}.pvo i{width:10px;height:10px;border-radius:3px;flex:none}.pvo .ok2{color:#166534;font-weight:800}.pvo .ok2:after{content:" ✓"}
+@media(max-width:700px){.mid{flex-wrap:wrap}.pic{min-height:140px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+"use strict";
+/* ================= shared helpers ================= */
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=n=>String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,".");
+const ord=n=>{const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a;};
+function loadScript(urls){return new Promise((res,rej)=>{let i=0;(function next(){if(i>=urls.length)return rej(new Error("load"));const s=document.createElement("script");s.src=urls[i++];s.onload=res;s.onerror=next;document.head.appendChild(s);})();});}
+const PEER_URLS=["https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js","https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"];
+const QR_URLS=["https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js","https://unpkg.com/qrcode-generator@1.4.4/qrcode.js","https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"];
+const THREE_URLS=["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js","https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"];
+const PAGES_URL="https://willy555.github.io/b21-study-lab/viewpoint-adverbs-live.html";
+const pageURL=()=>/^https?:$/.test(location.protocol)&&!/^(localhost|127\.)/.test(location.hostname)?location.href.split("#")[0].split("?")[0]:PAGES_URL;
+const OPT=[{c:"#e21b3c",s:"▲"},{c:"#1368ce",s:"◆"},{c:"#d89e00",s:"●"},{c:"#26890c",s:"■"}];
+const CAT={Meaning:"#1368ce",Usage:"#26890c",Form:"#d97706",Position:"#7c3aed"};
+
+/* ================= question bank ================= */
+const BANK=[
+{c:"Meaning",img:"💭",t:20,q:"What do viewpoint adverbs show?",o:["The speaker's opinion or point of view","How often something happens","How fast an action is done","Where an action takes place"],a:0,e:"They show what the speaker thinks: how sure they are, how they feel, what they think of someone's behaviour, or the angle they take."},
+{c:"Meaning",img:"🤔",t:20,q:"Which group does \"presumably\" belong to?",o:["Certainty","Attitude / feeling","Judgement of behaviour","Perspective / angle"],a:0,e:"Certainty: apparently, certainly, clearly, definitely, obviously, presumably, probably, undoubtedly."},
+{c:"Meaning",img:"😢🏪",t:20,q:"\"Sadly, the shop closed.\" What does \"sadly\" show?",o:["The speaker's feeling","How sure the speaker is","A judgement of someone's behaviour","A point of view, like money"],a:0,e:"Sadly = this makes me sad. It is an attitude adverb."},
+{c:"Meaning",img:"💰",t:20,q:"Which adverb gives a POINT OF VIEW (money, politics, nature...)?",o:["Luckily","Financially","Bravely","Definitely"],a:1,e:"Financially = if we think about money. Perspective adverbs: ethically, environmentally, financially, logically, morally, politically, technically."},
+{c:"Meaning",img:"⚠️🙈",t:20,q:"\"Foolishly, he ignored the warning.\" \"Foolishly\" judges...",o:["his behaviour","how sure the speaker is","the money involved","the time of the action"],a:0,e:"Judgement adverbs say if a person's action was good or bad: bravely, carelessly, foolishly, generously, kindly, rightly, stupidly, wisely, wrongly."},
+{c:"Meaning",img:"🎲",t:15,q:"\"Probably\" means...",o:["I think so, but I'm not 100% sure","I'm 100% sure","I feel sad about it","It was a brave thing to do"],a:0,e:"Probably = about 70% sure."},
+{c:"Meaning",img:"💯",t:15,q:"\"Undoubtedly\" means...",o:["There is no doubt","Maybe","Unfortunately","From a money point of view"],a:0,e:"Undoubtedly = there is no doubt. Very sure."},
+{c:"Meaning",img:"🍀",t:15,q:"\"Luckily\" shows...",o:["a feeling: it was good luck","how sure the speaker is","a judgement of behaviour","a point of view"],a:0,e:"Luckily is an attitude adverb: the speaker is happy about the luck."},
+{c:"Meaning",img:"👂🗣️",t:20,q:"\"Apparently, our teacher is leaving.\" How sure is the speaker?",o:["Not sure: they heard it from someone","100% sure","They saw it with their own eyes","They don't care"],a:0,e:"Apparently = it seems true, because I heard or read it."},
+{c:"Meaning",img:"😲",t:15,q:"Which adverb shows that something was NOT expected?",o:["Surprisingly","Naturally","Obviously","Wisely"],a:0,e:"Surprisingly = I didn't expect this. Naturally = I expected it."},
+{c:"Usage",img:"✋📄",t:20,q:"\"___, he declined the offer.\" (It was the right decision.)",o:["Rightly","Luckily","Apparently","Technically"],a:0,e:"Rightly = he was right to do it."},
+{c:"Usage",img:"🧐",t:20,q:"\"___, no one objected to the proposal.\" (The speaker finds it interesting.)",o:["Interestingly","Presumably","Carelessly","Financially"],a:0,e:"Interestingly = I find this interesting."},
+{c:"Usage",img:"🏔️🥾",t:20,q:"\"She ___ decided to continue the trek alone.\" (She was brave.)",o:["bravely","frankly","probably","technically"],a:0,e:"Bravely judges her behaviour."},
+{c:"Usage",img:"☂️🌤️",t:20,q:"\"I forgot my umbrella, but ___ it didn't rain.\"",o:["luckily","sadly","bravely","technically"],a:0,e:"Luckily = this was good luck."},
+{c:"Usage",img:"🚪🐕",t:20,q:"\"He ___ left the door open, and the dog escaped.\"",o:["carelessly","wisely","generously","interestingly"],a:0,e:"Carelessly = he wasn't careful."},
+{c:"Usage",img:"💸",t:20,q:"\"___, the project is too expensive. We don't have the money.\"",o:["Financially","Bravely","Kindly","Surprisingly"],a:0,e:"Financially = if we think about money."},
+{c:"Usage",img:"👵🍽️",t:20,q:"\"My grandma ___ paid for everybody's dinner.\"",o:["generously","foolishly","technically","apparently"],a:0,e:"Generously = she was generous."},
+{c:"Usage",img:"🎵🙉",t:20,q:"\"___, I don't like this song. Sorry, but it's the truth.\"",o:["Frankly","Luckily","Wisely","Environmentally"],a:0,e:"Frankly = I'm telling you directly."},
+{c:"Usage",img:"🌊🛍️",t:20,q:"\"___, plastic bags are a big problem for the oceans.\"",o:["Environmentally","Generously","Bravely","Kindly"],a:0,e:"Environmentally = if we think about nature."},
+{c:"Usage",img:"📝😬",t:20,q:"\"It was her first exam. ___, she was nervous.\" (This is normal.)",o:["Naturally","Carelessly","Financially","Wrongly"],a:0,e:"Naturally = this is normal, I expected it."},
+{c:"Usage",img:"⚖️",t:30,q:"Which sentence judges someone's behaviour?",o:["My sister is rightly going to demand her money back.","The results are certainly impressive.","Ethically speaking, this is a grey area.","Interestingly, no one objected."],a:0,e:"Rightly is a judgement adverb. The others show certainty, angle and attitude."},
+{c:"Usage",img:"🔭",t:20,q:"At the beginning of a sentence, a viewpoint adverb comments on...",o:["the whole sentence","only the verb","only the subject","only the last word"],a:0,e:"\"Officially, the meeting starts at 9 AM.\" The adverb frames the whole idea."},
+{c:"Form",img:"🧩",t:30,q:"Which one is NOT correct?",o:["In ethical terms, this is a grey area.","Ethically speaking, this is a grey area.","As far as ethics are concerned, this is a grey area.","As far as ethically, this is a grey area."],a:3,e:"Correct phrases: In ... terms / ...ly speaking / As far as ... is / are concerned."},
+{c:"Form",img:"🌫️",t:20,q:"Complete: \"___ ethics are concerned, this is a grey area.\"",o:["As far as","As long as","As well as","As much as"],a:0,e:"The fixed phrase is \"As far as ... is / are concerned\"."},
+{c:"Form",img:"🔧",t:15,q:"The viewpoint adverb from \"technical\" is...",o:["Technically","Technicaly","Technicalness","Technic"],a:0,e:"technical + ly = technically."},
+{c:"Form",img:"📉",t:20,q:"Complete: \"In financial ___, the plan is a disaster.\"",o:["terms","speaking","concerned","ways"],a:0,e:"In financial terms = financially."},
+{c:"Form",img:"🏛️",t:20,q:"Complete: \"Politically ___, it's a bad moment for new taxes.\"",o:["speaking","terms","concerned","talking about"],a:0,e:"Politically speaking = politically."},
+{c:"Form",img:"🧭",t:20,q:"\"Morally speaking\" means the same as...",o:["In moral terms","Moral speaking","As far as moral","Morally speak"],a:0,e:"Morally = morally speaking = in moral terms."},
+{c:"Form",img:"🌳",t:15,q:"Which spelling is correct?",o:["Environmentally","Environmentaly","Enviromentally","Environmentlly"],a:0,e:"environmental + ly = environmentally."},
+{c:"Form",img:"💵",t:20,q:"\"As far as money is concerned\" means the same as...",o:["Financially","Technically","Politically","Ethically"],a:0,e:"Money = financially."},
+{c:"Position",img:"🕘",t:20,q:"Where is the adverb? \"The meeting officially starts at 9 AM.\"",o:["Beginning","Middle","End","There is no adverb"],a:1,e:"Middle: before the main verb \"starts\", no commas."},
+{c:"Position",img:"🔚",t:30,q:"Which sentence has the adverb at the END, with correct punctuation?",o:["The meeting starts at 9 AM, officially.","The meeting starts at 9 AM officially,","The meeting starts, at 9 AM officially.","The meeting, starts at 9 AM officially."],a:0,e:"End position: put a comma before the adverb."},
+{c:"Position",img:"🧘",t:20,q:"\"Hussain says he ___ the benefits of all that yoga.\"",o:["can certainly feel","can feel certainly","feel can certainly","certainly feel can"],a:0,e:"Middle: after modals (can, will, would)."},
+{c:"Position",img:"💳",t:20,q:"Where does \"rightly\" go? \"My sister is going to demand her money back.\"",o:["After \"is\"","After \"demand\"","After \"her\"","After \"money\""],a:0,e:"After be (am, is, are, was, were): \"My sister is rightly going to...\""},
+{c:"Position",img:"📍",t:20,q:"Certainty adverbs (definitely, presumably) usually go...",o:["in the middle","only at the beginning","only at the end","after the object"],a:0,e:"\"I would definitely buy that cream again.\""},
+{c:"Position",img:"🦸",t:20,q:"Judgement adverbs (bravely, wisely) usually go...",o:["after the subject, or first for emphasis","only at the end","after the object","inside the noun"],a:0,e:"\"She bravely decided...\" or, for emphasis, \"Bravely, she decided...\""},
+{c:"Position",img:"✏️",t:20,q:"In the middle of a sentence, viewpoint adverbs usually...",o:["have no commas, unless they interrupt","need commas on both sides","need a comma after them","cannot go there"],a:0,e:"No commas, unless the adverb breaks the flow of the sentence."},
+{c:"Position",img:"❌",t:20,q:"Which sentence is NOT correct?",o:["Officially, the meeting starts at 9 AM.","The meeting officially starts at 9 AM.","The meeting starts at 9 AM, officially.","Officially the, meeting starts at 9 AM."],a:3,e:"At the beginning, the comma goes right after the adverb."},
+{c:"Position",img:"🤪",t:20,q:"Choose the correct sentence.",o:["You obviously think I'm crazy!","You think obviously I'm crazy!","You think I'm crazy obviously!","Obviously think you I'm crazy!"],a:0,e:"No auxiliary verb: the adverb goes before the main verb \"think\"."},
+{c:"Position",img:"🧴",t:20,q:"Where does \"definitely\" go? \"I would buy that cream again.\"",o:["After \"would\"","After \"buy\"","After \"cream\"","After \"again\", with no comma"],a:0,e:"After the modal: \"I would definitely buy...\""},
+{c:"Position",img:"💪",t:20,q:"\"Bravely, she decided to continue.\" Why is \"bravely\" at the beginning?",o:["To add emphasis","It's the only correct place","Because it's a certainty adverb","Because there's no subject"],a:0,e:"Judgement adverbs normally go after the subject. At the beginning they add emphasis."},
+{c:"Position",img:"⏸️",t:20,q:"\"This is, as far as I'm concerned, a very small issue.\" Why the commas?",o:["The phrase interrupts the sentence","Adverbs always need commas","Because it's a question","Because it's at the end"],a:0,e:"Use commas in the middle only when the phrase interrupts the flow."}
+];
+const defaultSel=()=>{const s=new Set();["Meaning","Usage","Form","Position"].forEach(c=>{const ids=BANK.map((q,i)=>q.c===c?i:-1).filter(i=>i>=0);const k=c==="Form"?3:4;for(let j=0;j<k;j++)s.add(ids[Math.floor(j*ids.length/k)]);});return s;};
+
+const params=new URLSearchParams(location.search);
+const ROOM=(params.get("room")||"").trim();
+if(ROOM||params.has("play")) startPlayer(ROOM.toUpperCase()); else startHost();
+
+/* =====================================================================
+   HOST
+   ===================================================================== */
+function startHost(){
+const app=$("#app");
+app.innerHTML=`<header class="top"><div class="brand"><i></i>Viewpoint Adverbs</div><nav class="tabs"><button data-act="tab" data-v="lesson">Lesson</button><button data-act="tab" data-v="game">Play live</button></nav></header><main id="stage"></main><div class="foot" id="foot"></div>`;
+const stage=$("#stage"),foot=$("#foot");
+let tab="lesson";
+
+/* ---------- lesson data ---------- */
+const TYPES={
+ Certainty:{col:"#1368ce",ask:"How sure am I?",frame:"The results are ___ impressive.",words:[["apparently","it seems true, because I heard or read it"],["certainly","I'm sure"],["clearly","it's easy to see"],["definitely","I'm 100% sure"],["obviously","everybody can see it"],["presumably","I guess it's true, but I'm not sure"],["probably","I think so (about 70% sure)"],["undoubtedly","there is no doubt"]]},
+ Attitude:{col:"#d97706",ask:"How do I feel about it?",frame:"___, nobody came to the party.",words:[["astonishingly","I'm shocked"],["frankly","I'm telling you directly"],["honestly","I'm being sincere"],["interestingly","I find this interesting"],["luckily","this was good luck"],["naturally","this is normal, I expected it"],["sadly","this makes me sad"],["seriously","I'm not joking"],["surprisingly","I didn't expect this"],["unbelievably","it's hard to believe"]]},
+ Judgement:{col:"#26890c",ask:"Was it a good or a bad thing to do?",words:[["bravely","she was brave","She ___ went into the burning house."],["carelessly","he wasn't careful","He ___ left the door open."],["foolishly","it was a silly thing to do","___, I forgot my passport."],["generously","they were generous","They ___ paid for everybody's dinner."],["kindly","she was kind","She ___ helped me with my bags."],["rightly","he was right to do it","___, he declined the offer."],["stupidly","it was a stupid thing to do","___, I deleted the file."],["wisely","it was a smart decision","___, she saved some money."],["wrongly","he was wrong to do it","He ___ blamed his brother."]]},
+ Perspective:{col:"#7c3aed",ask:"From which point of view?",frame:"___, this plan is a problem.",words:[["ethically","if we think about right and wrong"],["environmentally","if we think about nature"],["financially","if we think about money"],["logically","if we think about it carefully"],["morally","if we think about good and bad"],["politically","if we think about politics"],["technically","if we think about how it works"]]}
+};
+const findW=(t,w)=>TYPES[t].words.find(x=>x[0]===w);
+function glossOf(w){for(const k in TYPES){const f=findW(k,w);if(f)return f[1];}return "";}
+function buildSent(t,w){const T=TYPES[t],it=findW(t,w),s=(it&&it[2])||T.frame,ps=s.split("___");return sentWithComma([ps[0],ps[0]===""?w[0].toUpperCase()+w.slice(1):w,ps[1]],T.col);}
+const SORT=[["probably","Certainty"],["sadly","Attitude"],["wisely","Judgement"],["financially","Perspective"],["frankly","Attitude"],["clearly","Certainty"]];
+const USE={Rightly:["Judgement","I think his decision was correct."],Foolishly:["Judgement","I think his decision was a mistake."],Sadly:["Attitude","I feel sad about this fact."],Apparently:["Certainty","This seems true, but I am not 100% sure."]};
+const ANGLE={Financially:"Only from the money point of view.",Politically:"Only from the political point of view.",Environmentally:"Only from the point of view of nature.",Technically:"Only from the technical point of view."};
+const FORMS={
+ ethical:["Ethically","In ethical terms","Ethically speaking","As far as ethics are concerned"],
+ financial:["Financially","In financial terms","Financially speaking","As far as money is concerned"],
+ political:["Politically","In political terms","Politically speaking","As far as politics is concerned"],
+ technical:["Technically","In technical terms","Technically speaking","As far as technology is concerned"]
+};
+const POSD={
+ Officially:{c:"#7c3aed",B:["","Officially",", the meeting starts at 9 AM."],M:["The meeting ","officially"," starts at 9 AM."],E:["The meeting starts at 9 AM, ","officially","."],L:{B:"usual",M:"usual",E:"usual"}},
+ Bravely:{c:"#26890c",B:["","Bravely",", she decided to continue the trek alone."],M:["She ","bravely"," decided to continue the trek alone."],E:["She decided to continue the trek alone, ","bravely","."],L:{B:"emph",M:"usual",E:"rare"}},
+ Definitely:{c:"#1368ce",B:["","Definitely",", I would buy that cream again."],M:["I would ","definitely"," buy that cream again."],E:["I would buy that cream again, ","definitely","."],L:{B:"less",M:"usual",E:"less"}},
+ Presumably:{c:"#1368ce",B:["","Presumably",", these new treatments are quite expensive."],M:["These new treatments are ","presumably"," quite expensive."],E:["These new treatments are quite expensive, ","presumably","."],L:{B:"less",M:"usual",E:"less"}}
+};
+const LVL={usual:"Most natural",emph:"Natural, for emphasis",less:"Possible, but less common",rare:"Not typical"};
+const RULE={
+ B:"<b>Beginning:</b> the adverb comments on the <b>whole sentence</b>. Put a <span class='cm'>,</span> after it.",
+ M:"<b>Middle:</b> after <b>be</b> (am, is, are, was, were) and after <b>modals</b> (can, will, would). Before <b>other verbs</b>. Usually <b>no commas</b>.",
+ E:"<b>End:</b> possible in many cases. Put a <span class='cm'>,</span> before it."
+};
+const GAPS=[
+ {t:["Hussain","says","he","can","feel","the","benefits","of","all","that","yoga."],adv:"certainly",ok:4,hint:"\"can\" is a modal: the adverb goes right after it."},
+ {t:["My","sister","is","going","to","demand","her","money","back."],adv:"rightly",ok:3,hint:"After am / is / are / was / were."},
+ {t:["You","think","I'm","crazy!"],adv:"obviously",ok:1,hint:"No auxiliary here: the adverb goes before the main verb."},
+ {t:["I","would","buy","that","cream","again."],adv:"definitely",ok:2,hint:"\"would\" is a modal: the adverb goes right after it."}
+];
+const L={i:0,type:"Certainty",w:{Certainty:"certainly",Attitude:"interestingly",Judgement:"rightly",Perspective:"morally"},sk:0,spick:null,sscore:0,use:null,angle:null,vp:"ethical",padv:"Officially",ppos:"B",gk:0,gdone:false,gscore:0,gtries:0,gwrong:-1};
+const SLIDES=[slMeaning,slUsage,slForm,slPosition,slGaps,slRecap];
+
+function hlS(parts,c){return `${esc(parts[0])}<span class="hl" style="--c:${c}">${esc(parts[1])}</span>${esc(parts[2]).replace(/^, /,"<span class='cm'>,</span> ").replace(/, $/,"<span class='cm'>,</span> ")}`;}
+function sentWithComma(p,c){
+ // highlight commas that touch the adverb
+ const pre=esc(p[0]).replace(/, $/,"<span class='cm'>,</span> ");
+ const post=esc(p[2]).replace(/^,/,"<span class='cm'>,</span>");
+ return `${pre}<span class="hl" style="--c:${c}">${esc(p[1])}</span>${post}`;
+}
+
+function slMeaning(){
+ const T=TYPES[L.type],w=L.w[L.type],it=SORT[L.sk];
+ const sortDone=L.sk>=SORT.length;
+ return `<div class="kick" style="--c:#1368ce">1 · Meaning</div><h1>What do they mean?</h1>
+ <p class="lead">A viewpoint adverb is <b>your comment</b> on a sentence. The fact stays the same. The adverb shows <b>what you think</b> about it.</p>
+ <div class="idea"><div class="ib"><small>The fact</small>He declined the offer.</div><div class="op">+</div><div class="ib"><small>Your comment</small><span class="hl" style="--c:#26890c">Rightly</span></div><div class="op">=</div><div class="ib"><small>It means</small>"He said no, and I think he was right."</div></div>
+ <h3>4 types. Each one answers a question:</h3>
+ <div class="pills">${Object.keys(TYPES).map(k=>`<button class="pill ${k===L.type?"on":""}" style="--c:${TYPES[k].col}" data-act="type" data-v="${k}">${k}</button>`).join("")}</div>
+ <div class="card" style="--c:${T.col}"><div class="q">${T.ask}</div><div class="note" style="margin:0 0 6px">Tap a word:</div>
+ <div class="chips">${T.words.map(x=>`<button class="${x[0]===w?"on":""}" style="--c:${T.col}" data-act="word" data-v="${x[0]}">${x[0]}</button>`).join("")}</div>
+ <div class="sent">${buildSent(L.type,w)}</div>
+ <div class="means" style="--c:${T.col}"><b>${w}</b> = "${esc(glossOf(w))}"</div></div>
+ <h3>Quick sort: which type is it?</h3>
+ ${sortDone?`<div class="card" style="--c:#16a34a"><div class="q">Score: ${L.sscore} / ${SORT.length}</div><button class="btn ghost" data-act="sreset">Try again</button></div>`:
+ `<div class="quiz"><div class="word">${it[0]}</div><div class="pills" style="margin:0">${Object.keys(TYPES).map(k=>{let cls="";if(L.spick){if(k===it[1])cls="ok";else if(k===L.spick)cls="bad";}return `<button class="pill ${cls}" style="--c:${TYPES[k].col}" data-act="spick" data-v="${k}" ${L.spick?"disabled":""}>${k}</button>`;}).join("")}</div>
+ ${L.spick?`<div class="means" style="--c:${TYPES[it[1]].col}"><b>${it[0]}</b> = "${esc(glossOf(it[0]))}" (${it[1]})</div><button class="btn" data-act="snext">Next word (${L.sk+1}/${SORT.length})</button>`:""}</div>`}`;
+}
+function slUsage(){
+ const u=L.use?USE[L.use]:null,a=L.angle;
+ const uc=u?TYPES[u[0]].col:"#26890c";
+ return `<div class="kick" style="--c:#26890c">2 · Usage</div><h1>Same fact, different viewpoint</h1>
+ <p class="lead">The fact does not change. <b>Change the adverb and you change the message.</b> Useful in essays, reports and conversation.</p>
+ <div class="grid2">
+ <div class="card" style="--c:${uc}"><div class="q">The fact: he declined the offer.</div>
+  <div class="pills">${Object.keys(USE).map(k=>`<button class="pill ${k===L.use?"on":""}" style="--c:${TYPES[USE[k][0]].col}" data-act="use" data-v="${k}">${k}</button>`).join("")}</div>
+  <div class="sent">${u?`<span class="hl" style="--c:${uc}">${L.use}</span><span class="cm">,</span> he declined the offer.`:"He declined the offer."}</div>
+  ${u?`<div class="note"><span class="tag" style="--c:${uc}">${u[0]}</span> &nbsp;"${u[1]}"</div>`:`<div class="note">Tap an adverb.</div>`}</div>
+ <div class="card" style="--c:#7c3aed"><div class="q">The fact: the plan is risky.</div>
+  <div class="pills">${Object.keys(ANGLE).map(k=>`<button class="pill ${k===a?"on":""}" style="--c:#7c3aed" data-act="angle" data-v="${k}">${k}</button>`).join("")}</div>
+  <div class="sent">${a?`<span class="hl" style="--c:#7c3aed">${a}</span><span class="cm">,</span> the plan is risky.`:"The plan is risky."}</div>
+  ${a?`<div class="note"><span class="tag" style="--c:#7c3aed">Perspective</span> &nbsp;"${ANGLE[a]}"</div>`:`<div class="note">Tap an angle.</div>`}</div>
+ </div>`;
+}
+function slForm(){
+ const f=FORMS[L.vp];
+ const labs=["Adverb (adjective + ly)","In ... terms","...ly speaking","As far as ... concerned"];
+ return `<div class="kick" style="--c:#d97706">3 · Form</div><h1>One adverb, three phrases</h1>
+ <p class="lead">You can also use a <b>phrase</b>. Same meaning, same place in the sentence. Choose a topic and compare.</p>
+ <div class="pills">${Object.keys(FORMS).map(k=>`<button class="pill ${k===L.vp?"on":""}" style="--c:#d97706" data-act="vp" data-v="${k}">${k}</button>`).join("")}</div>
+ <div class="card" style="--c:#d97706">${f.map((x,i)=>`<div class="form-row"><div class="lab">${labs[i]}</div><div class="sent" style="margin:0"><span class="hl" style="--c:#d97706">${x}</span><span class="cm">,</span> this is a grey area.</div></div>`).join("")}
+ <div class="note" style="margin-top:12px">Spelling: ethical + ly = ethically · technical + ly = technically · moral + ly = morally</div></div>`;
+}
+function slPosition(){
+ const d=POSD[L.padv],p=L.ppos,lv=d.L[p];
+ const names={B:"Beginning",M:"Middle",E:"End"};
+ return `<div class="kick" style="--c:#7c3aed">4 · Position</div><h1>Beginning, middle or end?</h1>
+ <p class="lead">Pick an adverb, then move it. Watch the <span class="cm">commas</span>.</p>
+ <div class="pills">${Object.keys(POSD).map(k=>`<button class="pill ${k===L.padv?"on":""}" style="--c:${POSD[k].c}" data-act="padv" data-v="${k}">${k}</button>`).join("")}</div>
+ <div class="pills">${["B","M","E"].map(k=>`<button class="pill ${k===p?"on":""}" style="--c:#4a044e" data-act="ppos" data-v="${k}">${names[k]}</button>`).join("")}</div>
+ <div class="card" style="--c:${d.c}"><div class="sent" style="font-size:clamp(24px,3.4vw,40px)">${sentWithComma(d[p],d.c)}</div>
+ <span class="lvl ${lv}">${LVL[lv]}</span></div>
+ <div class="card" style="--c:#4a044e;font-size:18px;line-height:1.5">${RULE[p]}</div>`;
+}
+function slGaps(){
+ if(L.gk>=GAPS.length) return `<div class="kick" style="--c:#7c3aed">5 · Mid-position practice</div><h1>Done: ${L.gscore} / ${GAPS.length} first try</h1><p class="lead">Rule: after <b>be</b> and <b>modals</b>, before <b>other verbs</b>.</p><button class="btn ghost" data-act="greset">Try again</button>`;
+ const g=GAPS[L.gk];
+ let h="";
+ g.t.forEach((w,i)=>{
+  if(L.gdone&&i===g.ok) h+=`<span class="hl" style="--c:#16a34a;margin:0 6px">${g.adv}</span>`;
+  else if(!L.gdone) h+=`<button class="gap ${L.gwrong===i?"shake":""}" data-act="gap" data-v="${i}" aria-label="put here"></button>`;
+  h+=`<span>${esc(w)}</span>`;
+  if(!L.gdone) h+=" "; else h+=" ";
+ });
+ return `<div class="kick" style="--c:#7c3aed">5 · Mid-position practice</div><h1>Where does <span class="hl" style="--c:#7c3aed">${g.adv}</span> go?</h1>
+ <p class="lead">Tap the gap. Rule: after <b>am / is / are / was / were</b> and <b>modals</b>, before <b>other verbs</b>.</p>
+ <div class="card" style="--c:#7c3aed"><div class="toks">${h}</div>
+ ${L.gwrong>=0&&!L.gdone?`<div class="note" style="color:#e21b3c;font-weight:700">Not there. ${esc(g.hint)}</div>`:""}
+ ${L.gdone?`<div class="note" style="color:#16a34a;font-weight:700">Correct! ${esc(g.hint)}</div><br><button class="btn" data-act="gnext">Next (${L.gk+1}/${GAPS.length})</button>`:""}</div>`;
+}
+function slRecap(){
+ return `<div class="kick">Recap</div><h1>Viewpoint adverbs in 4 ideas</h1>
+ <div class="grid4">
+ <div class="recap" style="--c:#1368ce"><b>Meaning</b><p>The speaker's point of view: certainty, attitude, judgement or angle.</p></div>
+ <div class="recap" style="--c:#26890c"><b>Usage</b><p>Add your comment on a fact in one word. Great for essays and reports.</p></div>
+ <div class="recap" style="--c:#d97706"><b>Form</b><p>adjective + ly, or a phrase: In ... terms, ...ly speaking, As far as ... concerned.</p></div>
+ <div class="recap" style="--c:#7c3aed"><b>Position</b><p>Start + comma (whole sentence). Middle: after be / modals, before other verbs. End: comma before.</p></div>
+ </div>
+ <div style="text-align:center;margin-top:34px"><button class="btn rose big" data-act="tab" data-v="game">Start the live game</button></div>`;
+}
+
+function renderLesson(){
+ stage.className="";
+ stage.innerHTML=SLIDES[L.i]();
+ foot.style.display="flex";
+ foot.innerHTML=`<button class="btn ghost" data-act="prev" ${L.i===0?"disabled":""}>Back</button><div class="dots">${SLIDES.map((_,i)=>`<b class="${i===L.i?"on":""}" data-act="go" data-v="${i}"></b>`).join("")}</div><button class="btn" data-act="next" ${L.i===SLIDES.length-1?"disabled":""}>Next</button>`;
+}
+
+/* ---------- game engine ---------- */
+const G={peer:null,code:"",ready:false,err:"",players:new Map(),phase:"lobby",qi:-1,perm:[],qStart:0,dur:20,timer:null,sel:defaultSel(),shuf:false,preview:false,QS:[],revealedQR:false};
+let lobbyEl=null,fx=null;
+
+function joinURL(){return pageURL()+"?room="+G.code;}
+function initPeer(){
+ if(G.peer||G.starting)return;G.starting=true;
+ loadScript(PEER_URLS).then(()=>{
+  const letters="ABCDEFGHJKLMNPQRSTUVWXYZ";
+  G.code=Array.from({length:5},()=>letters[Math.random()*letters.length|0]).join("");
+  const peer=new window.Peer("vadv-"+G.code.toLowerCase(),{debug:1});G.peer=peer;setTimeout(()=>{if(!G.ready&&!G.err){G.err="timeout";render();}},12000);
+  peer.on("open",()=>{G.ready=true;G.err="";drawQR();render();});
+  peer.on("connection",conn=>{
+   conn.on("data",m=>onMsg(conn,m));
+   const gone=()=>{const p=G.players.get(conn._pid);if(p&&p.conn===conn){p.online=false;render();}};
+   conn.on("close",gone);conn.on("error",gone);
+  });
+  peer.on("disconnected",()=>{try{peer.reconnect();}catch(e){}});
+  peer.on("error",e=>{G.err=(e&&e.type)||"error";render();});
+ }).catch(()=>{G.err="script";render();});
+}
+function send(p,m){try{if(p.conn&&p.conn.open)p.conn.send(m);}catch(e){}}
+const online=()=>[...G.players.values()].filter(p=>p.online);
+const ranking=()=>[...G.players.values()].sort((a,b)=>b.score-a.score);
+function onMsg(conn,m){
+ if(!m||typeof m!=="object")return;
+ if(m.t==="join"){
+  const pid=String(m.pid||"").slice(0,40)||("p"+Math.random().toString(36).slice(2,9));
+  let p=G.players.get(pid);
+  if(!p){
+   const base=(String(m.name||"").trim().slice(0,16))||"Player";
+   const taken=new Set([...G.players.values()].map(x=>x.name.toLowerCase()));
+   let name=base,k=2;while(taken.has(name.toLowerCase()))name=base+" "+(k++);
+   p={pid,name,score:0,ans:[],online:true,conn:null};G.players.set(pid,p);
+  }
+  p.conn=conn;p.online=true;conn._pid=pid;
+  send(p,{t:"joined",pid,name:p.name});resync(p);render();
+ }else if(m.t==="answer"){
+  const p=G.players.get(conn._pid);
+  if(!p||G.phase!=="question"||m.qi!==G.qi||p.ans[G.qi])return;
+  const ch=+m.choice;if(!(ch>=0&&ch<G.perm.length))return;
+  const ms=Math.min(G.dur*1000,Date.now()-G.qStart),q=G.QS[G.qi];
+  const ok=G.perm[ch]===q.a,pts=ok?Math.round(1000*(1-0.5*ms/(G.dur*1000))):0;
+  p.ans[G.qi]={ch,ok,pts};p.score+=pts;
+  const on=online();
+  if(on.length&&on.every(x=>x.ans[G.qi]))reveal();else render();
+ }
+}
+function qMsg(){const q=G.QS[G.qi];return {t:"q",qi:G.qi,n:G.QS.length,cat:q.c,text:q.q,opts:G.perm.map(k=>q.o[k]),remain:Math.max(0,G.dur-(Date.now()-G.qStart)/1000),dur:G.dur};}
+function introMsg(){const q=G.QS[G.qi];return {t:"intro",qi:G.qi,n:G.QS.length,cat:q.c,text:q.q};}
+function revMsg(p){const q=G.QS[G.qi],a=p.ans[G.qi],r=ranking();return {t:"reveal",qi:G.qi,correct:G.perm.indexOf(q.a),answer:q.o[q.a],ok:!!(a&&a.ok),answered:!!a,pts:a?a.pts:0,score:p.score,rank:r.indexOf(p)+1,total:r.length,expl:q.e};}
+function finMsg(p){
+ const r=ranking(),cats={};
+ G.QS.forEach((q,i)=>{cats[q.c]=cats[q.c]||[0,0];cats[q.c][1]++;if(p.ans[i]&&p.ans[i].ok)cats[q.c][0]++;});
+ return {t:"final",rank:r.indexOf(p)+1,total:r.length,score:p.score,correct:p.ans.filter(a=>a&&a.ok).length,n:G.QS.length,cats,top:r.slice(0,3).map(x=>({name:x.name,score:x.score}))};
+}
+function resync(p){
+ if(G.phase==="intro")send(p,introMsg());
+ else if(G.phase==="question")send(p,qMsg());
+ else if(G.phase==="reveal")send(p,revMsg(p));
+ else if(G.phase==="final")send(p,finMsg(p));
+ else send(p,{t:"wait"});
+}
+const INTRO=4;
+function startQ(i){
+ G.qi=i;const q=G.QS[i];G.perm=shuffle(q.o.map((_,k)=>k));G.dur=q.t||20;G.introStart=Date.now();G.phase="intro";
+ G.players.forEach(p=>send(p,introMsg()));
+ clearInterval(G.timer);G.timer=setInterval(tick,200);render();
+}
+function openQ(){G.qStart=Date.now();G.phase="question";G.players.forEach(p=>send(p,qMsg()));render();}
+function tick(){
+ if(G.phase==="intro"){const el=(Date.now()-G.introStart)/1000,b=$("#ibar");if(b)b.style.width=Math.min(100,el/INTRO*100)+"%";if(el>=INTRO)openQ();return;}
+ const rem=G.dur-(Date.now()-G.qStart)/1000;
+ const tm=$("#tm");if(tm)tm.textContent=Math.max(0,Math.ceil(rem));
+ const ring=$("#ring");if(ring)ring.style.setProperty("--p",Math.max(0,rem/G.dur*100));
+ if(rem<=0)reveal();
+}
+function reveal(){if(G.phase!=="question")return;clearInterval(G.timer);G.phase="reveal";G.players.forEach(p=>send(p,revMsg(p)));render();}
+function nextQ(){if(G.qi+1<G.QS.length)startQ(G.qi+1);else{G.phase="final";G.players.forEach(p=>send(p,finMsg(p)));render();}}
+function buildQS(){const ids=[...G.sel].sort((a,b)=>a-b);const qs=ids.map(i=>BANK[i]);return G.shuf?shuffle(qs):qs;}
+function resetGame(){clearInterval(G.timer);G.phase="lobby";G.qi=-1;G.players.forEach(p=>{p.score=0;p.ans=[];send(p,{t:"wait"});});render();}
+
+/* ---------- pretty QR ---------- */
+function drawQR(){
+ const cv=$("#qrc",lobbyEl||document);if(!cv||!G.code)return;
+ loadScript(QR_URLS).then(()=>{
+  const qr=window.qrcode(0,"H");qr.addData(joinURL());qr.make();{const nn=qr.getModuleCount(),mat=[];for(let r=0;r<nn;r++){const row=[];for(let k=0;k<nn;k++)row.push(qr.isDark(r,k));mat.push(row);}G.qrMatrix=mat;if(fx)fx.setQR(mat,true);const qb=lobbyEl&&$("#qbtn",lobbyEl);if(qb){qb.disabled=false;qb.textContent="Show the QR";}}
+  const n=qr.getModuleCount(),S=600,pad=44,c=(S-2*pad)/n;
+  cv.width=S;cv.height=S;const x=cv.getContext("2d");
+  x.fillStyle="#fff";x.fillRect(0,0,S,S);
+  const gr=x.createLinearGradient(0,0,S,S);gr.addColorStop(0,"#14532d");gr.addColorStop(.55,"#166534");gr.addColorStop(1,"#15803d");
+  const fin=(r,k)=>(r<7&&k<7)||(r<7&&k>=n-7)||(r>=n-7&&k<7);
+  const mid=(n-1)/2,lr=n*0.13;
+  x.fillStyle=gr;
+  for(let r=0;r<n;r++)for(let k=0;k<n;k++){
+   if(!qr.isDark(r,k)||fin(r,k))continue;
+   x.beginPath();x.arc(pad+(k+.5)*c,pad+(r+.5)*c,c*0.5,0,7);x.fill();
+  }
+  const rr=(X,Y,W,H,R)=>{x.beginPath();x.moveTo(X+R,Y);x.arcTo(X+W,Y,X+W,Y+H,R);x.arcTo(X+W,Y+H,X,Y+H,R);x.arcTo(X,Y+H,X,Y,R);x.arcTo(X,Y,X+W,Y,R);x.closePath();};
+  [[0,0],[0,n-7],[n-7,0]].forEach(([r,k])=>{
+   const X=pad+k*c,Y=pad+r*c;
+   x.fillStyle=gr;rr(X,Y,7*c,7*c,c*2.2);x.fill();
+   x.fillStyle="#fff";rr(X+c,Y+c,5*c,5*c,c*1.6);x.fill();
+   x.fillStyle="#14532d";rr(X+2*c,Y+2*c,3*c,3*c,c*1.1);x.fill();
+  });
+ }).catch(()=>{});
+}
+
+/* ---------- 3D voxel tree: seen from above, its canopy IS the QR ---------- */
+function qrMat(text){const q=window.qrcode(0,"H");q.addData(text);q.make();const n=q.getModuleCount(),m=[];for(let r=0;r<n;r++){const row=[];for(let k=0;k<n;k++)row.push(q.isDark(r,k));m.push(row);}return m;}
+function TreeFX(host,onT){
+ const T=window.THREE;
+ let rs=7;const rnd=()=>{rs|=0;rs=rs+0x6D2B79F5|0;let t=Math.imul(rs^rs>>>15,1|rs);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};
+ const clamp=v=>v<0?0:v>1?1:v,sm=v=>v*v*(3-2*v),lerp=(a,b,u)=>a+(b-a)*u;
+ const renderer=new T.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+ renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));host.appendChild(renderer.domElement);
+ const scene=new T.Scene(),cam=new T.OrthographicCamera(-1,1,1,-1,0.1,400);
+ scene.add(new T.HemisphereLight(0xffffff,0xa9c79a,0.85));
+ const sun=new T.DirectionalLight(0xffffff,0.75);sun.position.set(5,14,7);scene.add(sun);
+ const box=new T.BoxGeometry(1,1,1),cyl=new T.CylinderGeometry(1,1,1,7),dm=new T.Object3D(),col=new T.Color(),up=new T.Vector3(0,1,0);
+ const GREENS=[0x14532d,0x1b5e20,0x166534,0x2e6b25,0x1f5d2c,0x225c1a,0x2a6a22];
+ const LG=[0x7cb342,0x8bc34a,0x689f38,0x9ccc65,0x558b2f];
+ const P=120,pd=[],leaves=new T.InstancedMesh(new T.PlaneGeometry(.14,.09),new T.MeshLambertMaterial({color:0x5a9e3a,side:T.DoubleSide}),P);scene.add(leaves);
+ for(let i=0;i<P;i++)pd.push({x:(rnd()-.5)*14,y:rnd()*8,z:(rnd()-.5)*12,v:.25+rnd()*.4,ph:rnd()*6,r:rnd()*6});
+ let world=null,grass=null,W=11,ready=false;
+ function setQR(mat,real){
+  if(world)scene.remove(world);world=new T.Group();
+  const n=mat.length,C=11/(n+10),mid=(n-1)/2,R=Math.hypot(mid,mid);W=(n+10)*C;
+  const P3=(r,k,y)=>new T.Vector3((k-mid)*C,y,(r-mid)*C);
+  const slab=new T.Mesh(new T.BoxGeometry(W,.4,W),new T.MeshLambertMaterial({color:0xf7f9ef,emissive:0xb9bcb0}));slab.position.y=-.2;world.add(slab);
+  const rim=new T.Mesh(new T.BoxGeometry(W+.9,.32,W+.9),new T.MeshLambertMaterial({color:0x7cb342}));rim.position.y=-.27;world.add(rim);
+  const GN=380;grass=new T.InstancedMesh(new T.ConeGeometry(.07,.38,4),new T.MeshLambertMaterial(),GN);
+  for(let i=0;i<GN;i++){const s=i%4,o=(rnd()-.5)*(W+.8),d=W/2+.12+rnd()*.3,x=s<2?o:(s===2?d:-d),z=s<2?(s===0?d:-d):o;dm.position.set(x,.15,z);dm.rotation.set((rnd()-.5)*.5,rnd()*6,(rnd()-.5)*.5);dm.scale.setScalar(.7+rnd()*.8);dm.updateMatrix();grass.setMatrixAt(i,dm.matrix);col.setHex(LG[rnd()*LG.length|0]);grass.setColorAt(i,col);}
+  world.add(grass);
+  // canopy: one green block over every dark module, at dome heights
+  const hy=[],cells=[];
+  for(let r=0;r<n;r++){hy.push([]);for(let k=0;k<n;k++){const d=Math.hypot(r-mid,k-mid)/R;hy[r].push(2.3+2.7*(1-d*d)+(rnd()-.5)*.35);if(mat[r][k])cells.push([r,k]);}}
+  const can=new T.InstancedMesh(box,new T.MeshLambertMaterial(),cells.length);
+  cells.forEach(([r,k],i)=>{dm.position.copy(P3(r,k,hy[r][k]));dm.rotation.set(0,0,0);dm.scale.set(C*.97,C*1.6,C*.97);dm.updateMatrix();can.setMatrixAt(i,dm.matrix);col.setHex(GREENS[rnd()*GREENS.length|0]);can.setColorAt(i,col);});
+  world.add(can);
+  // trunk under the biggest dark block near the centre
+  let best=null;
+  for(let s=4;s>=1&&!best;s--){let bd=1e9;for(let r=0;r+s<=n;r++)for(let k=0;k+s<=n;k++){let ok=true;for(let a=0;a<s&&ok;a++)for(let b=0;b<s;b++)if(!mat[r+a][k+b]){ok=false;break;}if(!ok)continue;const dd=Math.hypot(r+(s-1)/2-mid,k+(s-1)/2-mid);if(dd<bd&&dd<n*.22){bd=dd;best={r,k,s};}}}
+  if(!best)best={r:Math.round(mid),k:Math.round(mid),s:1};
+  const bark=new T.MeshLambertMaterial({color:0x6d4c41}),bs=best.s,cr=best.r+(bs-1)/2,ck=best.k+(bs-1)/2;
+  let topY=1e9;for(let a=0;a<bs;a++)for(let b=0;b<bs;b++)topY=Math.min(topY,hy[best.r+a][best.k+b]);topY-=C*1.1;
+  const trunk=new T.Mesh(new T.CylinderGeometry(bs*C*.34,bs*C*.4,topY,10),bark);trunk.position.copy(P3(cr,ck,topY/2));world.add(trunk);
+  // branches: grow outwards only between neighbouring dark modules, hidden under the blocks
+  const seg=[],vis=new Set(),key=(r,k)=>r*1000+k,q=[],ny=(r,k)=>hy[r][k]-C*1.05,tp=P3(cr,ck,topY);
+  for(let a=0;a<bs;a++)for(let b=0;b<bs;b++){const r=best.r+a,k=best.k+b;vis.add(key(r,k));q.push([r,k,0]);seg.push([tp,P3(r,k,ny(r,k)),Math.min(bs*C*.3,C*.38)]);}
+  const NB=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+  for(let h=0;h<q.length;h++){const [r,k,dp]=q[h];for(let j=0;j<8;j++){const rr=r+NB[j][0],kk=k+NB[j][1];if(rr<0||kk<0||rr>=n||kk>=n||!mat[rr][kk]||vis.has(key(rr,kk)))continue;vis.add(key(rr,kk));q.push([rr,kk,dp+1]);
+   const rad=C*Math.max(.07,.3*(1-dp/22));seg.push([P3(r,k,ny(r,k)),P3(rr,kk,ny(rr,kk)),j<4?Math.min(rad,C*.4):C*.07]);}}
+  const br=new T.InstancedMesh(cyl,bark,seg.length);
+  seg.forEach(([a,b,rad],i)=>{const d=b.clone().sub(a),L=d.length()||.001;dm.position.copy(a).add(b).multiplyScalar(.5);dm.quaternion.setFromUnitVectors(up,d.normalize());dm.scale.set(rad,L+rad,rad);dm.updateMatrix();br.setMatrixAt(i,dm.matrix);dm.quaternion.identity();});
+  world.add(br);scene.add(world);ready=!!real;
+ }
+ let t=0,target=0,time=0,last=performance.now(),paused=false,flag=-1,drag=null;
+ const el=renderer.domElement;el.style.touchAction="none";el.style.cursor="grab";
+ el.addEventListener("pointerdown",e=>{if(!ready)return;drag={y:e.clientY,t:target};try{el.setPointerCapture(e.pointerId);}catch(_){}});
+ el.addEventListener("pointermove",e=>{if(drag)target=clamp(drag.t+(drag.y-e.clientY)/280);});
+ const endDrag=()=>{if(drag){target=target>.4?1:0;drag=null;}};
+ el.addEventListener("pointerup",endDrag);el.addEventListener("pointercancel",endDrag);
+ function update(){
+  const e=sm(clamp(t)),w=host.clientWidth||800,h=host.clientHeight||600,asp=w/h;
+  const ph=lerp(.6,Math.PI/2-1e-4,e),th=(.785+Math.sin(time*.2)*.45)*(1-e),ty=lerp(1.4,0,e),D=60;
+  cam.position.set(D*Math.cos(ph)*Math.sin(th),ty+D*Math.sin(ph),D*Math.cos(ph)*Math.cos(th));
+  cam.up.set(0,1-e,-e).normalize();cam.lookAt(0,ty,0);
+  const V=lerp(8,W/2*1.04,e),hh=asp>=1?V:V/asp,hw=hh*asp;
+  const bpx=W/(2*hh)*h,need=Math.max(0,(w/2+bpx/2)-(w-330)),sh=e*Math.min(need,Math.max(0,(w-bpx)/2-8)),dx=sh/w*2*hw;
+  cam.left=-hw+dx;cam.right=hw+dx;cam.top=hh;cam.bottom=-hh;cam.updateProjectionMatrix();
+  if(grass){grass.scale.set(1,Math.max(.001,1-sm(clamp((t-.55)/.3))),1);grass.visible=t<.95;}
+  const pk=Math.max(.001,1-sm(clamp(t/.6)));
+  for(let i=0;i<P;i++){const p=pd[i];p.y-=p.v*.016;p.x+=(Math.sin(time*.8+p.ph)*.4+.15)*.016;p.r+=.03;if(p.y<0||p.x>8){p.y=6+rnd()*3;p.x=(rnd()-.5)*14-1;}
+   dm.position.set(p.x,p.y,p.z);dm.rotation.set(p.r,p.r*.7,p.ph);dm.scale.setScalar(pk);dm.updateMatrix();leaves.setMatrixAt(i,dm.matrix);}
+  leaves.instanceMatrix.needsUpdate=true;
+  const f=t>.97?2:(t>.02?1:0);if(f!==flag){flag=f;if(onT)onT(f);}
+ }
+ function size(){renderer.setSize(host.clientWidth||800,host.clientHeight||600,false);}
+ size();new ResizeObserver(size).observe(host);
+ (function loop(now){requestAnimationFrame(loop);if(paused)return;now=now||performance.now();const dt=Math.min(.05,(now-last)/1000);last=now;time+=dt;
+  if(drag)t+=(target-t)*Math.min(1,dt*10);else{const df=target-t;t+=Math.sign(df)*Math.min(Math.abs(df),dt*.6);}
+  update();renderer.render(scene,cam);})();
+ return{setQR,show(){if(ready)target=1;},hide(){target=0;},ready:()=>ready,pause(){paused=true;},resume(){if(paused){paused=false;last=performance.now();}},burst(){}};
+}
+
+function buildLobby(){
+ lobbyEl=document.createElement("div");lobbyEl.className="lobby";
+ lobbyEl.innerHTML=`<div class="fx" id="fx"></div>
+ <div class="intro"><div class="kick">Unit 2 · Lesson 5</div><h1>Viewpoint Adverbs Live</h1><button class="btn rose big" id="qbtn" data-act="qrshow" disabled>Connecting...</button><div class="hint">or drag the tree up</div></div>
+ <div class="qrwrap"><div class="qrcard"><div class="qrlab">Scan to play</div><canvas id="qrc"></canvas></div></div>
+ <div class="side" id="side"></div>`;
+ loadScript(THREE_URLS).then(()=>{try{fx=TreeFX($("#fx",lobbyEl),f=>{lobbyEl.classList.toggle("lifting",f>0);const rv=f===2;if(rv!==G.revealedQR){G.revealedQR=rv;if(tab==="game"&&G.phase==="lobby")mountLobby();}});if(G.qrMatrix)fx.setQR(G.qrMatrix,true);else loadScript(QR_URLS).then(()=>{if(!G.qrMatrix)fx.setQR(qrMat(pageURL()+"?room=XXXXX"),false);}).catch(()=>{});}catch(e){fx=null;lobbyEl.classList.add("nofx");}}).catch(()=>{lobbyEl.classList.add("nofx");});
+}
+function mountLobby(){
+ if(!lobbyEl){buildLobby();}
+ if(lobbyEl.parentNode!==stage){stage.innerHTML="";stage.appendChild(lobbyEl);drawQR();}
+ if(fx)fx.resume();
+ lobbyEl.classList.toggle("revealed",G.revealedQR);
+ const qb=$("#qbtn",lobbyEl);if(qb){qb.disabled=!G.qrMatrix;qb.textContent=G.qrMatrix?"Show the QR":"Connecting...";}
+ const ps=[...G.players.values()],on=online().length;
+ const fileWarn=location.protocol==="file:"?`<div class="warn">The QR opens <b>willy555.github.io/b21-study-lab/viewpoint-adverbs-live.html</b>. Upload this file to the repo with that exact name.</div>`:"";
+ const err=G.err?`<div class="warn">${G.err==="script"?"Could not load the live engine. Check the internet connection.":G.err==="timeout"?"The live connection can't open here. Open the page from its GitHub Pages link in Chrome.":"Connection problem ("+esc(G.err)+"). Reload the page."}</div>`:"";
+ $("#side",lobbyEl).innerHTML=`${G.revealedQR?`<div class="scan"><div class="qrlab">Scan to play</div><div class="code">Room <b>${esc(G.code)}</b></div><div class="url">${esc(joinURL())}</div><button class="btn ghost" data-act="qrhide" style="width:100%;margin-top:8px">Back to the tree</button></div>`:""}
+ <h4><span>Players</span><span>${on}</span></h4>
+ <div class="plist">${ps.length?ps.map(p=>`<span class="${p.online?"":"off"}">${esc(p.name)}</span>`).join(""):`<span style="opacity:.6;border-style:dashed">Waiting for players...</span>`}</div>
+ <div class="qsel"><span><b>${G.sel.size}</b> questions selected</span><button class="btn ghost" data-act="popen" style="width:100%;margin-top:6px">Preview questions</button></div>
+ ${fileWarn}${err}
+ <button class="btn rose" data-act="gstart" ${on&&G.sel.size?"":"disabled"}>Start game</button>`;
+}
+
+function optTile(j,txt,extra=""){return `<div class="opt ${extra}" style="background:${OPT[j].c}"><span class="sh">${OPT[j].s}</span><span>${esc(txt)}</span>`;}
+function pdots(p){return `<div class="pdots">${G.QS.map((_,i)=>{const a=p.ans[i];let c="";if(i<=G.qi&&G.phase!=="question"||i<G.qi){c=a?(a.ok?"y":"n"):"s";}return `<i class="${c}"></i>`;}).join("")}</div>`;}
+function board(list){return `<div class="board">${list.map((p,i)=>`<div class="row"><div class="rk">${i+1}</div><div class="nm">${esc(p.name)}</div>${pdots(p)}<div class="sc">${fmt(p.score)}</div></div>`).join("")}</div>`;}
+
+function renderGame(){
+ foot.style.display="none";
+ renderPreview();
+ if(G.phase==="lobby"){stage.className="wide";mountLobby();return;}
+ if(fx)fx.pause();
+ stage.className="wide";
+ const q=G.QS[G.qi],head=`<div class="hqtop"><span class="tag" style="--c:${CAT[q.c]};font-size:15px">${q.c}</span><span class="qn">Question ${G.qi+1} of ${G.QS.length}</span>`;
+ if(G.phase==="intro"){
+  stage.innerHTML=`<div class="hq">${head}<span class="qn" style="margin-left:auto">${q.t||20} seconds</span></div>
+  <div class="introbox"><div class="pic big">${q.img||"❓"}</div><h2 class="qtext">${esc(q.q)}</h2><div class="ready">Get ready...</div><div class="tbar"><i id="ibar" style="width:0%"></i></div></div></div>`;
+ }else if(G.phase==="question"){
+  const rem=Math.max(0,G.dur-(Date.now()-G.qStart)/1000),on=online();
+  const done=on.filter(p=>p.ans[G.qi]).length;
+  stage.innerHTML=`<div class="hq">${head}<button class="btn ghost" style="margin-left:auto" data-act="greveal">Skip</button></div>
+  <h2 class="qbar">${esc(q.q)}</h2>
+  <div class="mid"><div class="ring" id="ring" style="--p:${rem/G.dur*100}"><span id="tm">${Math.ceil(rem)}</span></div><div class="pic">${q.img||"❓"}</div><div class="acount"><b>${done}</b><span>of ${on.length}<br>answers</span></div></div>
+  <div class="opts">${G.perm.map((k,j)=>optTile(j,q.o[k])+"</div>").join("")}</div>
+  <div class="who" style="margin-top:12px">${on.map(p=>`<span class="${p.ans[G.qi]?"done":""}">${esc(p.name)}</span>`).join("")}</div></div>`;
+ }else if(G.phase==="reveal"){
+  const cnt=G.perm.map(()=>0);G.players.forEach(p=>{const a=p.ans[G.qi];if(a)cnt[a.ch]++;});
+  const ci=G.perm.indexOf(q.a),r=ranking(),mx=Math.max(1,...cnt);
+  stage.innerHTML=`<div class="hq">${head}<button class="btn rose" style="margin-left:auto" data-act="gnextq">${G.qi+1<G.QS.length?"Next question":"Final results"}</button></div>
+  <h2 class="qbar">${esc(q.q)}</h2>
+  <div class="bars">${cnt.map((c,j)=>`<div class="bcol ${j===ci?"":"dim"}"><div class="bnum">${c}${j===ci?" ✓":""}</div><div class="bfill" style="height:${8+c/mx*120}px;background:${OPT[j].c}"></div><div class="bsh" style="background:${OPT[j].c}">${OPT[j].s}</div></div>`).join("")}</div>
+  <div class="opts">${G.perm.map((k,j)=>optTile(j,q.o[k],j===ci?"right":"dim")+"</div>").join("")}</div>
+  <div class="expl">${esc(q.e)}</div>
+  <h3 style="margin:10px 0 6px">Leaderboard</h3>${board(r.slice(0,6))}${r.length>6?`<div class="note">+ ${r.length-6} more players</div>`:""}</div>`;
+ }else if(G.phase==="final"){
+  const r=ranking(),top=r.slice(0,3);
+  const order=[1,0,2].filter(i=>top[i]),hs=[210,150,110],cs=["#d89e00","#9ca3af","#b45309"];
+  stage.innerHTML=`<div class="hq"><h1 style="text-align:center">Final results</h1>
+  <div class="podium">${order.map(i=>`<div class="pod"><div class="pn">${esc(top[i].name)}</div><div class="ps">${fmt(top[i].score)} pts</div><div class="bar" style="height:${hs[i]}px;background:${cs[i]}">${i+1}</div></div>`).join("")}</div>
+  ${board(r)}<div style="text-align:center;margin-top:20px"><button class="btn ghost" data-act="greset">Play again</button></div></div>`;
+ }
+}
+function renderPreview(){
+ let pv=$("#pv");
+ if(!G.preview||G.phase!=="lobby"){if(pv)pv.remove();return;}
+ if(!pv){pv=document.createElement("div");pv.id="pv";document.body.appendChild(pv);}
+ const st=pv.querySelector(".pvbody")?pv.querySelector(".pvbody").scrollTop:0;
+ const cats=["Meaning","Usage","Form","Position"];
+ pv.innerHTML=`<div class="pvhead"><div><b style="font-size:22px">Preview questions</b><div class="note" style="margin:2px 0 0">${G.sel.size} of ${BANK.length} selected · tap a card to add or remove it</div></div>
+ <div class="pvtools"><button class="btn ghost" data-act="psel" data-v="all">All</button><button class="btn ghost" data-act="psel" data-v="none">None</button><button class="btn ghost" data-act="psel" data-v="def">Quick 15</button>
+ <label class="shuf"><input type="checkbox" data-chg="shuf" ${G.shuf?"checked":""}> Shuffle order</label><button class="btn rose" data-act="pclose">Done</button></div></div>
+ <div class="pvbody">${cats.map(c=>`<h3 style="color:${CAT[c]}">${c}</h3><div class="pvgrid">${BANK.map((q,i)=>q.c!==c?"":`<div class="pvc ${G.sel.has(i)?"on":""}" data-act="ptog" data-v="${i}" style="--c:${CAT[c]}"><div class="pvtop"><span class="pvchk">${G.sel.has(i)?"✓":""}</span><span class="pvimg">${q.img}</span><span class="note" style="margin:0 0 0 auto">${q.t}s</span></div><div class="pvq">${esc(q.q)}</div><div class="pvo">${q.o.map((o,j)=>`<span class="${j===q.a?"ok2":""}"><i style="background:${OPT[j].c}"></i>${esc(o)}</span>`).join("")}</div></div>`).join("")}</div>`).join("")}</div>`;
+ const b=pv.querySelector(".pvbody");if(b)b.scrollTop=st;
+}
+
+function render(){
+ document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===tab));
+ if(tab==="lesson"){if(fx)fx.pause();renderLesson();}else{initPeer();renderGame();}
+}
+
+const ACT={
+ tab:d=>{tab=d.v;window.scrollTo(0,0);},
+ prev:()=>{if(L.i>0)L.i--;},next:()=>{if(L.i<SLIDES.length-1)L.i++;},go:d=>{L.i=+d.v;},
+ type:d=>{L.type=d.v;},word:d=>{L.w[L.type]=d.v;},
+ spick:d=>{if(L.spick)return;L.spick=d.v;if(d.v===SORT[L.sk][1])L.sscore++;},
+ snext:()=>{L.sk++;L.spick=null;},sreset:()=>{L.sk=0;L.sscore=0;L.spick=null;},
+ use:d=>{L.use=d.v;},angle:d=>{L.angle=d.v;},vp:d=>{L.vp=d.v;},
+ padv:d=>{L.padv=d.v;},ppos:d=>{L.ppos=d.v;},
+ gap:d=>{const g=GAPS[L.gk];if(+d.v===g.ok){L.gdone=true;if(L.gtries===0)L.gscore++;}else{L.gtries++;L.gwrong=+d.v;}},
+ gnext:()=>{L.gk++;L.gdone=false;L.gtries=0;L.gwrong=-1;},greset:()=>{L.gk=0;L.gscore=0;L.gdone=false;L.gtries=0;L.gwrong=-1;},
+ qrshow:()=>{if(fx&&fx.ready())fx.show();else G.revealedQR=true;},qrhide:()=>{if(fx)fx.hide();else G.revealedQR=false;},
+ gstart:()=>{if(!G.sel.size)return;G.preview=false;G.QS=buildQS();G.players.forEach(p=>{p.score=0;p.ans=[];});startQ(0);},
+ popen:()=>{G.preview=true;},pclose:()=>{G.preview=false;},
+ ptog:d=>{const i=+d.v;if(G.sel.has(i))G.sel.delete(i);else G.sel.add(i);},
+ psel:d=>{G.sel=d.v==="all"?new Set(BANK.map((_,i)=>i)):d.v==="none"?new Set():defaultSel();},
+ greveal:()=>reveal(),gnextq:()=>nextQ(),
+};
+document.addEventListener("click",e=>{
+ const b=e.target.closest("[data-act]");if(!b||b.disabled)return;
+ const a=b.dataset.act;
+ if(a==="greset"&&tab==="game"){resetGame();return;}
+ if(ACT[a]){ACT[a](b.dataset);if(a!=="greveal"&&a!=="gnextq")render();}
+});
+document.addEventListener("change",e=>{if(e.target.dataset.chg==="shuf"){G.shuf=e.target.checked;}});
+document.addEventListener("keydown",e=>{
+ if(tab==="lesson"){if(e.key==="ArrowRight"&&L.i<SLIDES.length-1){L.i++;render();}if(e.key==="ArrowLeft"&&L.i>0){L.i--;render();}}
+});
+window.__G=G;
+render();
+}
+
+/* =====================================================================
+   PLAYER (phone)
+   ===================================================================== */
+function startPlayer(room){
+ document.body.classList.add("player");
+ const app=$("#app");
+ let store={};try{store=window.localStorage;}catch(e){store={};}
+ const S={view:room?"join":"code",room,name:(store["vadv-name"]||""),err:"",q:null,ends:0,choice:null,rev:null,fin:null,me:""};
+ const pidKey="vadv-pid-"+room;
+ let pid=store[pidKey];if(!pid){pid="p"+Math.random().toString(36).slice(2,10);try{store[pidKey]=pid;}catch(e){}}
+ let peer=null,conn=null,tmr=null,joinTimer=null;
+
+ function connect(){
+  S.view="connecting";render();
+  clearTimeout(joinTimer);joinTimer=setTimeout(()=>{if(S.view==="connecting"){S.view="error";S.err="Could not reach the game. Check the code and the wifi, then try again.";render();}},15000);
+  loadScript(PEER_URLS).then(()=>{
+   if(!peer||peer.destroyed){peer=new window.Peer();peer.on("open",open);peer.on("error",e=>{if(e&&e.type==="peer-unavailable"){S.view="error";S.err="This game room is not open. Check the code.";render();}});peer.on("disconnected",()=>{try{peer.reconnect();}catch(e){}});}
+   else open();
+  }).catch(()=>{S.view="error";S.err="No internet connection.";render();});
+ }
+ function open(){
+  conn=peer.connect("vadv-"+S.room.toLowerCase(),{reliable:true});
+  conn.on("open",()=>conn.send({t:"join",pid,name:S.name}));
+  conn.on("data",onData);
+  conn.on("close",()=>{if(S.view!=="error"){S.lost=true;render();setTimeout(()=>{if(S.lost)open();},2000);}});
+ }
+ function onData(m){
+  if(!m||typeof m!=="object")return;
+  S.lost=false;
+  if(m.t==="joined"){clearTimeout(joinTimer);S.me=m.name;if(S.view==="connecting")S.view="wait";}
+  else if(m.t==="wait"){S.view="wait";}
+  else if(m.t==="intro"){S.intro=m;S.choice=null;S.timeUp=false;S.view="intro";clearInterval(tmr);}
+  else if(m.t==="q"){if(!S.q||S.q.qi!==m.qi)S.choice=null;S.q=m;S.ends=Date.now()+m.remain*1000;S.view="question";clearInterval(tmr);tmr=setInterval(tickP,250);}
+  else if(m.t==="reveal"){S.rev=m;S.view="reveal";clearInterval(tmr);}
+  else if(m.t==="final"){S.fin=m;S.view="final";clearInterval(tmr);}
+  render();
+ }
+ function tickP(){const r=Math.max(0,Math.ceil((S.ends-Date.now())/1000));const el=$("#ptm");if(el)el.textContent=r+"s";if(r<=0&&S.choice===null){S.timeUp=true;render();clearInterval(tmr);}}
+
+ function render(){
+  let h="";
+  const lost=S.lost?`<div class="warn" style="margin-bottom:10px">Reconnecting...</div>`:"";
+  if(S.view==="code"){
+   h=`<div class="pcard"><div class="brand" style="justify-content:center"><i></i>Viewpoint Adverbs</div><input id="rc" placeholder="Room code" maxlength="5" autocapitalize="characters" value="${esc(S.room)}"><button class="btn rose" data-p="code" style="width:100%">Next</button></div>`;
+  }else if(S.view==="join"){
+   h=`<div class="pcard"><div class="brand" style="justify-content:center"><i></i>Viewpoint Adverbs</div><p style="color:var(--mut)">Room <b>${esc(S.room)}</b></p><input id="nm" placeholder="Your name" maxlength="16" value="${esc(S.name)}"><button class="btn rose" data-p="join" style="width:100%;font-size:19px">Join the game</button></div>`;
+  }else if(S.view==="connecting"){
+   h=`<div class="pcard"><div class="spin"></div><b>Joining room ${esc(S.room)}...</b></div>`;
+  }else if(S.view==="error"){
+   h=`<div class="pcard"><div class="big-ico">🌸</div><p>${esc(S.err)}</p><button class="btn" data-p="retry">Try again</button></div>`;
+  }else if(S.view==="wait"){
+   h=`<div class="pcard"><div class="big-ico">🌸</div><h2 style="margin:6px 0">You're in, ${esc(S.me)}!</h2><p style="color:var(--mut)">Look at the screen. The game starts soon.</p><div class="spin"></div></div>`;
+  }else if(S.view==="intro"){
+   const q=S.intro;h=`<div class="ptop"><span>${q.qi+1} / ${q.n}</span><span class="tag" style="--c:${CAT[q.cat]}">${q.cat}</span><span></span></div><div class="pcard"><div class="big-ico">👀</div><h2 style="margin:4px 0">Get ready!</h2><p class="pq">${esc(q.text)}</p><div class="spin"></div></div>`;
+  }else if(S.view==="question"){
+   const q=S.q,picked=S.choice!==null;
+   h=`<div class="ptop"><span>${q.qi+1} / ${q.n}</span><span class="tag" style="--c:${CAT[q.cat]}">${q.cat}</span><span class="ptm" id="ptm">${Math.max(0,Math.ceil((S.ends-Date.now())/1000))}s</span></div>
+   <div class="pq">${esc(q.text)}</div>
+   <div class="popts">${q.opts.map((o,j)=>`<button style="background:${OPT[j].c}" class="${picked?(S.choice===j?"pick":"faded"):""}" data-p="ans" data-v="${j}" ${picked||S.timeUp?"disabled":""}><span style="font-size:24px">${OPT[j].s}</span><span>${esc(o)}</span></button>`).join("")}</div>
+   ${picked?`<p style="text-align:center;font-weight:800;color:var(--plum)">Answer sent. Wait for the others...</p>`:S.timeUp?`<p style="text-align:center;font-weight:800">Time's up!</p>`:""}`;
+  }else if(S.view==="reveal"){
+   const r=S.rev;
+   h=`<div class="pcard" style="border-top:8px solid ${r.ok?"#16a34a":"#e21b3c"}"><div class="big-ico">${r.ok?"✅":r.answered?"❌":"⏰"}</div>
+   <h2 style="margin:4px 0">${r.ok?"Correct!":r.answered?"Not quite":"No answer"}</h2>
+   ${r.ok?`<div class="pts">+${fmt(r.pts)}</div>`:`<p>Correct answer: <b>${esc(r.answer)}</b></p>`}
+   <p style="color:var(--mut)">${esc(r.expl)}</p>
+   <p style="font-size:18px">You are <b>${ord(r.rank)}</b> of ${r.total} · <b>${fmt(r.score)}</b> pts</p></div>`;
+  }else if(S.view==="final"){
+   const f=S.fin;
+   h=`<div class="pcard"><div class="big-ico">${f.rank===1?"🏆":f.rank<=3?"🌸":"🎉"}</div><h2 style="margin:4px 0">You finished ${ord(f.rank)} of ${f.total}</h2>
+   <div class="pts">${fmt(f.score)} pts</div><p>${f.correct} / ${f.n} correct</p>
+   <div style="margin-top:10px">${Object.keys(f.cats).map(c=>{const [a,t]=f.cats[c];return `<div class="catbar"><span style="color:${CAT[c]}">${c}</span><div class="tr"><i style="width:${t?a/t*100:0}%;background:${CAT[c]}"></i></div><span>${a}/${t}</span></div>`;}).join("")}</div>
+   <p style="color:var(--mut);margin-top:12px">Top 3: ${f.top.map((t,i)=>`${i+1}. ${esc(t.name)}`).join(" · ")}</p></div>`;
+  }
+  app.innerHTML=`<div class="pw">${lost}${h}</div>`;
+ }
+ app.addEventListener("click",e=>{
+  const b=e.target.closest("[data-p]");if(!b||b.disabled)return;
+  const a=b.dataset.p;
+  if(a==="code"){const v=($("#rc").value||"").trim().toUpperCase();if(v.length<4)return;S.room=v;S.view="join";render();}
+  else if(a==="join"){const v=($("#nm").value||"").trim();if(!v){$("#nm").focus();return;}S.name=v;try{store["vadv-name"]=v;}catch(e){}connect();}
+  else if(a==="retry"){S.view="join";render();}
+  else if(a==="ans"){if(S.choice!==null||!conn)return;S.choice=+b.dataset.v;try{conn.send({t:"answer",qi:S.q.qi,choice:S.choice});}catch(e){}render();}
+ });
+ app.addEventListener("keydown",e=>{if(e.key==="Enter"){const b=$("[data-p='join'],[data-p='code']");if(b)b.click();}});
+ render();
+}
+})();
+</script>
+</body>
+</html>
