@@ -161,7 +161,7 @@ body.player{background:linear-gradient(180deg,#fff7fb,#ffeef5)}
 .bars{display:flex;justify-content:center;align-items:flex-end;gap:22px;height:190px;margin:4px 0 14px}
 .bcol{display:flex;flex-direction:column;align-items:center;width:90px}.bcol.dim{opacity:.35}
 .bnum{font-weight:900;font-size:22px;margin-bottom:4px}.bfill{width:100%;border-radius:8px 8px 0 0}.bsh{width:100%;color:#fff;text-align:center;font-size:20px;padding:4px 0;border-radius:0 0 8px 8px}
-.qsel{font-size:15px}.hswitch{display:inline-flex;background:#f3eef5;border-radius:999px;padding:4px;margin:4px 0 10px}.hswitch button{padding:9px 18px;border-radius:999px;background:transparent;font-weight:800;font-size:17px}.hswitch button.on{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.12)}.hqtop .btn{margin-left:8px}.endarm{background:#e21b3c;color:#fff}.nsel{display:flex;gap:6px;margin-top:6px}.nsel button{flex:1;padding:8px 0;border-radius:10px;background:#fff;border:2px solid #cfe8c9;font-weight:800}.nsel button.on{background:#166534;border-color:#166534;color:#fff}
+.qsel{font-size:15px}.agenda{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:10px}@media(max-width:800px){.agenda{grid-template-columns:1fr}}.ag{display:flex;align-items:center;gap:14px;text-align:left;background:#fff;border:1px solid var(--line);border-left:6px solid var(--c);border-radius:16px;padding:14px 16px;transition:.15s}.ag:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}.agn{width:34px;height:34px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-weight:900;flex:none}.agi{font-size:30px}.ag b{display:block;font-size:19px;color:var(--c)}.ag small{display:block;font-size:15px;color:var(--mut);margin-top:2px}.hswitch{display:inline-flex;background:#f3eef5;border-radius:999px;padding:4px;margin:4px 0 10px}.hswitch button{padding:9px 18px;border-radius:999px;background:transparent;font-weight:800;font-size:17px}.hswitch button.on{background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.12)}.hqtop .btn{margin-left:8px}.endarm{background:#e21b3c;color:#fff}.nsel{display:flex;gap:6px;margin-top:6px}.nsel button{flex:1;padding:8px 0;border-radius:10px;background:#fff;border:2px solid #cfe8c9;font-weight:800}.nsel button.on{background:#166534;border-color:#166534;color:#fff}
 #pv{position:fixed;inset:0;background:#fbfafc;z-index:60;display:flex;flex-direction:column}
 .pvhead{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;padding:14px 22px;background:#fff;border-bottom:1px solid var(--line)}
 .pvtools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.shuf{font-weight:700;display:flex;gap:6px;align-items:center;padding:0 6px}
@@ -210,7 +210,7 @@ body.player{background:linear-gradient(180deg,#fff7fb,#ffeef5)}
 .mem.in2{animation:spinin 1.1s cubic-bezier(.2,.9,.3,1) forwards}@keyframes spinin{0%{opacity:1;transform:translateX(-90vw) rotate(-900deg)}100%{opacity:1;transform:none}}
 .mem.in3{animation:popup .9s cubic-bezier(.3,1.8,.5,1) forwards}@keyframes popup{0%{opacity:1;transform:translateY(70vh) scale(.2)}100%{opacity:1;transform:none}}
 .ava.wig{animation:wig .45s ease-in-out 3}@keyframes wig{25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
-.glasses{position:absolute;left:50%;top:-260%;transform:translateX(-50%);font-size:.5em;transition:top .8s cubic-bezier(.6,0,.4,1.5)}.glasses.on{top:20%}
+.glasses{position:absolute;left:50%;top:-90%;transform:translateX(-50%);font-size:.5em;opacity:0;transition:top .8s cubic-bezier(.6,0,.4,1.5),opacity .15s}.glasses.on{top:20%;opacity:1}
 .crew.jump .ava{animation:jmp .45s ease-in-out 4}.crew.jump .mem:nth-child(2) .ava{animation-delay:.1s}.crew.jump .mem:nth-child(3) .ava{animation-delay:.2s}@keyframes jmp{50%{transform:translateY(-34px)}}
 #cf{position:absolute;inset:0;pointer-events:none;z-index:7}.cfp{position:absolute;top:-30px;width:10px;height:16px;border-radius:2px;animation:fall linear forwards}@keyframes fall{to{top:110%;transform:rotate(720deg) translateX(40px)}}
 .teamed{position:absolute;right:18px;top:18px;z-index:9;background:#fff;color:var(--ink);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;width:min(520px,92vw);box-shadow:0 20px 50px rgba(0,0,0,.4)}
@@ -293,9 +293,9 @@ const MUS=(()=>{
  function set(name){if(name===cur)return;cur=name;clearInterval(timer);song=null;if(!name||!ctx)return;song=SONGS[name];step=0;next=ctx.currentTime+.05;timer=setInterval(loop,25);}
  function sfx(n,a){if(!ctx)return;const t=ctx.currentTime+.02;
   if(n==="roll"){roll(t,a||1.2);return;}
-  if(n==="hit"){snare(t,.45);kick(t);cym(t,.3,1.1);gtr2(t,40,.6,false,.12);return;}
-  if(n==="letsgo"){crowd(t);gtr2(t,52,1.3,false,.12);guitar(t+.3,52,1.1,false,.12,0,true);cym(t,.4,2);kick(t);snare(t,.5);try{const u=new SpeechSynthesisUtterance("Let's gooooo!");u.rate=1.05;u.pitch=.7;u.volume=1;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}return;}
-  if(n==="stab"){kick(t);snare(t,.5);cym(t,.45,3);gtr2(t,40,3,false,.13);crowd(t);return;}
+  if(n==="hit"){snare(t,.45);kick(t);cym(t,.3,1.1);return;}
+  if(n==="letsgo"){crowd(t);cym(t,.4,2);kick(t);snare(t,.5);try{const u=new SpeechSynthesisUtterance("Let's gooooo!");u.rate=1.05;u.pitch=.7;u.volume=1;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}return;}
+  if(n==="stab"){kick(t);snare(t,.5);cym(t,.45,3);crowd(t);return;}
   if(n==="stop"){set("");return;}
   if(n==="badum"){snare(t,.35);kick(t);snare(t+.16,.3);kick(t+.16);cym(t+.32,.3,1.4);return;}
   if(n==="tick")tone(1600,t,.06,"square",.12);
@@ -443,7 +443,7 @@ const GAPS=[
  {t:["I","would","buy","that","cream","again."],adv:"definitely",ok:2,hint:"\"would\" is a modal: the adverb goes right after it."}
 ];
 const L={i:0,type:"Certainty",w:{Certainty:"certainly",Attitude:"interestingly",Judgement:"rightly",Perspective:"morally"},sk:0,spick:null,sscore:0,use:null,angle:null,vp:"ethical",padv:"Officially",ppos:"B",gk:0,gdone:false,gscore:0,gtries:0,gwrong:-1,hk:0,hc:0};
-const SLIDES=[slMeaning,slUsage,slForm,slPosition,slGaps,slHedge,slRecap];
+const SLIDES=[slAgenda,slMeaning,slUsage,slForm,slPosition,slGaps,slHedge,slRecap];
 
 function hlS(parts,c){return `${esc(parts[0])}<span class="hl" style="--c:${c}">${esc(parts[1])}</span>${esc(parts[2]).replace(/^, /,"<span class='cm'>,</span> ").replace(/, $/,"<span class='cm'>,</span> ")}`;}
 function sentWithComma(p,c){
@@ -453,6 +453,12 @@ function sentWithComma(p,c){
  return `${pre}<span class="hl" style="--c:${c}">${esc(p[1])}</span>${post}`;
 }
 
+function slAgenda(){
+ const items=[["🧠","Meaning","What viewpoint adverbs are and the 4 types","#1368ce",1],["💬","Usage","Same fact, different comment","#26890c",2],["🧩","Form","Adverb or phrase: In ... terms, ...ly speaking","#d97706",3],["📍","Position","Beginning, middle or end, and the commas","#7c3aed",4],["✍️","Practice","Put the adverb in the right place","#7c3aed",5],["😌","Bonus: Hedging","How to sound cautious, not too direct","#0d9488",6],["📝","Recap","Everything in 4 ideas","#be185d",7],["🎮","Live game","Scan the QR and play","#e21b3c",-1]];
+ return `<div class="kick">Today's plan</div><h1>What we'll see today</h1>
+ <p class="lead">Unit 2 · Lesson 5: <b>Viewpoint adverbs and adverb phrases</b>. Tap any step to go there.</p>
+ <div class="agenda">${items.map((x,i)=>`<button class="ag" style="--c:${x[3]}" ${x[4]<0?'data-act="tab" data-v="game"':`data-act="go" data-v="${x[4]}"`}><span class="agn">${i+1}</span><span class="agi">${x[0]}</span><span><b>${x[1]}</b><small>${x[2]}</small></span></button>`).join("")}</div>`;
+}
 function slMeaning(){
  const T=TYPES[L.type],w=L.w[L.type],it=SORT[L.sk];
  const sortDone=L.sk>=SORT.length;
@@ -573,14 +579,15 @@ function prepSong(){
   let host=document.getElementById("ythost");if(!host){host=document.createElement("div");host.id="ythost";document.body.appendChild(host);}host.innerHTML='<div id="ytp"></div>';
   const make=()=>{ytP=new YT.Player("ytp",{width:"220",height:"220",videoId:id,playerVars:{start:+s.start||0,controls:0,playsinline:1},events:{onReady:()=>{ytReady=true;songState="ready";refreshSongUI();},onError:()=>{songState="bad";refreshSongUI();}}});};
   if(window.YT&&YT.Player)make();else{window.onYouTubeIframeAPIReady=make;loadScript(["https://www.youtube.com/iframe_api"]).catch(()=>{songState="bad";refreshSongUI();});}}
- else if(s.type==="file"){songState="loading";idbGet().then(b=>{if(b){if(audEl)URL.revokeObjectURL(audEl.src);audEl=new Audio(URL.createObjectURL(b));audEl.preload="auto";songState="ready";}else songState="bad";refreshSongUI();});}
+ else if(s.type==="file"){songState="loading";idbGet().then(b=>{if(b){if(audEl)URL.revokeObjectURL(audEl.src);audEl=new Audio(URL.createObjectURL(b));audEl.preload="auto";audEl.loop=false;songState="ready";}else songState="bad";refreshSongUI();});}
  else songState="";
 }
 const hasSong=()=>{const s=SONG.get();return (s.type==="yt"&&ytReady&&ytP)||(s.type==="file"&&!!audEl);};
 function songArm(){const s=SONG.get(),st=+s.start||0;try{if(s.type==="yt"){ytP.mute();ytP.seekTo(st,true);ytP.playVideo();}else if(audEl){audEl.muted=true;audEl.currentTime=st;audEl.play().catch(()=>{});}}catch(e){}}
 function songGo(){const s=SONG.get(),st=+s.start||0;try{if(s.type==="yt"){ytP.seekTo(st,true);ytP.unMute();ytP.setVolume(100);ytP.playVideo();}else if(audEl){audEl.currentTime=st;audEl.muted=false;audEl.volume=1;audEl.play().catch(()=>{});}}catch(e){}}
+function songFade(sec){const steps=30;let k=0;const iv=setInterval(()=>{k++;const v=Math.max(0,1-k/steps);try{if(audEl)audEl.volume=v;if(ytP&&ytP.setVolume)ytP.setVolume(v*100);}catch(e){}if(k>=steps){clearInterval(iv);songStop();try{if(audEl)audEl.volume=1;if(ytP&&ytP.setVolume)ytP.setVolume(100);}catch(e){}}},sec*1000/steps);SH0.timers.push(iv);}
 function songStop(){try{if(ytP&&ytP.pauseVideo)ytP.pauseVideo();if(audEl)audEl.pause();}catch(e){}}
-function refreshSongUI(){const el=document.getElementById("songst");if(!el)return;const s=SONG.get();el.textContent=!s.type?"Using the built-in metal.":songState==="ready"?"✓ Song ready":songState==="loading"?"Loading...":songState==="bad"?"Can't load this song. Check the link or file.":"";}
+function refreshSongUI(){const el=document.getElementById("songst");if(!el)return;const s=SONG.get();el.textContent=!s.type?"Only drumroll, cymbals and crowd.":songState==="ready"?"✓ Song ready":songState==="loading"?"Loading...":songState==="bad"?"Can't load this song. Check the link or file.":"";}
 
 /* ---------- team intro show ---------- */
 const TEAM_DEF=[{name:"Will",av:"🦊",tag:"Undoubtedly the brains"},{name:"Amanda",av:"🦄",tag:"Apparently the funny one"},{name:"Alex",av:"🐸",tag:"Technically still awake"}];
@@ -598,7 +605,7 @@ function renderIntro(){
  <div class="curtain l"></div><div class="curtain r"></div>
  <div class="ctrl" id="ctrl"><button class="btn rose big" data-act="showplay">▶ Play intro</button><button class="btn ghost" data-act="showedit">✏️ Edit team</button></div>
  <div id="cf"></div>
-${""}${SH0.edit?`<div class="teamed"><b style="font-size:20px">Our team</b>${TEAM.map((m,i)=>`<div class="terow"><select data-chg="tav" data-i="${i}">${AVS.map(a=>`<option ${a===m.av?"selected":""}>${a}</option>`).join("")}</select><input data-chg="tname" data-i="${i}" value="${esc(m.name)}" maxlength="18" placeholder="Name"><input data-chg="ttag" data-i="${i}" value="${esc(m.tag)}" maxlength="34" placeholder="Funny line"></div>`).join("")}<div class="songbox"><b>Intro song</b><div class="songopts">${[["","Built-in metal"],["yt","YouTube link"],["file","My audio file"]].map(([v,l])=>`<label><input type="radio" name="stype" data-chg="stype" value="${v}" ${(SONG.get().type||"")===v?"checked":""}> ${l}</label>`).join("")}</div>
+${""}${SH0.edit?`<div class="teamed"><b style="font-size:20px">Our team</b>${TEAM.map((m,i)=>`<div class="terow"><select data-chg="tav" data-i="${i}">${AVS.map(a=>`<option ${a===m.av?"selected":""}>${a}</option>`).join("")}</select><input data-chg="tname" data-i="${i}" value="${esc(m.name)}" maxlength="18" placeholder="Name"><input data-chg="ttag" data-i="${i}" value="${esc(m.tag)}" maxlength="34" placeholder="Funny line"></div>`).join("")}<div class="songbox"><b>Intro song</b><div class="songopts">${[["","No song (sound effects only)"],["yt","YouTube link"],["file","My audio file"]].map(([v,l])=>`<label><input type="radio" name="stype" data-chg="stype" value="${v}" ${(SONG.get().type||"")===v?"checked":""}> ${l}</label>`).join("")}</div>
  ${SONG.get().type==="yt"?`<input data-chg="surl" value="${esc(SONG.get().url||"")}" placeholder="Paste the YouTube link (e.g. Enter Sandman)">`:""}
  ${SONG.get().type==="file"?`<input type="file" accept="audio/*" data-chg="sfile">`:""}
  ${SONG.get().type?`<label class="stl">Start at second <input type="number" min="0" data-chg="sstart" value="${+SONG.get().start||0}"></label>`:""}
@@ -616,7 +623,7 @@ function playShow(){
  $("#ctrl").classList.add("hide");
  MUS.sfx("drum");
  at(2100,()=>{S.classList.add("open");if(custom)songGo();MUS.sfx("letsgo");$("#lg").classList.add("on");S.classList.add("shake");});
- at(3300,()=>{if(!custom)MUS.set("metal");$("#lg").classList.remove("on");S.classList.remove("shake");ann("Ladies and gentlemen...");});
+ at(3300,()=>{$("#lg").classList.remove("on");S.classList.remove("shake");ann("Ladies and gentlemen...");});
  at(4300,()=>ann("Please welcome the team!"));
  [[5200,"in1"],[7400,"in2"],[9600,"in3"]].forEach(([t,c],i)=>{
   at(t,()=>{$("#mem"+i).classList.add(c);MUS.sfx("hit");MUS.sfx(i===1?"whoosh":"boing");});
@@ -624,10 +631,10 @@ function playShow(){
   at(t+1050,()=>{$("#ava"+i).classList.add("wig");type(i,TEAM[i].tag);if(i===2){$("#gl").classList.add("on");}});
   if(i===2)at(t+1800,()=>MUS.sfx("cool"));
  });
- at(10600,()=>{ann("And now... today's topic!");if(!custom){MUS.set("");MUS.sfx("roll",1.68);}});
- at(12300,()=>{if(!custom)MUS.sfx("stab");$("#annc").classList.remove("on");$("#crew").classList.add("jump");$("#ttl").classList.add("on");confetti();document.querySelectorAll(".ava").forEach(a=>a.classList.remove("rock"));});
- at(15400,()=>{if(tab==="intro"&&!custom)MUS.set("metal");});
- at(14200,()=>{const c=$("#ctrl");c.innerHTML=`<button class="btn rose big" data-act="tab" data-v="lesson">Start the lesson</button><button class="btn ghost" data-act="showagain">↺ Replay</button>`;c.classList.remove("hide");});
+ at(11400,()=>{ann("And now... today's topic!");if(!custom)MUS.sfx("roll",1.5);});
+ at(12950,()=>{if(!custom)MUS.sfx("stab");$("#annc").classList.remove("on");$("#crew").classList.add("jump");$("#ttl").classList.add("on");confetti();document.querySelectorAll(".ava").forEach(a=>a.classList.remove("rock"));});
+ if(custom)at(16000,()=>songFade(3));
+ at(14800,()=>{const c=$("#ctrl");c.innerHTML=`<button class="btn rose big" data-act="tab" data-v="lesson">Start the lesson</button><button class="btn ghost" data-act="showagain">↺ Replay</button>`;c.classList.remove("hide");});
 }
 function confetti(){const box=$("#cf");if(!box)return;const cols=["#f472b6","#fde68a","#60a5fa","#34d399","#a78bfa","#fb923c"];let h="";for(let i=0;i<120;i++){h+=`<i class="cfp" style="left:${Math.random()*100}%;background:${cols[i%6]};animation-duration:${2+Math.random()*2.5}s;animation-delay:${Math.random()*.8}s;transform:rotate(${Math.random()*360}deg)"></i>`;}box.innerHTML=h;}
 
@@ -906,7 +913,7 @@ function render(){
  if(tab!=="intro"){showClear();songStop();}
  if(tab==="intro"){if(fx)fx.pause();if(!document.getElementById("show")||!SH0.played)renderIntro();}
  else if(tab==="lesson"){if(fx)fx.pause();renderLesson();}else{initPeer();renderGame();}
- MUS.set(tab!=="game"?"":G.phase==="lobby"?"lobby":(G.phase==="question"||G.phase==="intro")?"metalq":"");
+ MUS.set(tab!=="game"?"":G.phase==="lobby"?"lobby":(G.phase==="question"||G.phase==="intro")?"question":"");
 }
 
 const ACT={
