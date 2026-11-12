@@ -1,5 +1,5 @@
 // Future Simple: offline mode. Audio is saved the first time it plays (no big download on join).
-const VERSION = 'v42';
+const VERSION = 'v43';
 const CACHE = 'b21-lab-' + VERSION;
 const CORE = ['./', 'index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 const AUDIO = [];
@@ -94,7 +94,7 @@ self.addEventListener('fetch', e => {
       const root = new URL(self.registration.scope).pathname;
       const isApp = url.pathname === root || url.pathname === root + 'index.html';
       const key = isApp ? 'index.html' : url.origin + url.pathname;
-      try { const r = await fetch(req); if (r.ok) c.put(key, r.clone()); return r; }
+      try { const r = await fetch(req, { cache: 'no-cache' }); if (r.ok) c.put(key, r.clone()); return r; }
       catch (err) { return (await c.match(key)) || (isApp ? await c.match('./') : null) || new Response('Offline', { status: 503 }); }
     })());
     return;
