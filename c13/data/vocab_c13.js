@@ -75,6 +75,53 @@ defensive|adjective|dɪˈfen.sɪv||behaving as if you are being criticised or at
 self-conscious|adjective|ˌselfˈkɒn.ʃəs|ˌselfˈkɑːn.ʃəs|nervous or uncomfortable because you are worried about what people think of you|She felt self-conscious about her accent at first, but now she speaks with confidence.
 alienated|adjective|ˈeɪ.li.ə.neɪ.tɪd|ˈeɪ.li.ə.neɪ.t̬ɪd|feeling that you do not belong to a group or society, or that you have nothing in common with it|Many young voters feel alienated from traditional politics and do not trust any party.
 excluded|adjective|ɪkˈskluː.dɪd||left out of a group or activity and not allowed or invited to take part|Students who joined halfway through the year felt excluded from the group chats where plans were made.
+angst|noun|æŋst|ɑːŋkst|(loanword from German) a strong feeling of anxiety and worry about life or the future|Many students feel a kind of angst in their final year at university, before choosing a career.
+schadenfreude|noun|ˈʃɑː.dən.frɔɪ.də||(loanword from German) a feeling of pleasure when something bad happens to someone else|He felt a little schadenfreude when his arrogant rival failed the exam he had boasted about.
+wanderlust|noun|ˈwɒn.də.lʌst|ˈwɑːn.dɚ.lʌst|(loanword from German) a strong wish to travel and see new places|After a trip to the Galápagos, her wanderlust grew even stronger.
+zeitgeist|noun|ˈzaɪt.ɡaɪst|ˈtsaɪt.ɡaɪst|(loanword from German) the general ideas, beliefs and mood of a particular period|Series like Black Mirror capture the anxious zeitgeist of the digital age.
+doppelgänger|noun|ˈdɒp.əlˌɡæŋ.ər|ˈdɑː.pəlˌɡæŋ.ɚ|(loanword from German) a person who looks exactly like someone else but is not related to them|I met my doppelgänger in Cuenca: same hair, same glasses, even the same jacket.
+kitsch|noun|kɪtʃ||(loanword from German) art or objects that are cheap, showy and in bad taste, sometimes enjoyed in a humorous way|The souvenir shop was full of kitsch, from glowing volcanoes to plastic llamas.
+ennui|noun|ɒnˈwiː|ɑːnˈwiː|(loanword from French) a feeling of boredom and tiredness because nothing seems interesting|The long, grey afternoons filled him with a deep sense of ennui.
+déjà vu|noun|ˌdeɪ.ʒɑː ˈvuː||(loanword from French) the strange feeling that you have already experienced the present situation|Walking into the lab for the first time, I had a strong feeling of déjà vu.
+joie de vivre|noun|ˌʒwɑː də ˈviː.vrə||(loanword from French) a feeling of great happiness and enjoyment of life|Even at ninety, my grandmother has an incredible joie de vivre.
+je ne sais quoi|noun|ˌʒə nə seɪ ˈkwɑː||(loanword from French) a pleasant quality that is difficult to describe|The old town of Quito has a certain je ne sais quoi that tourists love.
+faux pas|noun|ˌfəʊ ˈpɑː|ˌfoʊ ˈpɑː|(loanword from French) an embarrassing social mistake|Arriving late to a formal dinner is considered a faux pas in many cultures.
+naive|adjective|naɪˈiːv|nɑːˈiːv|(loanword from French) too ready to believe what people say because you lack experience|It was naive of me to think the project would be finished in a week.
+cliché|noun|ˈkliː.ʃeɪ|kliːˈʃeɪ|(loanword from French) an idea or phrase used so often that it has lost its original effect|"Follow your dreams" has become a cliché in graduation speeches.
+genre|noun|ˈʒɒn.rə|ˈʒɑːn.rə|(loanword from French) a type of film, music or writing with a particular style|Science fiction is the genre that best reflects our fears about technology.
+avant-garde|adjective|ˌæv.ɒ̃ˈɡɑːd|ˌɑː.vɑ̃ːˈɡɑːrd|(loanword from French) new and experimental, especially in art, music or literature|The festival screened several avant-garde short films.
+carte blanche|noun|ˌkɑːt ˈblɑːnʃ|ˌkɑːrt ˈblɑːnʃ|(loanword from French) complete freedom to do whatever you want|The director gave the team carte blanche to redesign the website.
+entrepreneur|noun|ˌɒn.trə.prəˈnɜːr|ˌɑːn.trə.prəˈnɝː|(loanword from French) a person who starts their own business, often taking financial risks|A young entrepreneur from Latacunga created an app to monitor power cuts.
+rendezvous|noun|ˈrɒn.deɪ.vuː|ˈrɑːn.deɪ.vuː|(loanword from French) an arranged meeting, or the place where people meet|The main square was our usual rendezvous after class.
+raison d'être|noun|ˌreɪ.zɒn ˈdet.rə|ˌreɪ.zoʊn ˈdet.rə|(loanword from French) the most important reason for someone's or something's existence|Helping rural communities get electricity is the raison d'être of the project.
+fait accompli|noun|ˌfeɪt əˈkɒm.pliː|ˌfeɪt ə.kɑːmˈpliː|(loanword from French) something that has already happened and cannot be changed|The decision was presented to the staff as a fait accompli.
+cul-de-sac|noun|ˈkʌl.də.sæk||(loanword from French) a street closed at one end; also, a situation with no way forward|The negotiations reached a cul-de-sac and both sides walked away.
+fiasco|noun|fiˈæs.kəʊ|fiˈæs.koʊ|(loanword from Italian) a complete failure, especially an embarrassing one|The launch was a fiasco: the projector broke and nobody could hear the speaker.
+incognito|adverb|ˌɪn.kɒɡˈniː.təʊ|ˌɪn.kɑːɡˈniː.t̬oʊ|(loanword from Italian) hiding your real identity|The singer travelled incognito to avoid photographers.
+gusto|noun|ˈɡʌs.təʊ|ˈɡʌs.toʊ|(loanword from Italian and Spanish) great energy and enthusiasm|The choir sang the national anthem with real gusto.
+bravado|noun|brəˈvɑː.dəʊ|brəˈvɑː.doʊ|(loanword from Spanish) a show of confidence or courage, often to hide fear|His bravado disappeared as soon as the exam started.
+machismo|noun|məˈtʃɪz.məʊ|mɑːˈtʃiːz.moʊ|(loanword from Spanish) strong or aggressive male pride|The campaign challenges the machismo that still exists in some workplaces.
+aficionado|noun|əˌfɪʃ.i.əˈnɑː.dəʊ|əˌfɪʃ.i.əˈnɑː.doʊ|(loanword from Spanish) a person who knows a lot about a subject and is very enthusiastic about it|Coffee aficionados travel to Loja to taste its famous beans.
+bonanza|noun|bəˈnæn.zə||(loanword from Spanish) a situation in which people suddenly make a lot of money or have a lot of success|The oil boom was a bonanza for some regions of Ecuador.
+siesta|noun|siˈes.tə||(loanword from Spanish) a short sleep after lunch|In some small towns, shops close for a siesta in the early afternoon.
+emoji|noun|ɪˈməʊ.dʒi|ɪˈmoʊ.dʒi|(loanword from Japanese) a small digital image used to express an idea or emotion|She replied with a single emoji, and I knew immediately she was upset.
+tsunami|noun|tsuːˈnɑː.mi||(loanword from Japanese) a very large wave caused by an earthquake; also, a sudden large amount of something|After the announcement, the office received a tsunami of complaints.
+tycoon|noun|taɪˈkuːn||(loanword from Japanese) a very rich and powerful person in business|A media tycoon bought the television channel last year.
+karma|noun|ˈkɑː.mə|ˈkɑːr.mə|(loanword from Sanskrit) the idea that your actions will affect what happens to you in the future|He believes his good luck is karma for helping his neighbours.
+guru|noun|ˈɡʊr.uː|ˈɡuː.ruː|(loanword from Hindi) an expert who gives advice, or a spiritual teacher|She is the fitness guru everyone follows on social media.
+avatar|noun|ˈæv.ə.tɑːr||(loanword from Sanskrit) a picture that represents you online|Choose an avatar before you join the game.
+verbatim|adverb|vɜːˈbeɪ.tɪm|vɝːˈbeɪ.t̬ɪm|(loanword from Latin) using exactly the same words|The journalist quoted the minister's statement verbatim.
+status quo|noun|ˌsteɪ.təs ˈkwəʊ|ˌsteɪ.t̬əs ˈkwoʊ|(loanword from Latin) the present situation|Some people resist change because they benefit from the status quo.
+ad hoc|adjective|ˌæd ˈhɒk|ˌæd ˈhɑːk|(loanword from Latin) made or done only for a particular purpose, not planned in advance|The committee was formed on an ad hoc basis after the floods.
+bona fide|adjective|ˌbəʊ.nə ˈfaɪ.di|ˌboʊ.nə ˈfaɪ.di|(loanword from Latin) real and genuine, not false|Only bona fide students can apply for the discount.
+per se|adverb|ˌpɜː ˈseɪ|ˌpɝː ˈseɪ|(loanword from Latin) by itself, considered alone|Technology is not harmful per se; it depends on how we use it.
+vice versa|adverb|ˌvaɪs ˈvɜː.sə|ˌvaɪ.sə ˈvɝː.sə|(loanword from Latin) in the opposite way to what has just been said|Our emotions affect our health, and vice versa.
+alter ego|noun|ˌɔːl.tər ˈiː.ɡəʊ|ˌɑːl.t̬ɚ ˈiː.ɡoʊ|(loanword from Latin) a second personality, different from your usual one|On stage, the shy engineer becomes his loud alter ego.
+Torschlusspanik|noun|ˈtɔː.ʃlʊs.pæn.ɪk|ˈtɔːr.ʃlʊs.pæn.ɪk|(German word, no single English equivalent) the anxiety that time is running out to take life's opportunities|Turning thirty gave him a sudden Torschlusspanik about travelling and having a family.
+saudade|noun|saʊˈdɑː.də||(Portuguese word, no single English equivalent) a deep, sad longing for someone or something that is gone|Listening to old songs from home fills many migrants with saudade.
+rimorso|noun|rɪˈmɔː.səʊ|rɪˈmɔːr.soʊ|(Italian word) regret for something you did|She felt rimorso for the angry message she had sent.
+rimpianto|noun|rɪmˈpjæn.təʊ|rɪmˈpjɑːn.toʊ|(Italian word) regret for something you did not do|His rimpianto was never having studied music.
+age-otori|noun|ˌɑː.ɡeɪ.əʊˈtɔː.ri|ˌɑː.ɡeɪ.oʊˈtɔːr.i|(Japanese word) the disappointment of looking worse after a haircut|I came out of the hairdresser's with a serious case of age-otori.
 #26
 agile|adjective|ˈædʒ.aɪl|ˈædʒ.əl|able to move quickly and easily|At ninety-two, my great-aunt is still agile enough to work in her garden in Vilcabamba every morning.
 at one's peak|phrase|ət wʌnz ˈpiːk||at the time when someone is strongest, most successful or most able|Most sprinters are at their peak in their mid-twenties, but marathon runners often do best later.
