@@ -6761,7 +6761,7 @@ const defaultSel=()=>{const s=new Set();["Meaning","Usage","Form","Position","He
 
 const params=new URLSearchParams(location.search);
 /* ---------- relay bus: works on networks that block direct connections (WebSocket over 443) ---------- */
-const RELAYS=(params.get("relays")||"wss://relay.damus.io,wss://nos.lol,wss://relay.primal.net,wss://nostr.mom").split(",").filter(Boolean);
+const RELAYS=(params.get("relays")||"wss://relay.damus.io,wss://nos.lol,wss://relay.primal.net,wss://nostr.mom,wss://relay.nostr.net,wss://offchain.pub").split(",").filter(Boolean);
 const NKIND=20777;
 function Bus(room,onEvent,onStatus){
  const NT=window.NostrTools;if(!NT)return null;
@@ -6783,6 +6783,17 @@ function Bus(room,onEvent,onStatus){
    socks.forEach(s=>{if(s.ok&&s.ws.readyState===1){try{s.ws.send(m);}catch(e){}}else{s.q.push(m);if(s.q.length>60)s.q.shift();}});},
   up:()=>socks.filter(s=>s.ok).length
  };
+}
+/* ---------- third channel: plain HTTPS (works even if WebSockets are blocked) ---------- */
+const NTFY=params.get("ntfy")||"https://ntfy.sh";
+function Ntfy(room,onEvent){
+ const topic="vadv-"+String(room).toLowerCase()+"-ef7q",me=Math.random().toString(36).slice(2,10),seen=new Set();let es=null,ok=false;
+ function start(){if(es)return;try{es=new EventSource(NTFY+"/"+topic+"/sse");}catch(e){return;}
+  es.onopen=()=>{ok=true;};es.onerror=()=>{ok=false;};
+  es.onmessage=e=>{ok=true;let d;try{d=JSON.parse(e.data);}catch(_){return;}if(d.event!=="message"||!d.message||seen.has(d.id))return;seen.add(d.id);if(seen.size>4000)seen.clear();let c;try{c=JSON.parse(d.message);}catch(_){return;}if(c.src===me)return;onEvent(c);};}
+ function post(obj){obj.src=me;fetch(NTFY+"/"+topic,{method:"POST",body:JSON.stringify(obj)}).catch(()=>{});}
+ return{start,on:()=>!!es,up:()=>ok,
+  publish(obj){if(obj.d==="h2p"&&obj.b){let cur={},size=0;for(const k in obj.b){const s=JSON.stringify(obj.b[k]).length+k.length+6;if(size+s>3300&&size>0){post({d:"h2p",b:cur});cur={};size=0;}cur[k]=obj.b[k];size+=s;}if(size)post({d:"h2p",b:cur});}else post(obj);}};
 }
 const ICE={config:{iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:["turn:openrelay.metered.ca:80","turn:openrelay.metered.ca:443","turn:openrelay.metered.ca:443?transport=tcp"],username:"openrelayproject",credential:"openrelayproject"}]}};
 const ROOM=(params.get("room")||"").trim();
@@ -7040,7 +7051,9 @@ function initPeer(){
  G.code=Array.from({length:5},()=>letters[Math.random()*letters.length|0]).join("");
  // relay channel (always on)
  G.out={};G.flushT=null;
- G.bus=Bus(G.code,c=>{if(c&&c.d==="p2h"&&c.pid&&c.m){const pid=String(c.pid).slice(0,40);onMsg({_pid:pid,nostr:true,open:false},Object.assign({},c.m,{pid}));}},()=>{const was=G.ready;if(G.bus&&G.bus.up()){G.ready=true;G.err="";}if(!was&&G.ready){drawQR();render();}else if(tab==="game"&&G.phase==="lobby")mountLobby();});
+ const fromRelay=via=>c=>{if(c&&c.d==="p2h"&&c.pid&&c.m){const pid=String(c.pid).slice(0,40);onMsg({_pid:pid,nostr:true,via,open:false},Object.assign({},c.m,{pid}));}};
+ G.nt=Ntfy(G.code,fromRelay("ntfy"));G.nt.start();
+ G.bus=Bus(G.code,fromRelay("relay"),()=>{const was=G.ready;if(G.bus&&G.bus.up()){G.ready=true;G.err="";}if(!was&&G.ready){drawQR();render();}else if(tab==="game"&&G.phase==="lobby")mountLobby();});
  drawQR();
  setInterval(()=>{let ch=false;G.players.forEach(p=>{const live=(p.conn&&p.conn.open)||(Date.now()-(p.seen||0)<45000);if(p.online!==live){p.online=live;ch=true;}});if(ch&&(G.phase==="lobby"||G.phase==="question"))render();},5000);
  // direct channel (fast when the network allows it)
@@ -7057,17 +7070,19 @@ function initPeer(){
  }).catch(()=>{});
  setTimeout(()=>{if(!G.ready&&!G.err){G.err="timeout";render();}},15000);
 }
-function flushOut(){G.flushT=null;const b=G.out;G.out={};if(G.bus&&Object.keys(b).length)G.bus.publish({d:"h2p",b});}
+function flushOut(){G.flushT=null;const b=G.out;G.out={};const rb={},nb={};let r=0,n=0;
+ for(const k in b){const p=G.players.get(k);if(p&&p.via==="ntfy"){nb[k]=b[k];n++;}else{rb[k]=b[k];r++;}}
+ if(r&&G.bus)G.bus.publish({d:"h2p",b:rb});if(n&&G.nt)G.nt.publish({d:"h2p",b:nb});}
 function send(p,m){
  if(p.conn&&p.conn.open){try{p.conn.send(m);return;}catch(e){}}
- if(!G.bus)return;(G.out[p.pid]=G.out[p.pid]||[]).push(m);if(!G.flushT)G.flushT=setTimeout(flushOut,150);
+ if(!G.bus&&!G.nt)return;(G.out[p.pid]=G.out[p.pid]||[]).push(m);if(!G.flushT)G.flushT=setTimeout(flushOut,150);
 }
 const online=()=>[...G.players.values()].filter(p=>p.online);
 const ranking=()=>[...G.players.values()].sort((a,b)=>b.score-a.score);
 function onMsg(conn,m){
  if(!m||typeof m!=="object")return;
- const known=G.players.get(conn._pid||String(m.pid||""));if(known){known.seen=Date.now();if(!known.online){known.online=true;}}
- if(m.t==="hb")return;
+ const known=G.players.get(conn._pid||String(m.pid||""));if(known){known.seen=Date.now();if(conn.nostr)known.via=conn.via;if(!known.online){known.online=true;}}
+ if(m.t==="hb"){if(known){const want={lobby:"wait",intro:"intro",question:"question",reveal:"reveal",final:"final"}[G.phase];const st=m.st||{};if(st.v!==want||(G.phase!=="lobby"&&G.phase!=="final"&&st.qi!==G.qi))resync(known);}return;}
  if(m.t==="join"){
   const pid=String(m.pid||"").slice(0,40)||("p"+Math.random().toString(36).slice(2,9));
   let p=G.players.get(pid);
@@ -7080,15 +7095,15 @@ function onMsg(conn,m){
   {const av=String(m.av||"");p.av=AVS.includes(av)?av:(p.av||AVS[G.players.size%AVS.length]);
   }
   if(!conn.nostr||!(p.conn&&p.conn.open))p.conn=conn.nostr?null:conn;
-  p.online=true;p.seen=Date.now();conn._pid=pid;
+  p.online=true;p.seen=Date.now();if(conn.nostr)p.via=conn.via;conn._pid=pid;
   send(p,{t:"joined",pid,name:p.name,av:p.av});resync(p);render();
  }else if(m.t==="answer"){
   const p=G.players.get(conn._pid||String(m.pid||""));
-  if(!p||G.phase!=="question"||m.qi!==G.qi||p.ans[G.qi])return;
+  if(!p)return;if(p.ans[m.qi]){send(p,{t:"ack",qi:m.qi});return;}if(G.phase!=="question"||m.qi!==G.qi)return;
   const ch=+m.choice;if(!(ch>=0&&ch<G.perm.length))return;
   const ms=Math.min(G.dur*1000,Date.now()-G.qStart),q=G.QS[G.qi];
   const ok=G.perm[ch]===q.a,pts=ok?Math.round(1000*(1-0.5*ms/(G.dur*1000))):0;
-  p.ans[G.qi]={ch,ok,pts};p.score+=pts;
+  p.ans[G.qi]={ch,ok,pts};p.score+=pts;send(p,{t:"ack",qi:G.qi});
   const on=online();
   if(on.length&&on.every(x=>x.ans[G.qi]))reveal();else render();
  }
@@ -7258,7 +7273,7 @@ function mountLobby(){
  <div class="plist">${ps.length?ps.map(p=>`<span class="${p.online?"":"off"}"><b class="av">${p.av||""}</b>${esc(p.name)}</span>`).join(""):`<span style="opacity:.6;border-style:dashed">Waiting for players...</span>`}</div>
  <div class="qsel"><span>How many questions? <b>${G.sel.size}</b></span><div class="nsel">${[10,15,20,30,BANK.length].map(n=>`<button class="${G.sel.size===n?"on":""}" data-act="nsel" data-v="${n}">${n===BANK.length?"All":n}</button>`).join("")}</div><button class="btn ghost" data-act="popen" style="width:100%;margin-top:6px">Preview questions</button></div>
  ${fileWarn}${err}
- <div class="netst">Connection: ${G.direct?"✓ direct":"· direct"} · ${G.bus&&G.bus.up()?"✓ relay ("+G.bus.up()+")":"· relay"}</div>
+ <div class="netst">Connection: ${G.direct?"✓ direct":"· direct"} · ${G.bus&&G.bus.up()?"✓ relay ("+G.bus.up()+")":"· relay"} · ${G.nt&&G.nt.up()?"✓ web":"· web"}</div>
  <button class="btn rose" data-act="gstart" ${on&&G.sel.size?"":"disabled"}>Start game</button>`;
 }
 
@@ -7372,16 +7387,23 @@ function startPlayer(room){
  const S={view:room?"join":"code",room,name:(store["vadv-name"]||""),av:(AVS.includes(store["vadv-av"])?store["vadv-av"]:AVS[Math.random()*AVS.length|0]),myav:"",err:"",q:null,ends:0,choice:null,rev:null,fin:null,me:""};
  const pidKey="vadv-pid-"+room;
  let pid=store[pidKey];if(!pid){pid="p"+Math.random().toString(36).slice(2,10);try{store[pidKey]=pid;}catch(e){}}
- let peer=null,conn=null,tmr=null,joinTimer=null,bus=null,joinLoop=null,hbT=null,joined=false;
+ let peer=null,conn=null,tmr=null,joinTimer=null,bus=null,nt=null,joinLoop=null,hbT=null,joined=false,ansT=null,netT=null,born=Date.now();
+ S.maxQi=-1;S.ack=-1;
  const direct=()=>!!(conn&&conn.open);
- function toHost(m){m=Object.assign({pid},m);if(direct()){try{conn.send(m);}catch(e){}}if(!direct()||m.t==="join"){if(bus)bus.publish({d:"p2h",pid,m});}}
+ function toHost(m){m=Object.assign({pid},m);const env={d:"p2h",pid,m};
+  if(direct()){try{conn.send(m);}catch(e){}}
+  if(!direct()||m.t==="join"){if(bus)bus.publish(env);if(nt&&nt.on()&&(m.t==="join"||!bus||!bus.up()))nt.publish(env);}}
+ function needWeb(){return !direct()&&(!bus||!bus.up())&&Date.now()-born>5000;}
  function connect(){
   S.view="connecting";joined=false;render();
   clearTimeout(joinTimer);joinTimer=setTimeout(()=>{if(S.view==="connecting"){S.view="error";S.err="Could not reach the game. Check the room code. If it still fails, try mobile data.";render();}},25000);
   const join=()=>toHost({t:"join",name:S.name,av:S.av});
-  if(!bus){bus=Bus(S.room,c=>{if(c&&c.d==="h2p"&&c.b&&Array.isArray(c.b[pid]))c.b[pid].forEach(onData);});}
+  const fromHost=c=>{if(c&&c.d==="h2p"&&c.b&&Array.isArray(c.b[pid]))c.b[pid].forEach(onData);};
+  if(!bus){bus=Bus(S.room,fromHost);}
+  if(!nt){nt=Ntfy(S.room,fromHost);}
+  clearInterval(netT);netT=setInterval(()=>{if(needWeb()&&!nt.on()){nt.start();setTimeout(()=>toHost({t:"join",name:S.name,av:S.av}),1500);}},2000);
   join();clearInterval(joinLoop);joinLoop=setInterval(()=>{if(joined)clearInterval(joinLoop);else join();},3000);
-  clearInterval(hbT);hbT=setInterval(()=>{if(joined&&!direct()&&bus)bus.publish({d:"p2h",pid,m:{t:"hb",pid}});},15000);
+  clearInterval(hbT);hbT=setInterval(()=>{if(!joined)return;const qi=S.view==="reveal"&&S.rev?S.rev.qi:S.view==="intro"&&S.intro?S.intro.qi:S.q?S.q.qi:-1;toHost({t:"hb",st:{v:S.view,qi}});},12000);
   loadScript(PEER_URLS).then(()=>{
    if(!peer||peer.destroyed){peer=new window.Peer(Object.assign({debug:0},ICE));peer.on("open",open);peer.on("error",()=>{});peer.on("disconnected",()=>{try{peer.reconnect();}catch(e){}});}
    else open();
@@ -7398,11 +7420,12 @@ function startPlayer(room){
   if(!m||typeof m!=="object")return;
   S.lost=false;
   if(m.t==="joined"){joined=true;clearTimeout(joinTimer);S.me=m.name;S.myav=m.av||S.av;if(S.view==="connecting"||S.view==="error")S.view="wait";}
-  else if(m.t==="wait"){S.view="wait";}
-  else if(m.t==="intro"){S.intro=m;S.choice=null;S.timeUp=false;S.view="intro";clearInterval(tmr);}
-  else if(m.t==="q"){if(!S.q||S.q.qi!==m.qi)S.choice=null;S.q=m;S.ends=Date.now()+m.remain*1000;S.view="question";clearInterval(tmr);tmr=setInterval(tickP,250);}
-  else if(m.t==="reveal"){S.rev=m;S.view="reveal";clearInterval(tmr);}
-  else if(m.t==="final"){S.fin=m;S.view="final";clearInterval(tmr);}
+  else if(m.t==="ack"){S.ack=m.qi;return;}
+  else if(m.t==="wait"){S.view="wait";S.maxQi=-1;S.ack=-1;}
+  else if(m.t==="intro"){if(m.qi<S.maxQi||(m.qi===S.maxQi&&S.view!=="intro"))return;S.maxQi=m.qi;S.intro=m;S.choice=null;S.timeUp=false;S.view="intro";clearInterval(tmr);}
+  else if(m.t==="q"){if(m.qi<S.maxQi||(m.qi===S.maxQi&&S.view==="reveal"))return;S.maxQi=m.qi;if(!S.q||S.q.qi!==m.qi){S.choice=null;S.timeUp=false;}S.q=m;S.ends=Date.now()+m.remain*1000;S.view="question";clearInterval(tmr);tmr=setInterval(tickP,250);}
+  else if(m.t==="reveal"){if(m.qi<S.maxQi)return;S.maxQi=m.qi;clearInterval(ansT);S.rev=m;S.view="reveal";clearInterval(tmr);}
+  else if(m.t==="final"){clearInterval(ansT);S.fin=m;S.view="final";clearInterval(tmr);}
   render();
  }
  function tickP(){const r=Math.max(0,Math.ceil((S.ends-Date.now())/1000));const el=$("#ptm");if(el)el.textContent=r+"s";if(r<=0&&S.choice===null){S.timeUp=true;render();clearInterval(tmr);}}
@@ -7451,8 +7474,9 @@ function startPlayer(room){
   else if(a==="av"){const nm=$("#nm");if(nm)S.name=nm.value;S.av=b.dataset.v;try{store["vadv-av"]=S.av;}catch(e){}render();}
   else if(a==="join"){const v=($("#nm").value||"").trim();if(!v){$("#nm").focus();return;}S.name=v;try{store["vadv-name"]=v;}catch(e){}connect();}
   else if(a==="retry"){S.view="join";render();}
-  else if(a==="ans"){if(S.choice!==null)return;S.choice=+b.dataset.v;toHost({t:"answer",qi:S.q.qi,choice:S.choice});render();}
+  else if(a==="ans"){if(S.choice!==null)return;S.choice=+b.dataset.v;const am={t:"answer",qi:S.q.qi,choice:S.choice};toHost(am);clearInterval(ansT);let tries=0;ansT=setInterval(()=>{if(S.ack===am.qi||S.view!=="question"||++tries>8){clearInterval(ansT);return;}toHost(am);},2500);render();}
  });
+ document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&bus){toHost({t:"join",name:S.name,av:S.av});if(peer&&!peer.destroyed&&!direct()){try{peer.reconnect();}catch(e){}setTimeout(()=>{if(!direct())open();},1500);}}});
  app.addEventListener("keydown",e=>{if(e.key==="Enter"){const b=$("[data-p='join'],[data-p='code']");if(b)b.click();}});
  render();
 }
